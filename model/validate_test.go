@@ -13,13 +13,36 @@ import (
 	"github.com/nalgeon/be"
 )
 
+func TestValidSceners(t *testing.T) {
+	t.Parallel()
+
+	sceners := ""
+	r := model.ValidSceners(sceners)
+	be.True(t, !r.Valid)
+
+	sceners = "defacto"
+	r = model.ValidSceners(sceners)
+	be.True(t, r.Valid)
+	be.Equal(t, "Defacto", r.String)
+
+	sceners = "defacto, scener    , another person"
+	r = model.ValidSceners(sceners)
+	be.True(t, r.Valid)
+	be.Equal(t, "Defacto,Scener,Another Person", r.String)
+
+	sceners = "dëfå¢T0!"
+	r = model.ValidSceners(sceners)
+	be.True(t, r.Valid)
+	be.Equal(t, "Dëfåt0", r.String)
+}
+
 type vstrings []struct {
 	input string
 	want  bool
 	wantS string
 }
 
-func VStrings(t *testing.T, tests vstrings, fn func(string) null.String) {
+func checkStrings(t *testing.T, tests vstrings, fn func(string) null.String) {
 	t.Helper()
 
 	for _, tt := range tests {
@@ -37,7 +60,7 @@ type vtimes []struct {
 	want  bool
 }
 
-func VTimes(t *testing.T, tests vtimes, fn func(string) null.Time) {
+func checkTimes(t *testing.T, tests vtimes, fn func(string) null.Time) {
 	t.Helper()
 
 	for _, tt := range tests {
@@ -65,7 +88,7 @@ type vdates []struct {
 	wantD  int16
 }
 
-func VDates(t *testing.T, tests vdates,
+func checkDates(t *testing.T, tests vdates,
 	fn func(string, string, string) (null.Int16, null.Int16, null.Int16),
 ) {
 	t.Helper()
@@ -102,6 +125,13 @@ func TestValidate(t *testing.T) {
 	blank.Section = null.StringFrom(tags.Mag.String())
 	got = model.Validate(blank)
 	be.Err(t, got)
+
+	blank.Platform = null.StringFrom(tags.DOS.String())
+	blank.Filename = null.StringFrom("mag01.zip")
+	blank.GroupBrandFor = null.StringFrom("DEFACTO2")
+	blank.RecordTitle = null.StringFrom("Issue #1")
+	got = model.Validate(blank)
+	be.Err(t, got, nil)
 }
 
 func TestValidDateIssue(t *testing.T) {
@@ -129,7 +159,7 @@ func TestValidDateIssue(t *testing.T) {
 			"1981", "1", "2", true, true, true, 1981, 1, 2,
 		},
 	}
-	VDates(t, tests, model.ValidDateIssue)
+	checkDates(t, tests, model.ValidDateIssue)
 }
 
 func TestValidFilename(t *testing.T) {
@@ -147,29 +177,26 @@ func TestValidFilename(t *testing.T) {
 	name = strings.Repeat("a", model.LongFilename+100)
 	r = model.ValidFilename(name)
 	be.True(t, r.Valid)
-	be.True(t, len(r.String) == model.LongFilename)
+	be.Equal(t, len(r.String), model.LongFilename)
 }
 
 func TestValidFilesize(t *testing.T) {
 	t.Parallel()
 
-	size := ""
-	actual0 := null.Int64From(0)
-	actual100 := null.Int64From(100)
-	actualN100 := null.Int64From(-100)
-	i, err := model.ValidFilesize(size)
+	i, err := model.ValidFilesize("")
 	be.Err(t, err, nil)
-	be.True(t, actual0 != i)
+	be.True(t, !i.Valid)
 
-	size = "100"
-	i, err = model.ValidFilesize(size)
-	be.Err(t, err, nil)
-	be.Equal(t, actual100, i)
+	_, err = model.ValidFilesize("abc")
+	be.Err(t, err)
 
-	size = "-100"
-	i, err = model.ValidFilesize(size)
+	i, err = model.ValidFilesize("100")
 	be.Err(t, err, nil)
-	be.Equal(t, actualN100, i)
+	be.Equal(t, i, null.Int64From(100))
+
+	i, err = model.ValidFilesize("-100")
+	be.Err(t, err, nil)
+	be.Equal(t, i, null.Int64From(-100))
 }
 
 func TestValidIntegrity(t *testing.T) {
@@ -184,7 +211,7 @@ func TestValidIntegrity(t *testing.T) {
 		{invalid, false, ""},
 		{valid, true, valid},
 	}
-	VStrings(t, tests, model.ValidIntegrity)
+	checkStrings(t, tests, model.ValidIntegrity)
 }
 
 func TestValidLastMod(t *testing.T) {
@@ -200,7 +227,7 @@ func TestValidLastMod(t *testing.T) {
 		{lastmodAgo, true},
 		{lastmodFromNow, false},
 	}
-	VTimes(t, tests, model.ValidLastMod)
+	checkTimes(t, tests, model.ValidLastMod)
 }
 
 func TestValidMagic(t *testing.T) {
@@ -212,7 +239,7 @@ func TestValidMagic(t *testing.T) {
 		{"defacto2", false, ""},
 		{"Text/HTML", true, "text/html"},
 	}
-	VStrings(t, tests, model.ValidMagic)
+	checkStrings(t, tests, model.ValidMagic)
 }
 
 func TestValidPlatform(t *testing.T) {
@@ -224,7 +251,7 @@ func TestValidPlatform(t *testing.T) {
 		{"bbs", false, ""},
 		{"Windows", true, "windows"},
 	}
-	VStrings(t, tests, model.ValidPlatform)
+	checkStrings(t, tests, model.ValidPlatform)
 }
 
 func TestValidReleasers(t *testing.T) {
@@ -259,7 +286,7 @@ func TestValidSection(t *testing.T) {
 		{"BBS", true, "bbs"},
 		{"Windows", false, ""},
 	}
-	VStrings(t, tests, model.ValidSection)
+	checkStrings(t, tests, model.ValidSection)
 }
 
 func TestValidString(t *testing.T) {
@@ -272,7 +299,7 @@ func TestValidString(t *testing.T) {
 		{"hello world", true, "hello world"},
 		{emoji, true, emoji},
 	}
-	VStrings(t, tests, model.ValidString)
+	checkStrings(t, tests, model.ValidString)
 }
 
 func TestValidTitle(t *testing.T) {
@@ -286,7 +313,7 @@ func TestValidTitle(t *testing.T) {
 		{"hello world", true, "hello world"},
 		{title, true, wantS},
 	}
-	VStrings(t, tests, model.ValidTitle)
+	checkStrings(t, tests, model.ValidTitle)
 }
 
 func TestValidYouTube(t *testing.T) {
@@ -301,5 +328,5 @@ func TestValidYouTube(t *testing.T) {
 		{invalid, false, ""},
 		{valid, true, valid},
 	}
-	VStrings(t, tests, model.ValidYouTube)
+	checkStrings(t, tests, model.ValidYouTube)
 }

@@ -1,6 +1,7 @@
 package model_test
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"testing"
@@ -22,8 +23,7 @@ func BenchmarkIndexSearchDescriptions(b *testing.B) {
 	ctx := b.Context()
 	terms := []string{"defacto", "razor 1911"}
 
-	b.ResetTimer()
-	for range b.N {
+	for b.Loop() {
 		if _, err := model.OnlyDescriptions(ctx, sl, db, terms); err != nil {
 			b.Fatal(err)
 		}
@@ -39,8 +39,7 @@ func BenchmarkIndexSearchFilenames(b *testing.B) {
 	ctx := b.Context()
 	terms := []string{"razor", "nfo"}
 
-	b.ResetTimer()
-	for range b.N {
+	for b.Loop() {
 		if _, err := model.OnlyFilenames(ctx, db, terms); err != nil {
 			b.Fatal(err)
 		}
@@ -57,8 +56,7 @@ func BenchmarkIndexCategoryList(b *testing.B) {
 	var nfo model.Nfo
 	var intro model.IntroMsDos
 
-	b.ResetTimer()
-	for range b.N {
+	for b.Loop() {
 		if _, err := nfo.List(ctx, db, 1, 25); err != nil {
 			b.Fatal(err)
 		}
@@ -72,8 +70,7 @@ func BenchmarkIndexReleasersWhere(b *testing.B) {
 	db := testutil.DB(b)
 	ctx := b.Context()
 
-	b.ResetTimer()
-	for range b.N {
+	for b.Loop() {
 		if _, err := model.ReleasersWhere(ctx, db, "razor-1911"); err != nil {
 			b.Fatal(err)
 		}
@@ -93,8 +90,7 @@ func BenchmarkIndexOneByUUID(b *testing.B) {
 	}
 	uid := strings.TrimSpace(rec.UUID.String)
 
-	b.ResetTimer()
-	for range b.N {
+	for b.Loop() {
 		if _, err := model.OneByUUID(ctx, db, true, uid); err != nil {
 			b.Fatal(err)
 		}
@@ -110,8 +106,7 @@ func BenchmarkIndexUUIDPrefix(b *testing.B) {
 	}
 	prefix := strings.ToLower(strings.TrimSpace(rec.UUID.String))[:8]
 
-	b.ResetTimer()
-	for range b.N {
+	for b.Loop() {
 		if _, err := model.OnlyUniqueIDsWithPrefixes(ctx, db, nil, nil, []string{prefix}); err != nil {
 			b.Fatal(err)
 		}
@@ -127,8 +122,7 @@ func BenchmarkIndexDedupeLookups(b *testing.B) {
 	}
 	hash := strings.TrimSpace(rec.FileIntegrityStrong.String)
 
-	b.ResetTimer()
-	for range b.N {
+	for b.Loop() {
 		if hash != "" {
 			if _, err := model.ExistHash(ctx, db, hash); err != nil {
 				b.Fatal(err)
@@ -151,8 +145,7 @@ func BenchmarkIndexCategoryRare(b *testing.B) {
 	var mac model.Macos
 	var trial model.TrialCrackme
 
-	b.ResetTimer()
-	for range b.N {
+	for b.Loop() {
 		if _, err := java.List(ctx, db, 1, 25); err != nil {
 			b.Fatal(err)
 		}
@@ -172,11 +165,13 @@ func BenchmarkIndexWriteInsert(b *testing.B) {
 	db := testutil.DB(b)
 	ctx := b.Context()
 	b.Cleanup(func() {
-		_, _ = db.ExecContext(ctx, `SELECT setval('"files_id_seq"', COALESCE((SELECT MAX(id) FROM files), 1))`)
+		_, _ = db.ExecContext(context.WithoutCancel(ctx),
+			`SELECT setval('"files_id_seq"', COALESCE((SELECT MAX(id) FROM files), 1))`)
 	})
 
-	b.ResetTimer()
-	for i := range b.N {
+	i := 0
+	for b.Loop() {
+		i++
 		tx, err := db.BeginTx(ctx, nil)
 		if err != nil {
 			b.Fatal(err)
@@ -193,7 +188,7 @@ func BenchmarkIndexWriteInsert(b *testing.B) {
 			DateIssuedYear:      null.Int16From(1996),
 			DateIssuedMonth:     null.Int16From(7),
 			DateIssuedDay:       null.Int16From(4),
-			FileIntegrityStrong: null.StringFrom(fmt.Sprintf("%096x", i+1)),
+			FileIntegrityStrong: null.StringFrom(fmt.Sprintf("%096x", i)),
 			WebIDDemozoo:        null.Int64From(999000 + int64(i)),
 			WebIDPouet:          null.Int64From(888000 + int64(i)),
 		}
@@ -211,8 +206,7 @@ func BenchmarkIndexWriteUpdateHOT(b *testing.B) {
 	db := testutil.DB(b)
 	ctx := b.Context()
 
-	b.ResetTimer()
-	for range b.N {
+	for b.Loop() {
 		tx, err := db.BeginTx(ctx, nil)
 		if err != nil {
 			b.Fatal(err)
@@ -240,8 +234,9 @@ func BenchmarkIndexWriteUpdateIndexed(b *testing.B) {
 		models.FileColumns.GroupBrandFor,
 	)
 
-	b.ResetTimer()
-	for i := range b.N {
+	i := 0
+	for b.Loop() {
+		i++
 		tx, err := db.BeginTx(ctx, nil)
 		if err != nil {
 			b.Fatal(err)

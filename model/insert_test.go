@@ -3,7 +3,6 @@ package model_test
 import (
 	"net/url"
 	"testing"
-	"time"
 	"uuid"
 
 	"github.com/Defacto2/server/internal/tags"
@@ -16,41 +15,50 @@ import (
 func TestInsertDemozoo(t *testing.T) {
 	t.Parallel()
 
-	tx0 := testutil.Tx(t)
+	_, _, err := model.InsertDemozoo(t.Context(), nil, 1000)
+	be.Err(t, err)
+
+	tx := testutil.Tx(t)
 	const newProd = 1000
-	key, unid, got := model.InsertDemozoo(t.Context(), tx0, newProd)
-	be.Err(t, got, nil)
+	key, unid, err := model.InsertDemozoo(t.Context(), tx, newProd)
+	be.Err(t, err, nil)
 	be.True(t, key > 0)
-	_, err := uuid.Parse(unid)
+	_, err = uuid.Parse(unid)
 	be.Err(t, err, nil)
 }
 
 func TestInsertPouet(t *testing.T) {
 	t.Parallel()
 
-	tx0 := testutil.Tx(t)
+	_, _, err := model.InsertPouet(t.Context(), nil, 1000)
+	be.Err(t, err)
+
+	tx := testutil.Tx(t)
 	const newProd = 1000
-	key, unid, got := model.InsertPouet(t.Context(), tx0, newProd)
-	be.Err(t, got, nil)
+	key, unid, err := model.InsertPouet(t.Context(), tx, newProd)
+	be.Err(t, err, nil)
 	be.True(t, key > 0)
-	_, err := uuid.Parse(unid)
+	_, err = uuid.Parse(unid)
 	be.Err(t, err, nil)
 }
 
 func TestInsertUpload(t *testing.T) {
 	t.Parallel()
 
-	tx0 := testutil.Tx(t)
-	_, _, got := model.InsertUpload(t.Context(), tx0, url.Values{}, "")
-	be.Err(t, got)
+	_, _, err := model.InsertUpload(t.Context(), nil, url.Values{}, "")
+	be.Err(t, err)
 
-	tx1 := testutil.Tx(t)
+	tx := testutil.Tx(t)
+	_, _, err = model.InsertUpload(t.Context(), tx, url.Values{}, "")
+	be.Err(t, err)
+
 	values := url.Values{}
 	values.Add("test-filename", "testfile")
 	values.Add("test-youtube", "")
-	key, _, got := model.InsertUpload(t.Context(), tx1, values, "test")
-	be.Err(t, got, nil)
+	key, unid, err := model.InsertUpload(t.Context(), tx, values, "test")
+	be.Err(t, err, nil)
 	be.True(t, key > 0)
+	be.True(t, unid != uuid.Nil())
 }
 
 func TestSiteAd(t *testing.T) {
@@ -79,19 +87,4 @@ func TestSiteAd(t *testing.T) {
 	rsomeone := null.StringFrom("someone")
 	got = model.SiteAd(rsomeone, snfo)
 	be.Equal(t, got, snfo)
-}
-
-func TestValidNewV7(t *testing.T) {
-	t.Parallel()
-
-	now1 := time.Now()
-	unid := uuid.NewV7().String()
-
-	now2 := time.Now()
-	diff := now2.Sub(now1).Minutes()
-
-	const oneMinute = 1.0
-	be.True(t, diff <= oneMinute)
-	_, err := uuid.Parse(unid)
-	be.Err(t, err, nil)
 }

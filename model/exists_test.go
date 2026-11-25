@@ -3,6 +3,7 @@ package model_test
 import (
 	"encoding/hex"
 	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/Defacto2/helper"
@@ -14,13 +15,41 @@ import (
 func TestExist(t *testing.T) {
 	t.Parallel()
 
+	ctx := t.Context()
+
+	// Offline nil-executor guards
+	_, err := model.ExistDemozoo(ctx, nil, 1)
+	be.Err(t, err)
+	_, err = model.ExistPouet(ctx, nil, 1)
+	be.Err(t, err)
+	_, err = model.ExistSHA(ctx, nil, nil)
+	be.Err(t, err)
+	_, err = model.ExistHash(ctx, nil, "")
+	be.Err(t, err)
+	_, err = model.OneByHash(ctx, nil, "")
+	be.Err(t, err)
+	_, err = model.ExistUUID(ctx, nil, "")
+	be.Err(t, err)
+
 	db := testutil.DB(t)
-	const key = 108
-	ok, err := model.ExistDemozoo(t.Context(), db, key)
+
+	const (
+		key     = 108
+		missing = 999_999_999
+	)
+	ok, err := model.ExistDemozoo(ctx, db, key)
 	be.Err(t, err, nil)
 	be.True(t, ok)
 
-	ok, err = model.ExistSHA(t.Context(), db, nil)
+	ok, err = model.ExistDemozoo(ctx, db, missing)
+	be.Err(t, err, nil)
+	be.True(t, !ok)
+
+	ok, err = model.ExistPouet(ctx, db, missing)
+	be.Err(t, err, nil)
+	be.True(t, !ok)
+
+	ok, err = model.ExistSHA(ctx, db, nil)
 	be.Err(t, err, nil)
 	be.True(t, !ok)
 
@@ -28,18 +57,30 @@ func TestExist(t *testing.T) {
 	decd, err := hex.DecodeString(hexd)
 	be.Err(t, err, nil)
 
-	ok, err = model.ExistSHA(t.Context(), db, decd)
+	ok, err = model.ExistSHA(ctx, db, decd)
 	be.Err(t, err, nil)
 	be.True(t, ok)
 
-	ok, err = model.ExistHash(t.Context(), db, hexd)
+	_, err = model.ExistHash(ctx, db, "")
+	be.Err(t, err, model.ErrSha384)
+
+	zeroHash := strings.Repeat("0", 96)
+	ok, err = model.ExistHash(ctx, db, zeroHash)
+	be.Err(t, err, nil)
+	be.True(t, !ok)
+
+	ok, err = model.ExistHash(ctx, db, hexd)
 	be.Err(t, err, nil)
 	be.True(t, ok)
 
-	_, err = model.OneByHash(t.Context(), db, "")
-	be.Err(t, err)
+	_, err = model.OneByHash(ctx, db, "")
+	be.Err(t, err, model.ErrSha384)
 
-	obf, err := model.OneByHash(t.Context(), db, hexd)
+	obf, err := model.OneByHash(ctx, db, zeroHash)
+	be.Err(t, err, nil)
+	be.Equal(t, obf, "")
+
+	obf, err = model.OneByHash(ctx, db, hexd)
 	be.Err(t, err, nil)
 	be.Equal(t, obf, "9b1c6")
 
@@ -48,12 +89,12 @@ func TestExist(t *testing.T) {
 	be.Err(t, err, nil)
 	be.Equal(t, id, 1)
 
-	ok, err = model.ExistUUID(t.Context(), db, "")
+	ok, err = model.ExistUUID(ctx, db, "")
 	be.Err(t, err, nil)
 	be.True(t, !ok)
 
 	const uid = "c8cd0b4c-2f54-11e0-8827-cc1607e15609"
-	ok, err = model.ExistUUID(t.Context(), db, uid)
+	ok, err = model.ExistUUID(ctx, db, uid)
 	be.Err(t, err, nil)
 	be.True(t, ok)
 }

@@ -10,8 +10,8 @@ import (
 	"github.com/aarondl/sqlboiler/v4/queries/qm"
 )
 
-// DeleteOne retrieves a single file record from the database using the record key.
-// This function can return records that have been marked as deleted.
+// DeleteOne permanently removes a single file record from the database by its ID,
+// including records that have been soft-deleted.
 func DeleteOne(ctx context.Context, exec boil.ContextExecutor, key int64) error {
 	const format = "delete one record %d: %w"
 	if err := nils.Check(ctx, exec); err != nil {

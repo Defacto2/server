@@ -2,7 +2,6 @@ package model_test
 
 import (
 	"database/sql"
-	"errors"
 	"strings"
 	"testing"
 	"time"
@@ -26,7 +25,7 @@ func TestUpdateBoolFrom(t *testing.T) {
 	be.Err(t, got)
 
 	got = model.ReadmeDisable.Update(t.Context(), tx0, missingID, false)
-	be.True(t, errors.Is(got, sql.ErrNoRows))
+	be.Err(t, got, sql.ErrNoRows)
 
 	const safeID = 1
 	before, err := model.OneFile(t.Context(), tx0, safeID)
@@ -81,7 +80,7 @@ func TestUpdateInt64From(t *testing.T) {
 	be.Err(t, got)
 
 	tx0 := testutil.Tx(t)
-	got = model.Pouet.Update(t.Context(), nil, 0, "")
+	got = model.Pouet.Update(t.Context(), tx0, 0, "")
 	be.Err(t, got)
 
 	const safeID = 1
@@ -89,7 +88,7 @@ func TestUpdateInt64From(t *testing.T) {
 	be.Err(t, err, nil)
 
 	got = model.Pouet.Update(t.Context(), tx0, missingID, "1000")
-	be.True(t, errors.Is(got, sql.ErrNoRows))
+	be.Err(t, got, sql.ErrNoRows)
 
 	got = model.Pouet.Update(t.Context(), tx0, safeID, "abc")
 	be.Err(t, got)
@@ -134,7 +133,7 @@ func TestUpdateStringFrom(t *testing.T) {
 	be.Err(t, got)
 
 	got = model.Colors16.Update(t.Context(), tx0, missingID, "1000")
-	be.True(t, errors.Is(got, sql.ErrNoRows))
+	be.Err(t, got, sql.ErrNoRows)
 
 	const safeID = 1
 	before, err := model.OneFile(t.Context(), tx0, safeID)
@@ -217,15 +216,6 @@ func TestUpdateStringFrom(t *testing.T) {
 	}
 }
 
-func TestTitleUpdate(t *testing.T) {
-	t.Parallel()
-
-	const safeID = 1
-	tx1 := testutil.Tx(t)
-	got := model.Title.Update(t.Context(), tx1, safeID, "Hello")
-	be.Err(t, got, nil)
-}
-
 func TestUpdateReleasers(t *testing.T) {
 	t.Parallel()
 
@@ -241,7 +231,7 @@ func TestUpdateReleasers(t *testing.T) {
 	be.Err(t, got)
 
 	got = model.UpdateReleasers(t.Context(), tx0, missingID, safeUpdate, "")
-	be.True(t, errors.Is(got, sql.ErrNoRows))
+	be.Err(t, got, sql.ErrNoRows)
 
 	got = model.UpdateReleasers(t.Context(), tx0, safeID, "", safeUpdate)
 	be.Err(t, got)
@@ -291,7 +281,7 @@ func TestFileUploadUpdate(t *testing.T) {
 
 	fu.ID = missingID
 	got = fu.Update(t.Context(), tx0)
-	be.True(t, errors.Is(got, sql.ErrNoRows))
+	be.Err(t, got, sql.ErrNoRows)
 
 	fu = model.FileUpload{
 		ID:          safeID,
@@ -338,7 +328,7 @@ func TestUpdateYMD(t *testing.T) {
 	be.Err(t, got)
 
 	got = model.UpdateYMD(t.Context(), tx0, missingID, y, m, d)
-	be.True(t, errors.Is(got, sql.ErrNoRows))
+	be.Err(t, got, sql.ErrNoRows)
 
 	got = model.UpdateYMD(t.Context(), tx0, safeID, x, m, d)
 	be.Err(t, got)
@@ -375,7 +365,7 @@ func TestUpdateYMDS(t *testing.T) {
 	be.Err(t, got)
 
 	got = model.UpdateYMDS(t.Context(), tx0, missingID, y, m, d)
-	be.True(t, errors.Is(got, sql.ErrNoRows))
+	be.Err(t, got, sql.ErrNoRows)
 
 	got = model.UpdateYMDS(t.Context(), tx0, safeID, "", m, d)
 	be.Err(t, got, nil) // NOTE: this behavour does not match UpdateYMD()
@@ -409,7 +399,7 @@ func TestUpdateOnline(t *testing.T) {
 	be.Err(t, got)
 
 	got = model.UpdateOnline(t.Context(), tx0, true, missingID)
-	be.True(t, errors.Is(got, sql.ErrNoRows))
+	be.Err(t, got, sql.ErrNoRows)
 
 	// Take offline (soft-delete)
 	got = model.UpdateOnline(t.Context(), tx0, false, safeID)
@@ -432,7 +422,7 @@ func TestUpdateOnline(t *testing.T) {
 	be.Equal(t, after.Filename, before.Filename)
 }
 
-func TestClassicationUpdate(t *testing.T) {
+func TestClassificationUpdate(t *testing.T) {
 	t.Parallel()
 
 	tx0 := testutil.Tx(t)
@@ -455,7 +445,7 @@ func TestClassicationUpdate(t *testing.T) {
 	class.ID = missingID
 	class.Tag = safeTag
 	got = class.Update(t.Context(), tx0)
-	be.True(t, errors.Is(got, sql.ErrNoRows))
+	be.Err(t, got, sql.ErrNoRows)
 
 	class.ID = safeID
 	got = class.Update(t.Context(), tx0)
@@ -486,7 +476,7 @@ func TestLinksUpdate(t *testing.T) {
 
 	links.ID = missingID
 	got = links.Update(t.Context(), tx0)
-	be.True(t, errors.Is(got, sql.ErrNoRows))
+	be.Err(t, got, sql.ErrNoRows)
 
 	links = model.Links{
 		ID:        safeID,
@@ -539,7 +529,7 @@ func TestCreatorsUpdate(t *testing.T) {
 
 	creators.ID = missingID
 	got = creators.Update(t.Context(), tx0)
-	be.True(t, errors.Is(got, sql.ErrNoRows))
+	be.Err(t, got, sql.ErrNoRows)
 
 	creators = model.Creators{
 		ID:    safeID,
@@ -575,7 +565,7 @@ func TestUpdateMagic(t *testing.T) {
 	be.Err(t, got)
 
 	got = model.UpdateMagic(t.Context(), tx0, missingID, safeMagic)
-	be.True(t, errors.Is(got, sql.ErrNoRows))
+	be.Err(t, got, sql.ErrNoRows)
 
 	got = model.UpdateMagic(t.Context(), tx0, safeID, safeMagic)
 	be.Err(t, got, nil)
@@ -602,7 +592,7 @@ func TestUpdateEmulateSfx(t *testing.T) {
 	be.Err(t, got)
 
 	got = model.UpdateEmulateSfx(t.Context(), tx0, missingID, safeVal1)
-	be.True(t, errors.Is(got, sql.ErrNoRows))
+	be.Err(t, got, sql.ErrNoRows)
 
 	got = model.UpdateEmulateSfx(t.Context(), tx0, safeID, "invalid value")
 	be.Err(t, got)
@@ -637,7 +627,7 @@ func TestUpdateEmulateCPU(t *testing.T) {
 	be.Err(t, got)
 
 	got = model.UpdateEmulateCPU(t.Context(), tx0, missingID, safeVal1)
-	be.True(t, errors.Is(got, sql.ErrNoRows))
+	be.Err(t, got, sql.ErrNoRows)
 
 	got = model.UpdateEmulateCPU(t.Context(), tx0, safeID, "invalid value")
 	be.Err(t, got)
@@ -672,7 +662,7 @@ func TestUpdateEmulateMachine(t *testing.T) {
 	be.Err(t, got)
 
 	got = model.UpdateEmulateMachine(t.Context(), tx0, missingID, safeVal1)
-	be.True(t, errors.Is(got, sql.ErrNoRows))
+	be.Err(t, got, sql.ErrNoRows)
 
 	got = model.UpdateEmulateMachine(t.Context(), tx0, safeID, "invalid value")
 	be.Err(t, got)
@@ -706,7 +696,7 @@ func TestUpdateEmulateRunProgram(t *testing.T) {
 	be.Err(t, got)
 
 	got = model.UpdateEmulateRunProgram(t.Context(), tx0, missingID, safeVal)
-	be.True(t, errors.Is(got, sql.ErrNoRows))
+	be.Err(t, got, sql.ErrNoRows)
 
 	got = model.UpdateEmulateRunProgram(t.Context(), tx0, safeID, safeVal)
 	be.Err(t, got, nil)

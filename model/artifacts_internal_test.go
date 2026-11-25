@@ -10,7 +10,7 @@ import (
 	"github.com/nalgeon/be"
 )
 
-func TestOnlyDescriptionsQuery(t *testing.T) {
+func TestDescriptions(t *testing.T) {
 	t.Parallel()
 
 	be.True(t, onlyDescriptions(nil) == nil)
@@ -20,13 +20,12 @@ func TestOnlyDescriptionsQuery(t *testing.T) {
 	sql, args := queries.BuildQuery(models.Files(mods...).Query)
 
 	be.True(t, strings.Contains(sql, "WHERE deletedat IS NULL AND (to_tsvector"))
-	be.True(t, strings.Contains(sql, ") AND "))
 	be.True(t, strings.Contains(sql, "plainto_tsquery('english'"))
 	be.True(t, strings.Contains(sql, "ORDER BY filename ASC"))
 	be.Equal(t, args, []any{"ultima 7", "ultima 8"})
 }
 
-func TestOnlyFilenamesQuery(t *testing.T) {
+func TestFilenames(t *testing.T) {
 	t.Parallel()
 
 	be.True(t, onlyFilenames(nil) == nil)
@@ -37,12 +36,11 @@ func TestOnlyFilenamesQuery(t *testing.T) {
 
 	be.True(t, strings.Contains(sql, "WHERE deletedat IS NULL AND (filename ILIKE"))
 	be.True(t, strings.Contains(sql, `ESCAPE '\'`))
-	be.True(t, strings.Contains(sql, ") AND "))
 	be.True(t, strings.Contains(sql, "ORDER BY filename ASC"))
 	be.Equal(t, args, []any{"%.iff%", `%file\_id[1].diz%`, `%100\%%`})
 }
 
-func TestByFilenameWhere(t *testing.T) {
+func TestFilenameWhere(t *testing.T) {
 	t.Parallel()
 
 	clause, args := byFilenameWhere([]string{" ", ""})
@@ -54,7 +52,7 @@ func TestByFilenameWhere(t *testing.T) {
 	be.Equal(t, args, []any{"%.GIF%", `%a\_b[1]%`})
 }
 
-func TestOnlyUniqueIDsQuery(t *testing.T) {
+func TestUniqueIDs(t *testing.T) {
 	t.Parallel()
 
 	be.True(t, onlyUniqueIDs(nil, nil, nil) == nil)

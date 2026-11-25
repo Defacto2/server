@@ -3,21 +3,31 @@ package model_test
 import (
 	"testing"
 
+	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/model"
 	"github.com/nalgeon/be"
 )
 
-// Test that getColumns() returns cached columns on subsequent calls.
-func TestGetColumnsCaching(t *testing.T) {
+func TestSummCols(t *testing.T) {
 	t.Parallel()
 
-	// populate cache 1
-	call1 := model.SummCols()
-	be.True(t, call1 != nil)
-	be.Equal(t, len(call1), 4)
+	cols := model.SummCols()
+	be.Equal(t, cols, []string{
+		postgres.SumSize,
+		postgres.TotalCnt,
+		postgres.MinYear,
+		postgres.MaxYear,
+	})
+}
 
-	// populate cache 2
-	call2 := model.SummCols()
-	be.True(t, call2 != nil)
-	be.Equal(t, len(call1), len(call2))
+func TestFilterKey(t *testing.T) {
+	t.Parallel()
+
+	be.Equal(t, model.KeyNFO.String(), "nfo")
+	be.True(t, model.KeyNFO.IsValid())
+	be.True(t, model.KeyOneOffs.IsValid())
+	be.True(t, model.KeyOneOffsAZ.IsValid())
+	be.True(t, model.KeyWindowsPack.IsValid())
+	be.True(t, !model.Key("").IsValid())
+	be.True(t, !model.Key("not-a-filter").IsValid())
 }

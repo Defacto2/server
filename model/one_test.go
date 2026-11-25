@@ -9,60 +9,81 @@ import (
 	"github.com/nalgeon/be"
 )
 
-func TestOnes(t *testing.T) {
+func TestOne(t *testing.T) {
 	t.Parallel()
 
-	fs, got := model.One(t.Context(), nil, false, 0)
-	be.Err(t, got)
+	ctx := t.Context()
+
+	fs, err := model.One(ctx, nil, false, 0)
+	be.Err(t, err)
 	be.Equal(t, fs, nil)
+	_, err = model.OneByUUID(ctx, nil, false, "")
+	be.Err(t, err)
+	_, err = model.OneFile(ctx, nil, 1)
+	be.Err(t, err)
 
 	db := testutil.DB(t)
-	_, got = model.One(t.Context(), db, false, 0)
-	be.Err(t, got)
+	_, err = model.One(ctx, db, false, 0)
+	be.Err(t, err)
+	_, err = model.OneByUUID(ctx, db, false, "")
+	be.Err(t, err)
 
 	const id = 1
-	fs, got = model.One(t.Context(), db, false, 1)
-	be.Err(t, got, nil)
+	fs, err = model.One(ctx, db, false, id)
+	be.Err(t, err, nil)
 	be.Equal(t, fs.ID, id)
 	be.True(t, fs.Filename.String != "")
 
 	uid := fs.UUID.String
-	fs1, got := model.OneByUUID(t.Context(), db, false, uid)
-	be.Err(t, got, nil)
+	fs1, err := model.OneByUUID(ctx, db, false, uid)
+	be.Err(t, err, nil)
 	be.Equal(t, fs1.ID, id)
 
-	fs2, got := model.OneFile(t.Context(), db, id)
-	be.Err(t, got, nil)
+	fs2, err := model.OneFile(ctx, db, id)
+	be.Err(t, err, nil)
 	be.Equal(t, fs2.ID, id)
 }
 
 func TestProdID(t *testing.T) {
 	t.Parallel()
 
+	ctx := t.Context()
+
+	_, _, err := model.OneDemozoo(ctx, nil, 1)
+	be.Err(t, err)
+	_, _, err = model.OnePouet(ctx, nil, 1)
+	be.Err(t, err)
+	_, err = model.OneEditByKey(ctx, nil, "x")
+	be.Err(t, err)
+
 	db := testutil.DB(t)
-	del, key, got := model.OneDemozoo(t.Context(), db, 0)
-	be.Err(t, got, nil)
+
+	_, err = model.OneEditByKey(ctx, db, "")
+	be.Err(t, err)
+
+	del, key, err := model.OneDemozoo(ctx, db, 0)
+	be.Err(t, err, nil)
 	be.True(t, !del)
 	be.Equal(t, key, 0)
 
-	del, key, got = model.OnePouet(t.Context(), db, 0)
-	be.Err(t, got, nil)
+	del, key, err = model.OnePouet(ctx, db, 0)
+	be.Err(t, err, nil)
 	be.True(t, !del)
 	be.Equal(t, key, 0)
 
 	const sharedID = 4148
 	const demozoo = 77
-	_, key, got = model.OneDemozoo(t.Context(), db, demozoo)
-	be.Err(t, got, nil)
+	_, key, err = model.OneDemozoo(ctx, db, demozoo)
+	be.Err(t, err, nil)
 	be.Equal(t, key, sharedID)
 
 	const pouet = 9108
-	_, key, got = model.OnePouet(t.Context(), db, pouet)
-	be.Err(t, got, nil)
+	_, key, err = model.OnePouet(ctx, db, pouet)
+	be.Err(t, err, nil)
 	be.Equal(t, key, sharedID)
 
 	obf := helper.ObfuscateID(sharedID)
-	fs, got := model.OneEditByKey(t.Context(), db, obf)
-	be.Err(t, got, nil)
+	fs, err := model.OneEditByKey(ctx, db, obf)
+	be.Err(t, err, nil)
 	be.Equal(t, fs.ID, sharedID)
 }

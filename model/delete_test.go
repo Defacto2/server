@@ -1,6 +1,7 @@
 package model_test
 
 import (
+	"database/sql"
 	"testing"
 
 	"github.com/Defacto2/server/internal/testutil"
@@ -11,14 +12,21 @@ import (
 func TestDeleteOne(t *testing.T) {
 	t.Parallel()
 
-	tx0 := testutil.Tx(t)
-	tx1 := testutil.Tx(t)
+	be.Err(t, model.DeleteOne(t.Context(), nil, 1))
+
+	tx := testutil.Tx(t)
+
+	be.Err(t, model.DeleteOne(t.Context(), tx, 0), model.ErrBadIDInt)
+	be.Err(t, model.DeleteOne(t.Context(), tx, -1), model.ErrBadIDInt)
 
 	const newProd = 1000
-	key, _, got := model.InsertDemozoo(t.Context(), tx0, newProd)
-	be.Err(t, got, nil)
+	key, _, err := model.InsertDemozoo(t.Context(), tx, newProd)
+	be.Err(t, err, nil)
 	be.True(t, key > 0)
 
-	got = model.DeleteOne(t.Context(), tx1, key)
-	be.Err(t, got, nil)
+	err = model.DeleteOne(t.Context(), tx, key)
+	be.Err(t, err, nil)
+
+	_, err = model.One(t.Context(), tx, true, int(key))
+	be.Err(t, err, sql.ErrNoRows)
 }

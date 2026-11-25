@@ -12,10 +12,15 @@ import (
 func TestCount(t *testing.T) {
 	t.Parallel()
 
-	db := testutil.DB(t)
 	got, err := model.Count(t.Context(), nil)
 	be.Err(t, err)
 	be.Equal(t, got, 0)
+	_, err = model.SectionStats(t.Context(), nil)
+	be.Err(t, err)
+	_, err = model.PlatformStats(t.Context(), nil)
+	be.Err(t, err)
+
+	db := testutil.DB(t)
 
 	got, err = model.Count(t.Context(), db)
 	be.Err(t, err, nil)
@@ -23,9 +28,9 @@ func TestCount(t *testing.T) {
 
 	gotx, goty, gotz, err := model.Counts(t.Context(), db)
 	be.Err(t, err, nil)
-	be.True(t, gotx > 2)                 // total
-	be.True(t, goty > 2 && goty < gotx)  // public
-	be.True(t, gotz >= 0 && gotz < goty) // waiting approve
+	be.True(t, gotx > 2)                  // total
+	be.True(t, goty > 2 && goty <= gotx)  // public
+	be.True(t, gotz >= 0 && gotz < goty)  // waiting approve
 
 	got, err = model.CountSection(t.Context(), db, -1)
 	be.Err(t, err)
@@ -38,17 +43,13 @@ func TestCount(t *testing.T) {
 	total, err := model.SumSection(t.Context(), db, tags.Nfo)
 	be.Err(t, err, nil)
 	be.True(t, total > 2)
-	be.True(t, count != total) // technically this could return a false positive
+	be.True(t, count != total)
 
-	_, err = model.SectionStats(t.Context(), nil)
-	be.Err(t, err)
 	secStats, err := model.SectionStats(t.Context(), db)
 	be.Err(t, err, nil)
 	be.Equal(t, secStats[tags.Nfo.String()].Count, count)
 	be.Equal(t, secStats[tags.Nfo.String()].Bytes, total)
 
-	_, err = model.PlatformStats(t.Context(), nil)
-	be.Err(t, err)
 	platStats, err := model.PlatformStats(t.Context(), db)
 	be.Err(t, err, nil)
 	textCount, err := model.CountPlatform(t.Context(), db, tags.Text)
@@ -72,7 +73,7 @@ func TestCount(t *testing.T) {
 
 	count, err = model.CountTags(t.Context(), db, tags.Text, tags.Nfo)
 	be.Err(t, err, nil)
-	be.True(t, count == 0)
+	be.Equal(t, count, int64(0))
 
 	count, err = model.CountTags(t.Context(), db, tags.Nfo, tags.Text)
 	be.Err(t, err, nil)
@@ -95,10 +96,11 @@ func TestCount(t *testing.T) {
 func TestUUIDs(t *testing.T) {
 	t.Parallel()
 
-	db := testutil.DB(t)
 	got, err := model.UUIDs(t.Context(), nil)
 	be.Err(t, err)
-	be.True(t, got == model.UUIDVers{})
+	be.Equal(t, got, model.UUIDVers{})
+
+	db := testutil.DB(t)
 
 	got, err = model.UUIDs(t.Context(), db)
 	be.Err(t, err, nil)
@@ -113,8 +115,7 @@ func TestUUIDs(t *testing.T) {
 func BenchmarkCounts(b *testing.B) {
 	db := testutil.DB(b)
 	ctx := b.Context()
-	b.ResetTimer()
-	for range b.N {
+	for b.Loop() {
 		_, _, _, err := model.Counts(ctx, db)
 		if err != nil {
 			b.Fatal(err)

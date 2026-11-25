@@ -9,60 +9,44 @@ import (
 // Use the following command to run all:
 // go test -bench=Benchmark -benchmem
 
-// Benchmarks for tag functions with caching optimization.
-
 func BenchmarkSAdvert(b *testing.B) {
-	b.Run("", func(b *testing.B) {
-		for range b.N {
-			_ = querymod.SAdvert()
-		}
-	})
+	for b.Loop() {
+		_ = querymod.SAdvert()
+	}
 }
 
 func BenchmarkPWindows(b *testing.B) {
-	b.Run("", func(b *testing.B) {
-		for range b.N {
-			_ = querymod.PWindows()
-		}
-	})
+	for b.Loop() {
+		_ = querymod.PWindows()
+	}
 }
 
 func BenchmarkPDos(b *testing.B) {
-	b.Run("", func(b *testing.B) {
-		for range b.N {
-			_ = querymod.PDos()
-		}
-	})
+	for b.Loop() {
+		_ = querymod.PDos()
+	}
 }
 
 func BenchmarkAdvertExpr(b *testing.B) {
-	b.Run("", func(b *testing.B) {
-		for range b.N {
-			_ = querymod.AdvertExpr()
-		}
-	})
+	for b.Loop() {
+		_ = querymod.AdvertExpr()
+	}
 }
 
 func BenchmarkDOSExpr(b *testing.B) {
-	b.Run("", func(b *testing.B) {
-		for range b.N {
-			_ = querymod.DOSExpr()
-		}
-	})
+	for b.Loop() {
+		_ = querymod.DOSExpr()
+	}
 }
 
 func BenchmarkAnsiBBSExpr(b *testing.B) {
-	b.Run("", func(b *testing.B) {
-		for range b.N {
-			_ = querymod.AnsiBBSExpr()
-		}
-	})
+	for b.Loop() {
+		_ = querymod.AnsiBBSExpr()
+	}
 }
 
 func BenchmarkWindowsPackExpr(b *testing.B) {
-	b.Run("", func(b *testing.B) {
-		for range b.N {
-			_ = querymod.WindowsPackExpr()
-		}
-	})
+	for b.Loop() {
+		_ = querymod.WindowsPackExpr()
+	}
 }
