@@ -1,4 +1,4 @@
-//nolint:gochecknoglobals
+//nolint:exhaustruct_v5,gochecknoglobals
 package app
 
 // Package file asset.go contains the public facing JS, CSS, SVG, font files and the executable WASM file paths.

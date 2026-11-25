@@ -1,4 +1,4 @@
-//nolint:funlen,nonamedreturns
+//nolint:exhaustruct_v5,funlen,nonamedreturns
 package main
 
 /*

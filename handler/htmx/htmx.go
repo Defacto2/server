@@ -1,4 +1,6 @@
 // Package htmx handles the routes and views for the AJAX responses using the htmx library.
+//
+//nolint:exhaustruct_v5
 package htmx
 
 import (

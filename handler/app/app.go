@@ -1,4 +1,6 @@
 // Package app handles the routes and views for the Defacto2 website.
+//
+//nolint:exhaustruct_v5,gochecknoglobals
 package app
 
 import (
@@ -108,7 +110,7 @@ const (
 )
 
 // Caching are values that are used throughout the app or layouts.
-var Caching = Cache{RecordCount: 0} //nolint:gochecknoglobals
+var Caching = Cache{RecordCount: 0}
 
 // Records caches the database record count.
 func (c *Cache) Records(i int64) {

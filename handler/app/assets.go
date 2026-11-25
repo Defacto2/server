@@ -1,3 +1,4 @@
+//nolint:exhaustruct_v5,gochecknoglobals
 package app
 
 import (

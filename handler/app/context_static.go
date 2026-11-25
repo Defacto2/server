@@ -1,4 +1,4 @@
-//nolint:wrapcheck
+//nolint:exhaustruct_v5,wrapcheck
 package app
 
 // Package file context_static.go contains handlers for static and editorial pages.

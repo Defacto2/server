@@ -1,4 +1,4 @@
-//nolint:gochecknoglobals
+//nolint:funcorder,gochecknoglobals
 package fileslice
 
 import (

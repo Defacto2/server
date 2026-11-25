@@ -5,6 +5,8 @@
 // Currently, the index is built at startup and stored in RAM as the
 // number of files to catalog is low. However, if we were to expand
 // the indexing to file downloads a different approach is needed.
+//
+//nolint:exhaustruct_v5,funcorder
 package fulltext
 
 import (

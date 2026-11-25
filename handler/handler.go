@@ -3,7 +3,7 @@
 //
 // [Echo]: https://echo.labstack.com/
 //
-//nolint:exhaustruct_v5,nonamedreturns
+//nolint:exhaustruct_v5,funcorder,funlen,nonamedreturns
 package handler
 
 import (

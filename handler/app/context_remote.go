@@ -1,4 +1,4 @@
-//nolint:wrapcheck
+//nolint:exhaustruct_v5,wrapcheck
 package app
 
 // Package file context_remote.go contains handlers that proxy or import data

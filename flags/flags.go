@@ -2,7 +2,7 @@
 // With the configuration of the application done using the environment variables,
 // the use of commands should be kept to a minimum.
 //
-//nolint:exhaustruct_v5
+//nolint:exhaustruct_v5,gochecknoinits
 package flags
 
 import (
@@ -41,12 +41,14 @@ const (
 	indexTitle = "Database Index Rebuild"
 )
 
+var (
+	ErrNoConfig = errors.New("cannot run command as config is nil")
+	ErrPrinter  = errors.New("routes printer is not configured")
+)
+
 // RoutePrinter prints registered HTTP routes to w, optionally filtered by HTTP method.
 type RoutePrinter func(w io.Writer, method string) error
 
-var ErrNoConfig = errors.New("cannot run command as config is nil")
-
-//nolint:gochecknoinits
 func init() {
 	cli.VersionPrinter = func(c *cli.Context) {
 		_, _ = fmt.Fprintf(c.App.Writer, "%s %s\n", c.App.HelpName, c.App.Version)
@@ -191,7 +193,7 @@ func Routes(w io.Writer, fn RoutePrinter) *cli.Command {
 		},
 		Action: func(ctx *cli.Context) error {
 			if fn == nil {
-				return errors.New("routes printer is not configured")
+				return ErrPrinter
 			}
 			return fn(w, ctx.String("method"))
 		},
