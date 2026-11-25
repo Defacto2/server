@@ -2967,25 +2967,27 @@ func FixNumericSuffix(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 
 	// Return the updated file info as HTML to replace the list item
 	obfuscatedID = helper.ObfuscateID(file.ID)
-	id := strconv.Itoa(int(file.ID))
-	return c.HTML(http.StatusOK, `
+	escBase := template.HTMLEscapeString(baseFilename)
+	escOrig := template.HTMLEscapeString(originalFilename)
+	escUUID := template.HTMLEscapeString(file.UUID.String)
+	return c.HTML(http.StatusOK, fmt.Sprintf(`
 		<div class="list-group-item list-group-item-success">
 			<div class="d-flex justify-content-between align-items-center">
 				<div>
-					<code>`+baseFilename+`</code>
-					<small class="text-muted d-block">
-						ID: `+id+` | UUID: `+file.UUID.String+`
+					<code>%s</code>
+					<small class="text-body-secondary d-block">
+						ID: %d | UUID: %s
 					</small>
 					<small class="text-success d-block">
-						Fixed: `+originalFilename+` → `+baseFilename+`
+						Fixed: %s to %s
 					</small>
 				</div>
 				<div>
-					<a href="/f/`+obfuscatedID+`" class="btn btn-sm btn-outline-secondary" target="_blank">View</a>
+					<a href="/f/%s" class="btn btn-sm btn-outline-secondary" target="_blank" rel="noopener">View</a>
 				</div>
 			</div>
 		</div>
-		`)
+		`, escBase, file.ID, escUUID, escOrig, escBase, template.HTMLEscapeString(obfuscatedID)))
 }
 
 // Thanks is the handler for the Thanks page.
