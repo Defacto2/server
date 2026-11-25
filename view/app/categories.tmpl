@@ -95,7 +95,7 @@
             </table>
         </div>
         <div class="card-footer bg-body-tertiary small text-body-secondary px-3 py-2">
-            Categories overlap across platforms and sections (for example, an MS-DOS intro counts under both Intros and MS-DOS), so individual rows sum to more than the archive total.
+            Some categories overlap, so individual rows can sum to more than expected.
         </div>
     </div>
 </div>
@@ -146,31 +146,25 @@
 {{/*  Filter bar & compact quick links  */}}
 <div class="card mb-4">
     <div class="card-body p-3">
-        <div class="row g-2 align-items-center mb-3">
-            <div class="col-md-8 col-lg-7">
-                <label for="category-filter" class="visually-hidden">Filter categories by name or keyword</label>
-                <div class="input-group">
-                    <input type="search" id="category-filter" class="form-control" placeholder="Filter categories by keyword (e.g. cracktro, ansi, dos, emag, trainer, bbs)..." autocomplete="off">
-                    <button type="button" id="category-filter-clear" class="btn btn-outline-secondary d-none">Clear</button>
-                </div>
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+            <div class="d-flex flex-wrap align-items-center gap-2 small">
+                <span class="text-body-secondary fw-medium me-1">Popular:</span>
+                <a class="btn btn-sm btn-outline-secondary" rel="nofollow" href="/files/intro">Intros</a>
+                <a class="btn btn-sm btn-outline-secondary" rel="nofollow" href="/files/nfo">NFOs</a>
+                <a class="btn btn-sm btn-outline-secondary" rel="nofollow" href="/files/ansi">ANSI art</a>
+                <a class="btn btn-sm btn-outline-secondary" rel="nofollow" href="/files/bbs">BBS ads</a>
+                <a class="btn btn-sm btn-outline-secondary" rel="nofollow" href="/files/magazine">Magazines</a>
+                <a class="btn btn-sm btn-outline-secondary" rel="nofollow" href="/files/msdos">{{msdos}}</a>
+                <a class="btn btn-sm btn-outline-secondary" rel="nofollow" href="/files/windows">Windows</a>
+                <a class="btn btn-sm btn-outline-secondary" rel="nofollow" href="/files/text-amiga">Amiga text</a>
+                <a class="btn btn-sm btn-outline-secondary" rel="nofollow" href="/files/hack">Trainers</a>
+                <a class="btn btn-sm btn-outline-secondary" rel="nofollow" href="/files/text">All text</a>
             </div>
-            <div class="col-md-4 col-lg-5 d-flex align-items-center justify-content-md-end gap-3 small text-body-secondary">
-                <span id="category-filter-count" class="font-monospace"></span>
+            <div class="input-group input-group-sm ms-lg-auto" style="width: 15rem; max-width: 100%;">
+                <label for="category-filter" class="visually-hidden">Filter categories by keyword</label>
+                <input type="search" id="category-filter" class="form-control" placeholder="Filter by keyword…" autocomplete="off">
+                <button type="button" id="category-filter-clear" class="btn btn-outline-secondary d-none">Clear</button>
             </div>
-        </div>
-
-        <div class="d-flex flex-wrap align-items-center gap-2 small">
-            <span class="text-body-secondary fw-medium me-1">Popular:</span>
-            <a class="btn btn-sm btn-outline-secondary" rel="nofollow" href="/files/intro">Intros</a>
-            <a class="btn btn-sm btn-outline-secondary" rel="nofollow" href="/files/nfo">NFOs</a>
-            <a class="btn btn-sm btn-outline-secondary" rel="nofollow" href="/files/ansi">ANSI art</a>
-            <a class="btn btn-sm btn-outline-secondary" rel="nofollow" href="/files/bbs">BBS ads</a>
-            <a class="btn btn-sm btn-outline-secondary" rel="nofollow" href="/files/magazine">Magazines</a>
-            <a class="btn btn-sm btn-outline-secondary" rel="nofollow" href="/files/msdos">{{msdos}}</a>
-            <a class="btn btn-sm btn-outline-secondary" rel="nofollow" href="/files/windows">Windows</a>
-            <a class="btn btn-sm btn-outline-secondary" rel="nofollow" href="/files/text-amiga">Amiga text</a>
-            <a class="btn btn-sm btn-outline-secondary" rel="nofollow" href="/files/hack">Trainers</a>
-            <a class="btn btn-sm btn-outline-secondary" rel="nofollow" href="/files/text">All text</a>
         </div>
 
         <details class="mt-3 pt-2 border-top">
@@ -239,11 +233,11 @@
         <nav class="index-chapter-nav" aria-label="Category sections">
             <div class="index-eyebrow mb-2">Sections</div>
             <ul class="nav flex-column gap-1 mb-4">
-                <li class="nav-item"><a class="nav-link index-chapter-link" href="#cat-releases">Releases &amp; intros</a></li>
-                <li class="nav-item"><a class="nav-link index-chapter-link" href="#cat-media">Text, art &amp; media</a></li>
-                <li class="nav-item"><a class="nav-link index-chapter-link" href="#cat-networks">BBS &amp; networks</a></li>
+                <li class="nav-item"><a class="nav-link index-chapter-link" href="#cat-releases">Releases and intros</a></li>
+                <li class="nav-item"><a class="nav-link index-chapter-link" href="#cat-media">Text, art, media</a></li>
+                <li class="nav-item"><a class="nav-link index-chapter-link" href="#cat-networks">BBS and online</a></li>
                 <li class="nav-item"><a class="nav-link index-chapter-link" href="#cat-platforms">Platforms</a></li>
-                <li class="nav-item"><a class="nav-link index-chapter-link" href="#cat-tools">Tools &amp; cracking</a></li>
+                <li class="nav-item"><a class="nav-link index-chapter-link" href="#cat-tools">Tools</a></li>
                 <li class="nav-item"><a class="nav-link index-chapter-link" href="#cat-culture">Scene culture</a></li>
             </ul>
             <div class="index-eyebrow mb-2">Related</div>
@@ -265,8 +259,8 @@
             {{/*  1. Releases & intros  */}}
             <section id="cat-releases" data-category-section style="scroll-margin-top: 5rem;">
                 <div class="mb-3">
-                    <div class="index-chapter-era font-monospace mb-1">Section 1</div>
-                    <h2 class="h4 fw-semibold mb-0">Releases &amp; intros</h2>
+                    <div class="index-chapter-era font-monospace mb-1">Section release</div>
+                    <h2 class="h4 fw-semibold mb-0">Releases and intros</h2>
                 </div>
                 <div class="row row-cols-1 row-cols-md-2 g-3">
                     <div class="col" data-category-card data-keywords="cracktro crack intro crack screen loader intro dos windows">
@@ -385,8 +379,8 @@
             {{/*  2. Text, art & media  */}}
             <section id="cat-media" data-category-section style="scroll-margin-top: 5rem;">
                 <div class="mb-3">
-                    <div class="index-chapter-era font-monospace mb-1">Section 2</div>
-                    <h2 class="h4 fw-semibold mb-0">Text, art &amp; media</h2>
+                    <div class="index-chapter-era font-monospace mb-1">Section media</div>
+                    <h2 class="h4 fw-semibold mb-0">Text, art, media</h2>
                 </div>
                 <div class="row row-cols-1 row-cols-md-2 g-3">
                     <div class="col-md-12" data-category-card data-keywords="ansi color text ansimation ansi animation branding logo ansi bbs advert ansi ftp advert ansi nfo">
@@ -475,8 +469,8 @@
             {{/*  3. BBS & networks  */}}
             <section id="cat-networks" data-category-section style="scroll-margin-top: 5rem;">
                 <div class="mb-3">
-                    <div class="index-chapter-era font-monospace mb-1">Section 3</div>
-                    <h2 class="h4 fw-semibold mb-0">BBS &amp; networks</h2>
+                    <div class="index-chapter-era font-monospace mb-1">Section network</div>
+                    <h2 class="h4 fw-semibold mb-0">BBS and online networks</h2>
                 </div>
                 <div class="row row-cols-1 row-cols-md-2 g-3">
                     <div class="col-md-12" data-category-card data-keywords="bbs board bulletin board system bbstro ansi ads image ads text ads">
@@ -544,12 +538,10 @@
   const clearBtn = document.getElementById('category-filter-clear');
   const emptyReset = document.getElementById('category-empty-reset');
   const emptyState = document.getElementById('category-empty');
-  const countEl = document.getElementById('category-filter-count');
   if (!input) return;
 
   const cards = Array.from(document.querySelectorAll('[data-category-card]'));
   const sections = Array.from(document.querySelectorAll('[data-category-section]'));
-  const total = cards.length;
 
   const platformTabs = [
     { id: 'dos-tab', match: ['dos', 'msdos', 'ms-dos', 'pc-dos', 'ibm'] },
@@ -587,7 +579,6 @@
     }
 
     emptyState.classList.toggle('d-none', visible > 0);
-    countEl.textContent = q === '' ? `${total} categories` : `${visible} of ${total} matching`;
   }
 
   function reset() {

@@ -154,15 +154,16 @@
                 {{- if $editor }}
                 <li><a class="dropdown-item" href="/editor/for-approval" rel="nofollow">New <em>for approval</em></a></li>
                 {{- end }}
+                <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="Artifact topics, tags, and classifications" href="/file" rel="nofollow">Categories</a></li>
                 <li><a class="dropdown-item" href="/files/new-uploads" rel="nofollow">New uploads</a></li>
                 <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="The oldest scene artifacts" href="/files/oldest">Oldest</a></li>
+                <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="Vanity demos, cracktros and intros" href="/files/intro" rel="nofollow">Intros</a></li>
                 <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="Scene releases texts and NFO files" href="/files/nfo" rel="nofollow">Releases</a></li>
                 <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="Text art of the 1990s" href="/files/ansi" rel="nofollow">Ansi art</a></li>
                 <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="Text art of the 1990s for the Commodore" href="/files/text-amiga" rel="nofollow">Amiga art</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li><h6 class="dropdown-header">More</h6></li>
-                <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="Artifact topics, tags, and classifications" href="/file" rel="nofollow">Categories</a></li>
                 <li><a class="dropdown-item" href="/file/stats" rel="nofollow">Statistics</a></li>  
                 <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="The newer scene artifacts" href="/files/newest" rel="nofollow">Newest</a></li>
                 <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="A retro imagining of this website from 2006" href="/html3" rel="nofollow">Use tables</a></li>
@@ -195,7 +196,7 @@
                 BBS
               </a>
               <ul class="dropdown-menu">
-                <li><h6 class="dropdown-header">Sites</h6></li>
+                <li><h6 class="dropdown-header">Systems</h6></li>
                 <li><a class="dropdown-item" href="/bbs">BBS sites</a></li>
                 <li><a class="dropdown-item" href="/bbs/year" rel="nofollow">BBS sites {{year}}</a></li>
                 <li><a class="dropdown-item" href="/bbs/a-z" rel="nofollow">BBS sites {{az}}</a></li>
@@ -203,7 +204,8 @@
                 <li><hr class="dropdown-divider"></li>
                 <li><h6 class="dropdown-header">Resources</h6></li>
                 <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="Adverts for bulletin board systems" href="/files/bbs" rel="nofollow">BBS ads</a></li>
-                <li><a class="dropdown-item" href="/areacodes">BBS area codes</a></li>
+                <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="Animated adverts for bulletin board systems" href="/files/animation" rel="nofollow">BBS animations</a></li>
+                <li><a class="dropdown-item" href="/areacodes">Area codes <small><small>NANP</small></small></a></li>
               </ul>
             </li>
             <li class="nav-item dropdown">
@@ -247,10 +249,10 @@
               </a>
               <ul class="dropdown-menu">
                 <li><a class="dropdown-item" href="/new" rel="nofollow" data-bs-toggle="tooltip" data-bs-title="A casual list of updates to the website">What's new</a></li>
-                <li><a class="dropdown-item" href="/history" data-bs-toggle="tooltip" data-bs-title="Who or what is Defacto2?">Brand history</a></li>
+                <li><a class="dropdown-item" href="/policy">Privacy + &copy;</a></li>
                 <li><a class="dropdown-item" href="/credits">Credits</a></li>
-                <li><a class="dropdown-item" href="/thanks">Thanks</a></li>
-                <li><a class="dropdown-item" href="/policy">Privacy &amp; copyright</a></li>
+                <li><a class="dropdown-item" href="/thanks">Thank you!</a></li>
+                <li><a class="dropdown-item" href="/history" data-bs-toggle="tooltip" data-bs-title="Who or what is Defacto2?">Brand history</a></li>
               </ul>
             </li>
             <li class="nav-item dropdown">
@@ -258,25 +260,21 @@
                 Help
               </a>
               <ul class="dropdown-menu">
-                <li><h6 class="dropdown-header">FAQ</h6></li>
-                <li><a class="dropdown-item" href="/thescene">The Scene</a></li>
+                <li><a class="dropdown-item" href="/thescene">The Scenes</a></li>
                 <li><a class="dropdown-item" href="/terms">Glossary of terms</a></li>
-                <li><a class="dropdown-item" href="/brokentexts">Broken NFO and texts</a></li>
-                <li><a class="dropdown-item" href="/titles">Naming and title guide</a></li>
-                <li><a class="dropdown-item" href="/fixes#harmful-downloads">Harmful downloads?</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li><h6 class="dropdown-header">The downloads</h6></li>
                 <li><a class="dropdown-item" href="/apps">Using apps today</a></li>
+                <li><a class="dropdown-item" href="/brokentexts">Broken texts</a></li>
                 <li><a class="dropdown-item" href="/compression">Old file archiving</a></li>
                 <li><a class="dropdown-item" href="/fixes">Problems and fixes</a></li>
                 <li><hr class="dropdown-divider"></li>
-                <li><h6 class="dropdown-header">API</h6></li>
                 <li><a class="dropdown-item" href="/api">RESTful API</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li><h6 class="dropdown-header">GitHub</h6></li>
-                <li>{{ linkRemoteTip "https://github.com/Defacto2/server" "Get the web code" "Our GitHub repository for this site" }}</li>
-                <li>{{ linkRemoteTip "https://github.com/Defacto2/database" "Run the database" "Instructions for our PostgreSQL exports" }}</li>
-                <li>{{ linkRemoteTip "https://github.com/sceners" "Browse artifacts" "Over 150 repositories for scene demos, tools and apps" }}</li>
+                <li>{{ linkRemoteTip "https://github.com/Defacto2/server" "Website code" "Our GitHub repository for this site" }}</li>
+                <li>{{ linkRemoteTip "https://github.com/Defacto2/database" "Database" "Instructions for our PostgreSQL exports" }}</li>
+                <li>{{ linkRemoteTip "https://github.com/sceners" "SRC artifacts" "Over 150 repositories for scene demos, tools and apps" }}</li>
               </ul>
             </li>
             <li class="nav-item">

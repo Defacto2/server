@@ -43,7 +43,7 @@
             </span>
           </div>
           <div class="small text-body-secondary mb-2">
-            2{{- if ne $releaser.Link ""}}{{$releaser.Name}}{{else}}Retirement{{end -}}
+            {{- if ne $releaser.Link ""}}{{$releaser.Name}}{{else}}Retirement{{end -}}
           </div>
           <p class="card-text small mb-3">{{$interview.Content}}</p>
           <div class="mt-auto pt-1">

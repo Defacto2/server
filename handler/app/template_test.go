@@ -194,7 +194,7 @@ func TestSearchHtmxTemplate(t *testing.T) {
 
 	var buf bytes.Buffer
 	err = tmpl.ExecuteTemplate(&buf, "content", map[string]any{
-		"title":            "Search groups & names",
+		"title":            "Search groups and names",
 		"info":             "Find groups, magazines, BBS boards, and FTP sites.",
 		"helpText":         "Acronyms match exact initialisms: 'rc' and 'rcn' return different results.",
 		"hxPost":           "/search/releaser",

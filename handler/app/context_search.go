@@ -65,7 +65,7 @@ func PostDesc(sl *slog.Logger, c *echo.Context, db *sql.DB, input string) error 
 	s := strings.Join(terms, ", ")
 
 	data := emptyFiles(c)
-	const brief = "Search titles & comments"
+	const brief = "Search titles and comments"
 	data.SetNoIndex(true)
 	data.SetHeader(
 		brief+" results",
@@ -197,8 +197,8 @@ func SearchDesc(sl *slog.Logger, c *echo.Context) error {
 		return fmt.Errorf("search desc context: %w", err)
 	}
 
-	const title = "Search titles & comments"
-	const lead = "Find games, apps, descriptions, and artifact comments."
+	const title = "Search titles and comments"
+	const lead = "Find games, apps, and utilities, while searching artifact descriptions and comments."
 
 	data := empty(c)
 	data.SetNoIndex(true)
@@ -262,8 +262,8 @@ func SearchReleaser(sl *slog.Logger, c *echo.Context) error {
 		return fmt.Errorf("search releaser context: %w", err)
 	}
 
-	const title = "Search groups & names"
-	const lead = "Find groups, magazines, BBS boards, and FTP sites."
+	const title = "Search groups and names"
+	const lead = "Find groups, magazines, BBS systems, and FTP sites."
 
 	data := empty(c)
 	data.SetNoIndex(true)

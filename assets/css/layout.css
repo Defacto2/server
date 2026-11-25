@@ -919,10 +919,11 @@ a {
   border-bottom-color: #ffe69c;
 }
 
-.milestone-highlight-badge {
-  background: #fff3cd;
-  color: #664d03;
-  border: 1px solid #ffe69c;
+.badge.milestone-highlight-badge {
+  --bs-badge-color: #fff;
+  background-color: #854d0e;
+  color: #fff;
+  border: 0;
   font-size: 0.72rem;
 }
 

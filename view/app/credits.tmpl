@@ -7,10 +7,11 @@
     <nav class="index-chapter-nav" aria-label="Credits sections">
       <div class="index-eyebrow mb-2">Sections</div>
       <ul class="nav flex-column gap-1">
-        <li class="nav-item"><a class="nav-link index-chapter-link" href="#overview">Team &amp; source</a></li>
+        <li class="nav-item"><a class="nav-link index-chapter-link" href="#artifacts">The artifacts</a></li>
+        <li class="nav-item"><a class="nav-link index-chapter-link" href="#overview">Team</a></li>
         <li class="nav-item"><a class="nav-link index-chapter-link" href="#built-with">Built with</a></li>
         <li class="nav-item"><a class="nav-link index-chapter-link" href="#scene-contributors">Scene contributors</a></li>
-        <li class="nav-item"><a class="nav-link index-chapter-link" href="#licenses">Corporate licenses</a></li>
+        <li class="nav-item"><a class="nav-link index-chapter-link" href="#licenses">Bit tech</a></li>
       </ul>
     </nav>
   </aside>
@@ -18,72 +19,67 @@
   <div class="col-lg-9">
     <div class="d-flex flex-column gap-4">
 
-      <article id="overview" class="changelog-entry p-4">
+      <article id="artifacts" class="changelog-entry p-4">
         <div class="index-chapter-era font-monospace mb-1">Defacto2</div>
-        <h2 class="h4 fw-semibold mb-3">Team &amp; open source</h2>
+        <h2 class="h4 fw-semibold mb-3">The artifacts</h2>
         <div class="index-prose mb-4">
           <p class="lead fs-6 fw-normal">
-            <span class="text-info-emphasis fw-medium">The file artifacts come from hundreds of online donations</span> or from various digital and physical collections.
+            <span class="text-info-emphasis fw-medium">The massive collections of file artifacts come from thousands of online submissions</span>, 
+            from donations of peoples physical collections, and many various digitalised backups.
           </p>
           <p>
-            <strong>Core team:</strong> Ben Garrett programs the website, and a small anonymous volunteer team maintains it.
+            We thank the hundreds of people who have contributed to Defacto2 over the decades with file submissions, hard drive donations, interviews, corrections, artwork, and monetary contributions!
           </p>
         </div>
-        <div class="alert alert-info d-flex align-items-center gap-3 mb-0" role="alert">
-          <svg class="bi flex-shrink-0" width="28" height="28" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
-            <use xlink:href="/svg/bootstrap-icons.svg#github"/>
-          </svg>
-          <div>
-            <strong>Open source</strong> website is available on <a href="https://github.com/Defacto2/server" target="_blank" rel="noopener" class="alert-link">GitHub</a>.
-          </div>
+      </article>
+
+      <article id="overview" class="changelog-entry p-4">
+        <div class="index-chapter-era font-monospace mb-1">Defacto2</div>
+        <h2 class="h4 fw-semibold mb-3">Team</h2>
+        <div class="index-prose mb-4">
+          <p>
+            <strong>The people:</strong> Ben Garrett programs the website, and a small anonymous volunteer team maintains it.
+          </p>
         </div>
       </article>
 
       <article id="built-with" class="changelog-entry p-4">
         <div class="index-chapter-era font-monospace mb-1">Stack</div>
         <h2 class="h4 fw-semibold mb-2">Built with</h2>
-        <p class="text-body-secondary small mb-4">
-          The core site uses <a href="https://go.dev/" target="_blank" rel="noopener">Go</a>,
-          the <a href="https://echo.labstack.com/" target="_blank" rel="noopener">Echo</a> framework,
+        <p class="text-body-secondary mb-4">
+          The web site is programmed in <a href="https://go.dev/" target="_blank" rel="noopener">Go</a>,
+          uses the <a href="https://echo.labstack.com/" target="_blank" rel="noopener">Echo</a> framework,
           and <a href="https://github.com/aarondl/sqlboiler" target="_blank" rel="noopener">SQLBoiler</a> ORM for database queries.
         </p>
 
-        <h3 class="h6 text-uppercase text-body-secondary fw-semibold mb-3">Core technologies</h3>
+        <h3 class="h6 text-uppercase text-body-secondary fw-semibold mb-3">Open Technologies</h3>
         <div class="row g-3">
+
           <div class="col-md-6">
             <div class="border rounded-3 p-3 h-100 bg-body-tertiary">
               <div class="fw-semibold mb-1"><a href="https://getbootstrap.com/" target="_blank" rel="noopener">Bootstrap</a></div>
-              <div class="small text-body-secondary">Frontend &amp; UI</div>
+              <div class="small text-body-secondary">Frontend and UI</div>
             </div>
           </div>
           <div class="col-md-6">
             <div class="border rounded-3 p-3 h-100 bg-body-tertiary">
-              <div class="fw-semibold mb-1"><a href="https://www.postgresql.org/" target="_blank" rel="noopener">PostgreSQL</a></div>
+              <div class="fw-semibold mb-1">
+                <a href="https://www.postgresql.org/" target="_blank" rel="noopener">PostgreSQL</a>
+              </div>
               <div class="small text-body-secondary">Database</div>
             </div>
           </div>
           <div class="col-md-6">
             <div class="border rounded-3 p-3 h-100 bg-body-tertiary">
-              <div class="fw-semibold mb-1"><a href="https://www.dosbox.com/" target="_blank" rel="noopener">DOSBox</a></div>
-              <div class="small text-body-secondary">DOS emulator</div>
+              <div class="fw-semibold mb-1">
+                <a href="https://www.dosbox.com/" target="_blank" rel="noopener">DOSBox</a>
+                + <a href="https://js-dos.com/" target="_blank" rel="noopener">js-dos</a>
+              </div>
+              <div class="small text-body-secondary">DOS emulator + frontend</div>
             </div>
           </div>
-          <div class="col-md-6">
-            <div class="border rounded-3 p-3 h-100 bg-body-tertiary">
-              <div class="fw-semibold mb-1"><a href="https://js-dos.com/" target="_blank" rel="noopener">js-dos</a></div>
-              <div class="small text-body-secondary">Emulation frontend</div>
-            </div>
-          </div>
-          <div class="col-md-6">
-            <div class="border rounded-3 p-3 h-100 bg-body-tertiary">
-              <div class="fw-semibold mb-1"><a href="https://m.do.co/c/a9270bdb9e74" target="_blank" rel="noopener">DigitalOcean</a> *</div>
-              <div class="small text-body-secondary">Web hosting</div>
-            </div>
-          </div>
+
         </div>
-        <p class="small text-body-secondary border-top mt-3 pt-3 mb-0">
-          * Referral link: spend $25, you'll get $200 credit and we'll get $25 credit.
-        </p>
       </article>
 
       <article id="scene-contributors" class="changelog-entry p-4">
@@ -100,6 +96,13 @@
               <dd class="col-sm-7 text-body-secondary small mb-2">ANSImations as animated images</dd>
               <dt class="col-sm-5"><a href="https://bengarrett.github.io/bbs/" target="_blank" rel="noopener" class="fw-semibold">BBS</a></dt>
               <dd class="col-sm-7 text-body-secondary small mb-0">BBS art as HTML and images</dd>
+              <dt class="col-sm-5"><a href="https://github.com/bengarrett/binbump" target="_blank" rel="noopener" class="fw-semibold">BINbump</a></dt>
+              <dd class="col-sm-7 text-body-secondary small mb-0">Binary encoded texts as HTML</dd>
+              <dt class="col-sm-5"><a href="https://github.com/bengarrett/sauce" target="_blank" rel="noopener" class="fw-semibold">sauce</a></dt>
+              <dd class="col-sm-7 text-body-secondary small mb-0">Parses SAUCE metadata</dd>
+
+
+              
             </dl>
           </div>
           <div class="col-md-6">
@@ -116,8 +119,8 @@
       </article>
 
       <article id="licenses" class="changelog-entry p-4">
-        <div class="index-chapter-era font-monospace mb-1">Licenses</div>
-        <h2 class="h4 fw-semibold mb-3">Corporate licenses</h2>
+        <div class="index-chapter-era font-monospace mb-1">Corporate</div>
+        <h2 class="h4 fw-semibold mb-3">Big tech</h2>
         <div class="row g-3">
           <div class="col-md-6">
             <dl class="row g-2 mb-0">
@@ -125,6 +128,15 @@
               <dd class="col-sm-7 text-body-secondary small mb-0">Cascadia Code font</dd>
             </dl>
           </div>
+          <div class="col-md-6">
+            <dl class="row g-2 mb-0">
+              <dt class="col-sm-5"><a href="https://m.do.co/c/a9270bdb9e74" target="_blank" rel="noopener" class="fw-semibold">DigitalOcean</a></dt>
+              <dd class="col-sm-7 text-body-secondary small mb-0">Web hosting *</dd>
+            </dl>
+          </div>
+        <p class="small text-body-secondary border-top mt-3 pt-3 mb-0 text-center">
+          * Referral link: spend $25, you'll get $200 credit and we'll get $25 credit.
+        </p>
         </div>
       </article>
 

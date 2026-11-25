@@ -11,7 +11,7 @@
 {{- $screenshot := "A screenshot can be included in the archive"}}
 {{- $releasername := index . "uploader-releaser-index"}}
 {{- $delay := "200ms" }}
-{{- $helpRelr := "A releaser can be a group name, bulletin board or ftp site<br>Boards and ftp sites must end with <code>BBS</code> or <code>FTP</code><br>example: <em>Dark Domain BBS</em> or <em>Dark Domain FTP</em>" }}
+{{- $helpRelr := "A releaser can be a group name, bulletin board or ftp site.<br>BBS names and ftp sites must end with <code>BBS</code> or <code>FTP</code>, for example: <em>Dark Domain BBS</em> or <em>Dark Domain FTP</em>" }}
     {{- /*  check if the event is a KeyboardEvent to prevent double rendering on datalists
             source: https://turriate.com/articles/using-datalist-for-typeahead-htmx  */ -}}
     <script>
@@ -251,8 +251,8 @@
                     Title <span class="text-danger" aria-hidden="true">*</span>
                   </label>
                   <input type="text" name="uploader-trainer-title" class="form-control" id="uploader-trainer-title"
-                    aria-describedby="uploader-trainer-title-help" placeholder="example: Doom +5 Trainer" required>
-                  <div id="uploader-trainer-title-help" class="form-text">The name of the release</div>
+                    aria-describedby="uploader-trainer-title-help" placeholder="example: Doom" required>
+                  <div id="uploader-trainer-title-help" class="form-text">The name of the game or the release</div>
                 </div>
                 <div class="col-md-5">
                   <div class="form-label small fw-medium mb-1">Date of release <span class="text-body-secondary fw-normal">(optional)</span></div>
@@ -449,7 +449,7 @@
                 </label>
                 <input type="file" name="uploader-textfile" id="uploader-text-file" class="form-control" required>
                 <div class="form-text">
-                  <strong>Do not upload separate .NFO and .DIZ files</strong> — keep the texts of a release in a single zip archive and upload that here.
+                  <strong>Do not upload separate .NFO and .DIZ files</strong> - keep the texts of a release in a single zip archive and upload that here.
                 </div>
                 <div class="d-none alert alert-danger mt-2 mb-0" role="alert" id="uploader-text-alert"></div>
                 <progress id="uploader-text-progress" class="w-100 mt-2" value="0" max="100"></progress>
@@ -619,7 +619,7 @@
                   <input type="text" name="uploader-magazine-title" class="form-control" id="uploader-magazine-title"
                       aria-describedby="uploader-magazine-title-help" placeholder="example: 1" required>
                   <div id="uploader-magazine-title-help" class="form-text">
-                    Issue number (<em>1</em>), volume (<em>1, volume 1</em>), or description (<em>The complete collection</em>)
+                    Keep it simple, use an issue # <em>1</em>, or a description <em>The complete collection</em>
                   </div>
                 </div>
               </div>
@@ -637,7 +637,7 @@
                 </div>
                 <div class="col-md-7">
                   <label for="uploader-magazine-credit" class="form-label small fw-medium mb-1">
-                    Writers <span class="text-body-secondary fw-normal">(optional, comma-separated)</span>
+                    Writers, interviewees, mentions <span class="text-body-secondary fw-normal">(optional, comma-separated)</span>
                   </label>
                   <input type="text" name="uploader-magazine-credittext" class="form-control" id="uploader-magazine-credit"
                     spellcheck="false" placeholder="Name1, Name2">

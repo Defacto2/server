@@ -55,7 +55,7 @@ func Apps(sl *slog.Logger, c *echo.Context) error {
 		template:   apps,
 		errContext: "apps handler context",
 		title:      "Use current apps",
-		h1:         "Modern Applications and Tools",
+		h1:         "Modern applications and tools",
 		logo:       "Software suggestions",
 		lead: "Here are some software suggestions and Windows, Linux, macOS tools for running out-of-date programs " +
 			"and using legacy media formats.",
@@ -259,8 +259,8 @@ func Policy(sl *slog.Logger, c *echo.Context) error {
 	return renderStatic(sl, c, staticPage{
 		template:    policy,
 		errContext:  "policy context",
-		title:       "Privacy & copyright",
-		h1:          "Privacy & copyright",
+		title:       "Privacy and copyright",
+		h1:          "Privacy and © copyright",
 		logo:        "Privacy & copyright",
 		lead:        "How we handle visitor privacy and how Defacto2 content may be reused.",
 		description: "Defacto2 privacy policy and Creative Commons copyright licensing.",
@@ -287,10 +287,9 @@ func Thanks(sl *slog.Logger, c *echo.Context) error {
 		errContext: "thanks context",
 		title:      "Thank you!",
 		h1:         "Thank you!",
-		lead: "Thanks to the hundreds of people who have contributed to" +
-			" Defacto2 over the decades with file submissions, " +
-			"hard drive donations, interviews, corrections, artwork, and monetary contributions!",
-		description: "A special thanks to the hundreds of contributors and the thousands of contributions.",
+		lead: "A massive thank you to the people who have helped to keep" +
+			" Defacto2 online with monetary contributions!",
+		description: "A special thanks to the financial contributions.",
 	})
 }
 
