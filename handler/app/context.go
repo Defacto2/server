@@ -22,6 +22,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 	"uuid"
 
 	"github.com/Defacto2/helper"
@@ -2182,7 +2183,14 @@ func ProdZoo(c *echo.Context, id string) error {
 // TestZoo is the handler for the Demozoo API authorization test.
 // Introduced in October 2026, it returns either 200 OK or 403 Forbidden.
 func TestZoo(c *echo.Context) error {
+	const format = "test zoo context: %w"
+	if err := nils.Check(c); err != nil {
+		return fmt.Errorf(format, err)
+	}
+
 	const url = "https://demozoo.org/api/v1/auth_test/"
+	const timeout = 15 * time.Second
+	const maxBody = 64 << 10
 
 	auth, ok := c.Get(config.ZooAuth).(string)
 	if !ok {
@@ -2195,7 +2203,7 @@ func TestZoo(c *echo.Context) error {
 	}
 	req.Header.Set("User-Agent", helper.UserAgent)
 	req.Header.Set("Authorization", "Api-Key "+auth)
-	client := &http.Client{}
+	client := &http.Client{Timeout: timeout}
 	resp, err := client.Do(req)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
@@ -2204,7 +2212,7 @@ func TestZoo(c *echo.Context) error {
 		return c.String(http.StatusInternalServerError, "demozoo response body is empty")
 	}
 	defer resp.Body.Close()
-	b, err := io.ReadAll(resp.Body)
+	b, err := io.ReadAll(io.LimitReader(resp.Body, maxBody))
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
