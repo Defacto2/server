@@ -1849,14 +1849,9 @@ func EditFn(sl *slog.Logger, c *echo.Context, db *sql.DB,
 	}
 
 	ctx := c.Request().Context()
-	r, err := model.One(ctx, db, true, f.ID)
-	if err != nil {
-		return fmt.Errorf(format, strconv.Itoa(f.ID), err)
-	}
-
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
-		return badRequest(c, err)
+		return c.String(http.StatusServiceUnavailable, err.Error())
 	}
 	// Rollback is a no-op once tx.Commit succeeds; ensures cleanup on early return or panic.
 	defer func() {
@@ -1865,8 +1860,12 @@ func EditFn(sl *slog.Logger, c *echo.Context, db *sql.DB,
 	if err = fn(ctx, tx, int64(f.ID), f.Value); err != nil {
 		return badRequest(c, err)
 	}
+	r, err := model.One(ctx, tx, true, f.ID)
+	if err != nil {
+		return fmt.Errorf(format, strconv.Itoa(f.ID), err)
+	}
 	if err = tx.Commit(); err != nil {
-		return badRequest(c, err)
+		return c.String(http.StatusServiceUnavailable, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, r)
@@ -2083,7 +2082,7 @@ func PouetCache(c *echo.Context, data string) error {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	if data == "" {
-		return nil
+		return fmt.Errorf("%s: empty data: %w", msg, ErrCorrupt)
 	}
 
 	pv := pouet.Votes{ID: 0, Stars: 0.0, VotesAvg: 0.0, VotesUp: 0, VotesMeh: 0, VotesDown: 0}
@@ -2093,7 +2092,7 @@ func PouetCache(c *echo.Context, data string) error {
 		return fmt.Errorf("%s: %d, want %d: %w", msg, len(votes), req, ErrCorrupt)
 	}
 
-	const format = msg + "%s: %w"
+	const format = msg + " %s: %w"
 	stars, err := strconv.ParseFloat(votes[0], 64)
 	if err != nil {
 		return fmt.Errorf(format, votes[0], err)
