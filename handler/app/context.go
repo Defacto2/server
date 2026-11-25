@@ -235,7 +235,12 @@ func Artifacts(sl *slog.Logger, c *echo.Context, db *sql.DB, uri, page string) e
 }
 
 func zeroOk(uri string) bool {
-	return uri == "for-approval"
+	switch fileslice.Match(uri) {
+	case fileslice.ForApproval, fileslice.Deletions, fileslice.Unwanted:
+		return true
+	default:
+		return false
+	}
 }
 
 func pageLimit(uri string) int {
@@ -279,7 +284,10 @@ func artifactsTable(ctx context.Context, sl *slog.Logger, c *echo.Context, db *s
 	}
 	lim := pageLimit(uri)
 	lastPage := math.Ceil(float64(sum) / float64(lim))
-	if page < 1 || (page > int(lastPage) && !zeroOk(uri)) {
+	if lastPage == 0 && zeroOk(uri) {
+		lastPage = 1
+	}
+	if page < 1 || page > int(lastPage) {
 		return PageErr(sl, c, uri, spage)
 	}
 
