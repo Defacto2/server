@@ -2343,10 +2343,7 @@ func Releaser(sl *slog.Logger, c *echo.Context, db *sql.DB, uri string, public f
 	data["janeway"] = janeway.Find(uri)
 	data["website"] = site.Find(uri)
 
-	tidbits := tidbit.Find(uri)
-	slices.Sort(tidbits)
-	htm := tibits(sl, uri, public)
-	data["tidbits"] = template.HTML(htm)
+	data["tidbits"] = template.HTML(renderTidbits(sl, uri, public))
 
 	if strings.HasSuffix(uri, "-bbs") {
 		data["bbs"] = true
@@ -2409,7 +2406,7 @@ func releasersDesc(relname, altnames string, d map[string]string, data map[strin
 	return data
 }
 
-func tibits(sl *slog.Logger, uri string, public fs.FS) string {
+func renderTidbits(sl *slog.Logger, uri string, public fs.FS) string {
 	if sl == nil {
 		sl = logs.Discard()
 	}
