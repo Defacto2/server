@@ -6,6 +6,7 @@ package app
 import (
 	"context"
 	"crypto/sha512"
+	"crypto/subtle"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -1444,16 +1445,13 @@ func GoogleCallback(sl *slog.Logger, c *echo.Context, clientID string, maxAge in
 	const csrf = "g_csrf_token"
 	cookie, err := c.Cookie(csrf)
 	if err != nil {
-		if errors.Is(err, http.ErrNoCookie) {
-			return c.Redirect(http.StatusForbidden, "/signin")
-		}
 		return BadRequestErr(sl, c, callback, err)
 	}
 	token := cookie.Value
 
 	// Cross-Site Request Forgery post token
 	bodyToken := c.FormValue(csrf)
-	if token != bodyToken {
+	if token == "" || subtle.ConstantTimeCompare([]byte(token), []byte(bodyToken)) != 1 {
 		return BadRequestErr(sl, c, callback, ErrMisMatch)
 	}
 
