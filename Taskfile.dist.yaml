@@ -156,6 +156,8 @@ tasks:
     cmds:
       - |
         go list -u -m $(go list -m -f '{{`{{if not .Indirect}}{{.Path}}{{end}}`}}' all)
+      - |
+        go -C runner list -u -m $(go -C runner list -m -f '{{`{{if not .Indirect}}{{.Path}}{{end}}`}}' all)
   pkg-js:
     aliases:
       - 'js'
@@ -171,6 +173,9 @@ tasks:
       - cmd: go get -u=patch -x
       - cmd: go mod verify
       - cmd: go mod tidy
+      - cmd: go -C runner get -u=patch -x
+      - cmd: go -C runner mod verify
+      - cmd: go -C runner mod tidy
   pkg-update:
     aliases:
       - 'update'
@@ -181,6 +186,9 @@ tasks:
       - cmd: go get go.uber.org/nilaway/cmd/nilaway@latest
       - cmd: go mod verify
       - cmd: go mod tidy
+      - cmd: go -C runner get -u -x
+      - cmd: go -C runner mod verify
+      - cmd: go -C runner mod tidy
   serve:
     aliases:
       - 'http'
