@@ -196,7 +196,7 @@ type Era struct {
 //   - 1. 1980 - 1982
 //   - 2. 1980 - 1990
 //   - 3. 1981 - 1985
-func (s *Stats) SortYear() [20]Era {
+func (s *Stats) SortYear() [22]Era {
 	items := s.eras()
 
 	slices.SortFunc(items[:], func(a, b Era) int {
@@ -210,15 +210,18 @@ func (s *Stats) SortYear() [20]Era {
 	return items
 }
 
-// Item is used to provided sorted statistics for artifact categories.
+// Item is used to provide sorted statistics for artifact categories.
 type Item struct {
-	Name  string
-	Bytes int
-	Count int
+	Name    string
+	URI     string
+	Bytes   int
+	Count   int
+	MinYear int
+	MaxYear int
 }
 
 // SortByte returns the Items sorted from highest to lowest bytes.
-func (s *Stats) SortByte() [21]Item {
+func (s *Stats) SortByte() [22]Item {
 	items := s.items()
 
 	slices.SortFunc(items[:], func(a, b Item) int {
@@ -233,7 +236,7 @@ func (s *Stats) SortByte() [21]Item {
 }
 
 // SortCount returns the Items sorted by highest to lowest counts.
-func (s *Stats) SortCount() [21]Item {
+func (s *Stats) SortCount() [22]Item {
 	items := s.items()
 
 	slices.SortFunc(items[:], func(a, b Item) int {
@@ -248,7 +251,7 @@ func (s *Stats) SortCount() [21]Item {
 }
 
 // SortName returns the Items sorted alphabetically by their name.
-func (s *Stats) SortName() [21]Item {
+func (s *Stats) SortName() [22]Item {
 	items := s.items()
 
 	slices.SortFunc(items[:], func(a, b Item) int {
@@ -258,14 +261,14 @@ func (s *Stats) SortName() [21]Item {
 	return items
 }
 
-func (s *Stats) eras() [20]Era {
+func (s *Stats) eras() [22]Era {
 	return [...]Era{
 		{s.Ansi.String(), s.Ansi.MinYear, s.Ansi.MaxYear},
 		{s.AnsiBBS.String(), s.AnsiBBS.MinYear, s.AnsiBBS.MaxYear},
 		{s.BBS.String(), s.BBS.MinYear, s.BBS.MaxYear},
 		{s.BBSText.String(), s.BBSText.MinYear, s.BBSText.MaxYear},
 		{s.BBStro.String(), s.BBStro.MinYear, s.BBStro.MaxYear},
-		//	{s.Console.String(), s.Console.MinYear, s.Console.MaxYear},
+		{s.Console.String(), s.Console.MinYear, s.Console.MaxYear},
 		{s.Demoscene.String(), s.Demoscene.MinYear, s.Demoscene.MaxYear},
 		{s.MsDos.String(), s.MsDos.MinYear, s.MsDos.MaxYear},
 		{s.Intro.String(), s.Intro.MinYear, s.Intro.MaxYear},
@@ -280,33 +283,35 @@ func (s *Stats) eras() [20]Era {
 		{s.NfoTool.String(), s.NfoTool.MinYear, s.NfoTool.MaxYear},
 		{s.Proof.String(), s.Proof.MinYear, s.Proof.MaxYear},
 		{s.Script.String(), s.Script.MinYear, s.Script.MaxYear},
+		{s.Text.String(), s.Text.MinYear, s.Text.MaxYear},
 		{s.Windows.String(), s.Windows.MinYear, s.Windows.MaxYear},
 	}
 }
 
-func (s *Stats) items() [21]Item {
+func (s *Stats) items() [22]Item {
 	return [...]Item{
-		{s.Ansi.String(), s.Ansi.Bytes, s.Ansi.Count},
-		{s.AnsiBBS.String(), s.AnsiBBS.Bytes, s.AnsiBBS.Count},
-		{s.BBS.String(), s.BBS.Bytes, s.BBS.Count},
-		{s.BBSText.String(), s.BBSText.Bytes, s.BBSText.Count},
-		{s.BBStro.String(), s.BBStro.Bytes, s.BBStro.Count},
-		{s.Console.String(), s.Console.Bytes, s.Console.Count},
-		{s.Demoscene.String(), s.Demoscene.Bytes, s.Demoscene.Count},
-		{s.MsDos.String(), s.MsDos.Bytes, s.MsDos.Count},
-		{s.Intro.String(), s.Intro.Bytes, s.Intro.Count},
-		{s.IntroD.String(), s.IntroD.Bytes, s.IntroD.Count},
-		{s.IntroW.String(), s.IntroW.Bytes, s.IntroW.Count},
-		{s.Installer.String(), s.Installer.Bytes, s.Installer.Count},
-		{s.Java.String(), s.Java.Bytes, s.Java.Count},
-		{s.Linux.String(), s.Linux.Bytes, s.Linux.Count},
-		{s.Magazine.String(), s.Magazine.Bytes, s.Magazine.Count},
-		{s.Macos.String(), s.Macos.Bytes, s.Macos.Count},
-		{s.Nfo.String(), s.Nfo.Bytes, s.Nfo.Count},
-		{s.NfoTool.String(), s.NfoTool.Bytes, s.NfoTool.Count},
-		{s.Proof.String(), s.Proof.Bytes, s.Proof.Count},
-		{s.Script.String(), s.Script.Bytes, s.Script.Count},
-		{s.Windows.String(), s.Windows.Bytes, s.Windows.Count},
+		{s.Ansi.String(), "ansi", s.Ansi.Bytes, s.Ansi.Count, s.Ansi.MinYear, s.Ansi.MaxYear},
+		{s.AnsiBBS.String(), "ansi-bbs", s.AnsiBBS.Bytes, s.AnsiBBS.Count, s.AnsiBBS.MinYear, s.AnsiBBS.MaxYear},
+		{s.BBS.String(), "bbs", s.BBS.Bytes, s.BBS.Count, s.BBS.MinYear, s.BBS.MaxYear},
+		{s.BBSText.String(), "bbs-text", s.BBSText.Bytes, s.BBSText.Count, s.BBSText.MinYear, s.BBSText.MaxYear},
+		{s.BBStro.String(), "bbstro", s.BBStro.Bytes, s.BBStro.Count, s.BBStro.MinYear, s.BBStro.MaxYear},
+		{s.Console.String(), "console", s.Console.Bytes, s.Console.Count, s.Console.MinYear, s.Console.MaxYear},
+		{s.Demoscene.String(), "demoscene", s.Demoscene.Bytes, s.Demoscene.Count, s.Demoscene.MinYear, s.Demoscene.MaxYear},
+		{s.MsDos.String(), "msdos", s.MsDos.Bytes, s.MsDos.Count, s.MsDos.MinYear, s.MsDos.MaxYear},
+		{s.Intro.String(), "intro", s.Intro.Bytes, s.Intro.Count, s.Intro.MinYear, s.Intro.MaxYear},
+		{s.IntroD.String(), "intro-msdos", s.IntroD.Bytes, s.IntroD.Count, s.IntroD.MinYear, s.IntroD.MaxYear},
+		{s.IntroW.String(), "intro-windows", s.IntroW.Bytes, s.IntroW.Count, s.IntroW.MinYear, s.IntroW.MaxYear},
+		{s.Installer.String(), "installer", s.Installer.Bytes, s.Installer.Count, s.Installer.MinYear, s.Installer.MaxYear},
+		{s.Java.String(), "java", s.Java.Bytes, s.Java.Count, s.Java.MinYear, s.Java.MaxYear},
+		{s.Linux.String(), "linux", s.Linux.Bytes, s.Linux.Count, s.Linux.MinYear, s.Linux.MaxYear},
+		{s.Magazine.String(), "magazine", s.Magazine.Bytes, s.Magazine.Count, s.Magazine.MinYear, s.Magazine.MaxYear},
+		{s.Macos.String(), "macos", s.Macos.Bytes, s.Macos.Count, s.Macos.MinYear, s.Macos.MaxYear},
+		{s.Nfo.String(), "nfo", s.Nfo.Bytes, s.Nfo.Count, s.Nfo.MinYear, s.Nfo.MaxYear},
+		{s.NfoTool.String(), "nfo-tool", s.NfoTool.Bytes, s.NfoTool.Count, s.NfoTool.MinYear, s.NfoTool.MaxYear},
+		{s.Proof.String(), "proof", s.Proof.Bytes, s.Proof.Count, s.Proof.MinYear, s.Proof.MaxYear},
+		{s.Script.String(), "script", s.Script.Bytes, s.Script.Count, s.Script.MinYear, s.Script.MaxYear},
+		{s.Text.String(), "text", s.Text.Bytes, s.Text.Count, s.Text.MinYear, s.Text.MaxYear},
+		{s.Windows.String(), "windows", s.Windows.Bytes, s.Windows.Count, s.Windows.MinYear, s.Windows.MaxYear},
 	}
 }
 

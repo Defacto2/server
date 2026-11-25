@@ -1024,6 +1024,77 @@ func Categories(sl *slog.Logger, c *echo.Context, db *sql.DB, stats bool) error 
 	return nil
 }
 
+type categoryStatSummary struct {
+	CountFmt  string
+	BytesFmt  string
+	MinYear   int
+	MaxYear   int
+	SpanYears int
+}
+
+type categoryStatRow struct {
+	Name     string
+	URI      string
+	Count    int
+	CountFmt string
+	CountPct int
+	Bytes    int
+	BytesFmt string
+	BytesPct int
+	MinYear  int
+	MaxYear  int
+}
+
+func buildStatRows(c fileslice.Stats) (categoryStatSummary, []categoryStatRow) {
+	span := 0
+	if c.Record.MinYear > 0 && c.Record.MaxYear >= c.Record.MinYear {
+		span = c.Record.MaxYear - c.Record.MinYear + 1
+	}
+	summary := categoryStatSummary{
+		CountFmt:  humanize.Comma(int64(c.Record.Count)),
+		BytesFmt:  helper.ByteCountFloat(int64(c.Record.Bytes)),
+		MinYear:   c.Record.MinYear,
+		MaxYear:   c.Record.MaxYear,
+		SpanYears: span,
+	}
+
+	sorted := c.SortCount()
+	maxCount, maxBytes := 1, 1
+	for _, item := range sorted {
+		if item.Count > maxCount {
+			maxCount = item.Count
+		}
+		if item.Bytes > maxBytes {
+			maxBytes = item.Bytes
+		}
+	}
+
+	rows := make([]categoryStatRow, 0, len(sorted))
+	for _, item := range sorted {
+		countPct := item.Count * 100 / maxCount
+		if item.Count > 0 && countPct == 0 {
+			countPct = 1
+		}
+		bytesPct := item.Bytes * 100 / maxBytes
+		if item.Bytes > 0 && bytesPct == 0 {
+			bytesPct = 1
+		}
+		rows = append(rows, categoryStatRow{
+			Name:     item.Name,
+			URI:      item.URI,
+			Count:    item.Count,
+			CountFmt: humanize.Comma(int64(item.Count)),
+			CountPct: countPct,
+			Bytes:    item.Bytes,
+			BytesFmt: helper.ByteCountFloat(int64(item.Bytes)),
+			BytesPct: bytesPct,
+			MinYear:  item.MinYear,
+			MaxYear:  item.MaxYear,
+		})
+	}
+	return summary, rows
+}
+
 // fileWStats is a helper function for File that adds the statistics to the data map.
 func fileWStats(ctx context.Context, sl *slog.Logger, db *sql.DB, data map[string]any, stats bool) (
 	map[string]any, error,
@@ -1034,8 +1105,8 @@ func fileWStats(ctx context.Context, sl *slog.Logger, db *sql.DB, data map[strin
 	}
 
 	const title = "Artifact category statistics"
-	const descr = "This page shows the artifacts categories with selected statistics, " +
-		"such as the number of files in the category or platform."
+	const descr = "This page shows the artifact categories with selected statistics, " +
+		"such as the number of files, storage size, and publishing span in each category or platform."
 	if data == nil {
 		data = empty
 	}
@@ -1048,11 +1119,11 @@ func fileWStats(ctx context.Context, sl *slog.Logger, db *sql.DB, data map[strin
 		return data, fmt.Errorf("counter: %w", err)
 	}
 
+	summary, rows := buildStatRows(c)
 	data["counter"] = c
-	data["orderByBytes"] = c.SortByte()
-	data["orderByCount"] = c.SortCount()
-	data["orderByName"] = c.SortName()
-	data["orderByYear"] = c.SortYear()
+	data["statSummary"] = summary
+	data["statRows"] = rows
+	data["description"] = descr
 	data["h1"] = title
 	data["logo"] = title
 	data["lead"] = descr

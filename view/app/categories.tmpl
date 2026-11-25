@@ -1,435 +1,607 @@
-{{- /*  
+{{- /*
     categories.tmpl ~ the categories template is for the files, browse categories menu.
 */ -}}
 {{- define "content" }}
-{{- $cardClass := " h-100"}}
-{{- $rels := index . "counter" }}
-{{- $linkClass := "card-link text-nowrap"}}
-{{- /* note row-cols-sm-* is the smallest row-cols value */}}
-{{- $rowCols := "row row-cols-1 row-cols-sm-2 row-cols-md-5 g-3 p-3 g-md-0 p-md-0"}}
+{{- $cardClass := " h-100" }}
 <div class="container-xxl">
 {{- if .stats }}
-<div class="row row-cols-1 row-cols-lg-2 g-4 mb-4">
-    <div class="col">
-        <div class="card{{$cardClass}}">
-            <div class="card-body">
-                <h2 class="h5 card-title mb-3">Publishing years</h2>
-                <div class="d-flex justify-content-between align-items-baseline gap-2 pb-2 mb-2 border-bottom">
-                    <span class="text-body-secondary">Range</span>
-                    <span class="font-monospace fw-medium">{{$rels.Record.MinYear}} &ndash; {{$rels.Record.MaxYear}}</span>
+{{- $summary := index . "statSummary" }}
+<div id="stats" class="mb-5">
+    <div class="row row-cols-1 row-cols-md-3 g-3 mb-4">
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="index-eyebrow mb-1">Total artifacts</div>
+                    <div class="fs-3 fw-semibold font-monospace">{{ $summary.CountFmt }}</div>
+                    <div class="small text-body-secondary">Public files in the archive</div>
                 </div>
-                <ul class="list-group list-group-flush small mb-0">
-                    {{- range .orderByYear }}
-                    <li class="list-group-item px-0 py-1 d-flex justify-content-between align-items-baseline gap-3">
-                        <span class="text-body-secondary">{{ .Name }}</span>
-                        <span class="font-monospace text-end text-nowrap">{{ .MinYear }} &ndash; {{ .MaxYear }}</span>
-                    </li>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="index-eyebrow mb-1">Archive size</div>
+                    <div class="fs-3 fw-semibold font-monospace">{{ $summary.BytesFmt }}</div>
+                    <div class="small text-body-secondary">Combined download footprint</div>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="index-eyebrow mb-1">Publishing span</div>
+                    <div class="fs-3 fw-semibold font-monospace">{{ $summary.MinYear }} &ndash; {{ $summary.MaxYear }}</div>
+                    <div class="small text-body-secondary">{{ if gt $summary.SpanYears 0 }}{{ $summary.SpanYears }} years of releases{{ else }}Date range{{ end }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header bg-body-tertiary d-flex flex-wrap align-items-center justify-content-between gap-2 px-3 py-2">
+            <div class="d-flex flex-wrap align-items-center gap-2">
+                <span class="small fw-semibold text-body-secondary me-1">Sort by:</span>
+                <div class="btn-group btn-group-sm" role="group" aria-label="Sort category statistics">
+                    <button type="button" class="btn btn-primary" data-stat-sort="count" data-stat-dir="desc">Most files</button>
+                    <button type="button" class="btn btn-outline-secondary" data-stat-sort="bytes" data-stat-dir="desc">Largest size</button>
+                    <button type="button" class="btn btn-outline-secondary" data-stat-sort="year" data-stat-dir="asc">Oldest first</button>
+                    <button type="button" class="btn btn-outline-secondary" data-stat-sort="name" data-stat-dir="asc">A-Z</button>
+                </div>
+            </div>
+            <a href="/file" class="btn btn-sm btn-outline-primary">Browse artifact categories</a>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" id="category-stats-table">
+                <thead>
+                    <tr class="small text-uppercase text-body-secondary">
+                        <th scope="col" class="ps-3">Category</th>
+                        <th scope="col" class="text-end" style="min-width: 11rem;">Files</th>
+                        <th scope="col" class="text-end" style="min-width: 11rem;">Size</th>
+                        <th scope="col" class="text-end pe-3 text-nowrap">Years</th>
+                    </tr>
+                </thead>
+                <tbody class="small">
+                    {{- range .statRows }}
+                    <tr data-name="{{ .Name }}" data-count="{{ .Count }}" data-bytes="{{ .Bytes }}" data-minyear="{{ .MinYear }}" data-maxyear="{{ .MaxYear }}">
+                        <td class="ps-3 fw-medium">
+                            {{- if .URI }}
+                            <a href="/files/{{ .URI }}" class="text-decoration-none">{{ .Name }}</a>
+                            {{- else }}
+                            {{ .Name }}
+                            {{- end }}
+                        </td>
+                        <td class="text-end">
+                            <div class="font-monospace">{{ .CountFmt }}</div>
+                            <div class="progress mt-1" style="height: 4px;" aria-hidden="true">
+                                <div class="progress-bar" style="width: {{ .CountPct }}%"></div>
+                            </div>
+                        </td>
+                        <td class="text-end">
+                            <div class="font-monospace">{{ .BytesFmt }}</div>
+                            <div class="progress mt-1" style="height: 4px;" aria-hidden="true">
+                                <div class="progress-bar bg-secondary" style="width: {{ .BytesPct }}%"></div>
+                            </div>
+                        </td>
+                        <td class="text-end pe-3 font-monospace text-nowrap text-body-secondary">
+                            {{- if and (gt .MinYear 0) (gt .MaxYear 0) }}
+                            {{ .MinYear }} &ndash; {{ .MaxYear }}
+                            {{- else }}
+                            &ndash;
+                            {{- end }}
+                        </td>
+                    </tr>
                     {{- end }}
-                </ul>
-            </div>
+                </tbody>
+            </table>
         </div>
-    </div>
-    <div class="col">
-        <div class="card{{$cardClass}}">
-            <div class="card-body">
-                <h2 class="h5 card-title mb-3">Counts and bytes</h2>
-                <div class="d-flex justify-content-between align-items-baseline gap-2 pb-2 mb-2 border-bottom">
-                    <span class="text-body-secondary">Totals</span>
-                    <span class="font-monospace fw-medium text-end">{{ byteFile $rels.Record.Count $rels.Record.Bytes }}</span>
-                </div>
-                <ul class="list-group list-group-flush small mb-0">
-                    {{- range .orderByName }}
-                    <li class="list-group-item px-0 py-1 d-flex justify-content-between align-items-baseline gap-3">
-                        <span class="text-body-secondary">{{ .Name }}</span>
-                        <span class="font-monospace text-end text-nowrap">{{ byteFile .Count .Bytes }}</span>
-                    </li>
-                    {{- end }}
-                </ul>
-            </div>
-        </div>
-    </div>
-    <div class="col">
-        <div class="card{{$cardClass}}">
-            <div class="card-body">
-                <h2 class="h5 card-title mb-3">Sort by counts</h2>
-                <div class="d-flex justify-content-between align-items-baseline gap-2 pb-2 mb-2 border-bottom">
-                    <span class="text-body-secondary">Total</span>
-                    <span class="font-monospace fw-medium text-end">{{ $rels.Record.Count }} files</span>
-                </div>
-                <ul class="list-group list-group-flush small mb-0">
-                    {{- range .orderByCount }}
-                    <li class="list-group-item px-0 py-1 d-flex justify-content-between align-items-baseline gap-3">
-                        <span class="text-body-secondary">{{ .Name }}</span>
-                        <span class="font-monospace text-end text-nowrap">{{ byteFile .Count .Bytes }}</span>
-                    </li>
-                    {{- end }}
-                </ul>
-            </div>
-        </div>
-    </div>
-    <div class="col">
-        <div class="card{{$cardClass}}">
-            <div class="card-body">
-                <h2 class="h5 card-title mb-3">Sort by bytes</h2>
-                <div class="d-flex justify-content-between align-items-baseline gap-2 pb-2 mb-2 border-bottom">
-                    <span class="text-body-secondary">Total</span>
-                    <span class="font-monospace fw-medium text-end">{{ byteBytes $rels.Record.Bytes }}</span>
-                </div>
-                <ul class="list-group list-group-flush small mb-0">
-                    {{- range .orderByBytes }}
-                    <li class="list-group-item px-0 py-1 d-flex justify-content-between align-items-baseline gap-3">
-                        <span class="text-body-secondary">{{ .Name }}</span>
-                        <span class="font-monospace text-end text-nowrap">{{ byteBytes .Bytes }}</span>
-                    </li>
-                    {{- end }}
-                </ul>
-            </div>
+        <div class="card-footer bg-body-tertiary small text-body-secondary px-3 py-2">
+            Categories overlap across platforms and sections (for example, an MS-DOS intro counts under both Intros and MS-DOS), so individual rows sum to more than the archive total.
         </div>
     </div>
 </div>
-{{- end}}
-{{/*  hashtags  */}}
-<div class="row row-cols-1 g-1">
-    <div class="h-100">
-        <div class="card">
-            <div class="card-body fs-6 fw-light">
-            <div class="d-flex flex-wrap gap-2 mb-0">
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/text-amiga">amiga text</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-secondary-subtle text-secondary-emphasis border-secondary-subtle" rel="nofollow" href="/files/announcement">announcement</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/ansi">ansi</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/animation">ansimation</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/animation">ansi animation</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/ansi-bbs">ansi bbs advert</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/ansi-ftp">ansi ftp advert</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/ansi-brand">ansi logo</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/ansi-nfo">ansi nfo</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/ansi-pack">ansi pack</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-primary-subtle text-primary-emphasis border-primary-subtle" rel="nofollow" href="/files/text-apple2">apple 2</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-secondary-subtle text-secondary-emphasis border-secondary-subtle" rel="nofollow" href="/files/job-advert">application ad</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/image">art</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-primary-subtle text-primary-emphasis border-primary-subtle" rel="nofollow" href="/files/text-atari-st">atari</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-warning-subtle text-warning-emphasis border-warning-subtle" rel="nofollow" href="/files/bbs">BBS</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-warning-subtle text-warning-emphasis border-warning-subtle" rel="nofollow" href="/files/bbstro">BBStro</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-danger-subtle text-danger-emphasis border-danger-subtle" rel="nofollow" href="/files/restrict">behind the scenes</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-warning-subtle text-warning-emphasis border-warning-subtle" rel="nofollow" href="/files/bbs">board</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-danger-subtle text-danger-emphasis border-danger-subtle" rel="nofollow" href="/files/takedown">bust</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-info-subtle text-info-emphasis border-info-subtle" rel="nofollow" href="/files/hack">cheat</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/ansi">color text</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-primary-subtle text-primary-emphasis border-primary-subtle" rel="nofollow" href="/files/console">console</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-info-subtle text-info-emphasis border-info-subtle" rel="nofollow" href="/files/trial-crackme">crackme</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-warning-subtle text-warning-emphasis border-warning-subtle" rel="nofollow" href="/files/intro">cracktro</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-warning-subtle text-warning-emphasis border-warning-subtle" rel="nofollow" href="/files/intro">crack intro</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-warning-subtle text-warning-emphasis border-warning-subtle" rel="nofollow" href="/files/intro">crack screen</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-info-subtle text-info-emphasis border-info-subtle" rel="nofollow" href="/files/database">database</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-info-subtle text-info-emphasis border-info-subtle" rel="nofollow" href="/files/database">db</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-warning-subtle text-warning-emphasis border-warning-subtle" rel="nofollow" href="/files/demoscene">demo</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-warning-subtle text-warning-emphasis border-warning-subtle" rel="nofollow" href="/files/demoscene">demoscene</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-warning-subtle text-warning-emphasis border-warning-subtle" rel="nofollow" href="/files/magazine">disk mag</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-primary-subtle text-primary-emphasis border-primary-subtle" rel="nofollow" href="/files/msdos">dos</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-primary-subtle text-primary-emphasis border-primary-subtle" rel="nofollow" href="/files/msdos-pack">dos pack</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-danger-subtle text-danger-emphasis border-danger-subtle" rel="nofollow" href="/files/drama">drama</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-warning-subtle text-warning-emphasis border-warning-subtle" rel="nofollow" href="/files/magazine">emag</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-info-subtle text-info-emphasis border-info-subtle" rel="nofollow" href="/files/hack">exploit</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-secondary-subtle text-secondary-emphasis border-secondary-subtle" rel="nofollow" href="/files/advert">for sale</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-secondary-subtle text-secondary-emphasis border-secondary-subtle" rel="nofollow" href="/files/ftp">FTP</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-info-subtle text-info-emphasis border-info-subtle" rel="nofollow" href="/files/hack">game hack</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-secondary-subtle text-secondary-emphasis border-secondary-subtle" rel="nofollow" href="/files/how-to">guide</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-secondary-subtle text-secondary-emphasis border-secondary-subtle" rel="nofollow" href="/files/how-to">how-to</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/html">html</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/image">image</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/image-pack">image pack</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/nfo">information text</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-danger-subtle text-danger-emphasis border-danger-subtle" rel="nofollow" href="/files/restrict">insider</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/installer">installer</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/installer">installation app</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-secondary-subtle text-secondary-emphasis border-secondary-subtle" rel="nofollow" href="/files/how-to">instruction</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-warning-subtle text-warning-emphasis border-warning-subtle" rel="nofollow" href="/files/intro">intro</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-primary-subtle text-primary-emphasis border-primary-subtle" rel="nofollow" href="/files/java">java</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-secondary-subtle text-secondary-emphasis border-secondary-subtle" rel="nofollow" href="/files/job-advert">job ad</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-primary-subtle text-primary-emphasis border-primary-subtle" rel="nofollow" href="/files/linux">linux</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-warning-subtle text-warning-emphasis border-warning-subtle" rel="nofollow" href="/files/intro">loader</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-primary-subtle text-primary-emphasis border-primary-subtle" rel="nofollow" href="/files/macos">macOS</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-warning-subtle text-warning-emphasis border-warning-subtle" rel="nofollow" href="/files/magazine">magazine</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-warning-subtle text-warning-emphasis border-warning-subtle" rel="nofollow" href="/magazine">magazine title</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/music">mod</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-primary-subtle text-primary-emphasis border-primary-subtle" rel="nofollow" href="/files/msdos">ms-dos</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/music">music</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-secondary-subtle text-secondary-emphasis border-secondary-subtle" rel="nofollow" href="/files/news-article">news media</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/nfo">NFO</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-primary-subtle text-primary-emphasis border-primary-subtle" rel="nofollow" href="/files/macos">os x</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-warning-subtle text-warning-emphasis border-warning-subtle" rel="nofollow" href="/files/pcboard">PCBoard</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-warning-subtle text-warning-emphasis border-warning-subtle" rel="nofollow" href="/files/pcboard-ppe">PPE</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-primary-subtle text-primary-emphasis border-primary-subtle" rel="nofollow" href="/files/msdos">pc-dos</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/pdf">pdf</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/image">picture</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-secondary-subtle text-secondary-emphasis border-secondary-subtle" rel="nofollow" href="/files/proof">proof</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/nfo">readme</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-secondary-subtle text-secondary-emphasis border-secondary-subtle" rel="nofollow" href="/files/proof">release proof</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-danger-subtle text-danger-emphasis border-danger-subtle" rel="nofollow" href="/files/restrict">restricted</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-secondary-subtle text-secondary-emphasis border-secondary-subtle" rel="nofollow" href="/files/standards">scene rules</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/script">script</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/script">shell</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-secondary-subtle text-secondary-emphasis border-secondary-subtle" rel="nofollow" href="/files/ftp">site</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-secondary-subtle text-secondary-emphasis border-secondary-subtle" rel="nofollow" href="/files/standards">standards</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-danger-subtle text-danger-emphasis border-danger-subtle" rel="nofollow" href="/files/takedown">takedown</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/text">text</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/text-pack">text pack</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/music">tracker</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-info-subtle text-info-emphasis border-info-subtle" rel="nofollow" href="/files/hack">trainer</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-secondary-subtle text-secondary-emphasis border-secondary-subtle" rel="nofollow" href="/files/how-to">unprotect</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/video">video</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-primary-subtle text-primary-emphasis border-primary-subtle" rel="nofollow" href="/files/console">video games</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-primary-subtle text-primary-emphasis border-primary-subtle" rel="nofollow" href="/files/windows">windows</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-primary-subtle text-primary-emphasis border-primary-subtle" rel="nofollow" href="/files/windows-pack">windows pack</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-warning-subtle text-warning-emphasis border-warning-subtle" rel="nofollow" href="/files/magazine">zine</a>
-                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-warning-subtle text-warning-emphasis border-warning-subtle" rel="nofollow" href="/files/pcboard-text">@X</a>
+
+<script>
+(() => {
+  const table = document.getElementById('category-stats-table');
+  if (!table) return;
+  const tbody = table.querySelector('tbody');
+  const buttons = Array.from(document.querySelectorAll('[data-stat-sort]'));
+
+  function sortRows(key, dir) {
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    const mult = dir === 'desc' ? -1 : 1;
+    rows.sort((a, b) => {
+      if (key === 'name') {
+        return a.dataset.name.localeCompare(b.dataset.name) * mult;
+      }
+      if (key === 'year') {
+        const ay = Number(a.dataset.minyear) || 9999;
+        const by = Number(b.dataset.minyear) || 9999;
+        if (ay !== by) return (ay - by) * mult;
+        return (Number(a.dataset.maxyear) - Number(b.dataset.maxyear)) * mult;
+      }
+      const av = Number(a.dataset[key]) || 0;
+      const bv = Number(b.dataset[key]) || 0;
+      if (av !== bv) return (av - bv) * mult;
+      return a.dataset.name.localeCompare(b.dataset.name);
+    });
+    rows.forEach((row) => tbody.appendChild(row));
+  }
+
+  buttons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      buttons.forEach((b) => {
+        b.classList.remove('btn-primary');
+        b.classList.add('btn-outline-secondary');
+      });
+      btn.classList.remove('btn-outline-secondary');
+      btn.classList.add('btn-primary');
+      sortRows(btn.dataset.statSort, btn.dataset.statDir);
+    });
+  });
+})();
+</script>
+{{- else }}
+
+{{/*  Filter bar & compact quick links  */}}
+<div class="card mb-4">
+    <div class="card-body p-3">
+        <div class="row g-2 align-items-center mb-3">
+            <div class="col-md-8 col-lg-7">
+                <label for="category-filter" class="visually-hidden">Filter categories by name or keyword</label>
+                <div class="input-group">
+                    <input type="search" id="category-filter" class="form-control" placeholder="Filter categories by keyword (e.g. cracktro, ansi, dos, emag, trainer, bbs)..." autocomplete="off">
+                    <button type="button" id="category-filter-clear" class="btn btn-outline-secondary d-none">Clear</button>
+                </div>
             </div>
+            <div class="col-md-4 col-lg-5 d-flex align-items-center justify-content-md-end gap-3 small text-body-secondary">
+                <span id="category-filter-count" class="font-monospace"></span>
             </div>
+        </div>
+
+        <div class="d-flex flex-wrap align-items-center gap-2 small">
+            <span class="text-body-secondary fw-medium me-1">Popular:</span>
+            <a class="btn btn-sm btn-outline-secondary" rel="nofollow" href="/files/intro">Intros</a>
+            <a class="btn btn-sm btn-outline-secondary" rel="nofollow" href="/files/nfo">NFOs</a>
+            <a class="btn btn-sm btn-outline-secondary" rel="nofollow" href="/files/ansi">ANSI art</a>
+            <a class="btn btn-sm btn-outline-secondary" rel="nofollow" href="/files/bbs">BBS ads</a>
+            <a class="btn btn-sm btn-outline-secondary" rel="nofollow" href="/files/magazine">Magazines</a>
+            <a class="btn btn-sm btn-outline-secondary" rel="nofollow" href="/files/msdos">{{msdos}}</a>
+            <a class="btn btn-sm btn-outline-secondary" rel="nofollow" href="/files/windows">Windows</a>
+            <a class="btn btn-sm btn-outline-secondary" rel="nofollow" href="/files/text-amiga">Amiga text</a>
+            <a class="btn btn-sm btn-outline-secondary" rel="nofollow" href="/files/hack">Trainers</a>
+            <a class="btn btn-sm btn-outline-secondary" rel="nofollow" href="/files/text">All text</a>
+        </div>
+
+        <details class="mt-3 pt-2 border-top">
+            <summary class="small text-body-secondary fw-medium">Browse full A-Z index</summary>
+            <div class="d-flex flex-wrap gap-2 mt-2 small">
+                <a class="px-2 py-1 rounded border bg-body-tertiary text-body text-decoration-none" rel="nofollow" href="/files/pcboard-text">@X</a>
+                <a class="px-2 py-1 rounded border bg-body-tertiary text-body text-decoration-none" rel="nofollow" href="/files/text-amiga">Amiga text</a>
+                <a class="px-2 py-1 rounded border bg-body-tertiary text-body text-decoration-none" rel="nofollow" href="/files/announcement">Announcement</a>
+                <a class="px-2 py-1 rounded border bg-body-tertiary text-body text-decoration-none" rel="nofollow" href="/files/ansi">ANSI</a>
+                <a class="px-2 py-1 rounded border bg-body-tertiary text-body text-decoration-none" rel="nofollow" href="/files/animation">ANSImation</a>
+                <a class="px-2 py-1 rounded border bg-body-tertiary text-body text-decoration-none" rel="nofollow" href="/files/ansi-bbs">ANSI BBS ad</a>
+                <a class="px-2 py-1 rounded border bg-body-tertiary text-body text-decoration-none" rel="nofollow" href="/files/ansi-ftp">ANSI FTP ad</a>
+                <a class="px-2 py-1 rounded border bg-body-tertiary text-body text-decoration-none" rel="nofollow" href="/files/ansi-brand">ANSI logo</a>
+                <a class="px-2 py-1 rounded border bg-body-tertiary text-body text-decoration-none" rel="nofollow" href="/files/ansi-nfo">ANSI NFO</a>
+                <a class="px-2 py-1 rounded border bg-body-tertiary text-body text-decoration-none" rel="nofollow" href="/files/ansi-pack">ANSI pack</a>
+                <a class="px-2 py-1 rounded border bg-body-tertiary text-body text-decoration-none" rel="nofollow" href="/files/text-apple2">Apple II</a>
+                <a class="px-2 py-1 rounded border bg-body-tertiary text-body text-decoration-none" rel="nofollow" href="/files/text-atari-st">Atari ST</a>
+                <a class="px-2 py-1 rounded border bg-body-tertiary text-body text-decoration-none" rel="nofollow" href="/files/bbs">BBS</a>
+                <a class="px-2 py-1 rounded border bg-body-tertiary text-body text-decoration-none" rel="nofollow" href="/files/bbstro">BBStro</a>
+                <a class="px-2 py-1 rounded border bg-body-tertiary text-body text-decoration-none" rel="nofollow" href="/files/takedown">Bust &amp; takedown</a>
+                <a class="px-2 py-1 rounded border bg-body-tertiary text-body text-decoration-none" rel="nofollow" href="/files/console">Console</a>
+                <a class="px-2 py-1 rounded border bg-body-tertiary text-body text-decoration-none" rel="nofollow" href="/files/trial-crackme">Crackme</a>
+                <a class="px-2 py-1 rounded border bg-body-tertiary text-body text-decoration-none" rel="nofollow" href="/files/database">Database</a>
+                <a class="px-2 py-1 rounded border bg-body-tertiary text-body text-decoration-none" rel="nofollow" href="/files/demoscene">Demoscene</a>
+                <a class="px-2 py-1 rounded border bg-body-tertiary text-body text-decoration-none" rel="nofollow" href="/files/msdos">DOS</a>
+                <a class="px-2 py-1 rounded border bg-body-tertiary text-body text-decoration-none" rel="nofollow" href="/files/msdos-pack">DOS pack</a>
+                <a class="px-2 py-1 rounded border bg-body-tertiary text-body text-decoration-none" rel="nofollow" href="/files/drama">Drama</a>
+                <a class="px-2 py-1 rounded border bg-body-tertiary text-body text-decoration-none" rel="nofollow" href="/files/advert">For sale</a>
+                <a class="px-2 py-1 rounded border bg-body-tertiary text-body text-decoration-none" rel="nofollow" href="/files/ftp">FTP</a>
+                <a class="px-2 py-1 rounded border bg-body-tertiary text-body text-decoration-none" rel="nofollow" href="/files/how-to">Guides &amp; unprotect</a>
+                <a class="px-2 py-1 rounded border bg-body-tertiary text-body text-decoration-none" rel="nofollow" href="/files/html">HTML</a>
+                <a class="px-2 py-1 rounded border bg-body-tertiary text-body text-decoration-none" rel="nofollow" href="/files/image">Images</a>
+                <a class="px-2 py-1 rounded border bg-body-tertiary text-body text-decoration-none" rel="nofollow" href="/files/image-pack">Image pack</a>
+                <a class="px-2 py-1 rounded border bg-body-tertiary text-body text-decoration-none" rel="nofollow" href="/files/installer">Installers</a>
+                <a class="px-2 py-1 rounded border bg-body-tertiary text-body text-decoration-none" rel="nofollow" href="/files/intro">Intros &amp; cracktros</a>
+                <a class="px-2 py-1 rounded border bg-body-tertiary text-body text-decoration-none" rel="nofollow" href="/files/java">Java</a>
+                <a class="px-2 py-1 rounded border bg-body-tertiary text-body text-decoration-none" rel="nofollow" href="/files/job-advert">Job adverts</a>
+                <a class="px-2 py-1 rounded border bg-body-tertiary text-body text-decoration-none" rel="nofollow" href="/files/linux">Linux</a>
+                <a class="px-2 py-1 rounded border bg-body-tertiary text-body text-decoration-none" rel="nofollow" href="/files/macos">macOS</a>
+                <a class="px-2 py-1 rounded border bg-body-tertiary text-body text-decoration-none" rel="nofollow" href="/files/magazine">Magazines</a>
+                <a class="px-2 py-1 rounded border bg-body-tertiary text-body text-decoration-none" rel="nofollow" href="/files/music">Music &amp; mods</a>
+                <a class="px-2 py-1 rounded border bg-body-tertiary text-body text-decoration-none" rel="nofollow" href="/files/news-article">News media</a>
+                <a class="px-2 py-1 rounded border bg-body-tertiary text-body text-decoration-none" rel="nofollow" href="/files/nfo">NFO</a>
+                <a class="px-2 py-1 rounded border bg-body-tertiary text-body text-decoration-none" rel="nofollow" href="/files/nfo-tool">NFO &amp; ANSI tools</a>
+                <a class="px-2 py-1 rounded border bg-body-tertiary text-body text-decoration-none" rel="nofollow" href="/files/pcboard">PCBoard</a>
+                <a class="px-2 py-1 rounded border bg-body-tertiary text-body text-decoration-none" rel="nofollow" href="/files/pcboard-ppe">PPE</a>
+                <a class="px-2 py-1 rounded border bg-body-tertiary text-body text-decoration-none" rel="nofollow" href="/files/pdf">PDF</a>
+                <a class="px-2 py-1 rounded border bg-body-tertiary text-body text-decoration-none" rel="nofollow" href="/files/proof">Proofs</a>
+                <a class="px-2 py-1 rounded border bg-body-tertiary text-body text-decoration-none" rel="nofollow" href="/files/restrict">Restricted</a>
+                <a class="px-2 py-1 rounded border bg-body-tertiary text-body text-decoration-none" rel="nofollow" href="/files/script">Scripts</a>
+                <a class="px-2 py-1 rounded border bg-body-tertiary text-body text-decoration-none" rel="nofollow" href="/files/standards">Standards</a>
+                <a class="px-2 py-1 rounded border bg-body-tertiary text-body text-decoration-none" rel="nofollow" href="/files/text">Text</a>
+                <a class="px-2 py-1 rounded border bg-body-tertiary text-body text-decoration-none" rel="nofollow" href="/files/text-pack">Text pack</a>
+                <a class="px-2 py-1 rounded border bg-body-tertiary text-body text-decoration-none" rel="nofollow" href="/files/tool">Tools</a>
+                <a class="px-2 py-1 rounded border bg-body-tertiary text-body text-decoration-none" rel="nofollow" href="/files/hack">Trainers &amp; hacks</a>
+                <a class="px-2 py-1 rounded border bg-body-tertiary text-body text-decoration-none" rel="nofollow" href="/files/video">Video</a>
+                <a class="px-2 py-1 rounded border bg-body-tertiary text-body text-decoration-none" rel="nofollow" href="/files/windows">Windows</a>
+                <a class="px-2 py-1 rounded border bg-body-tertiary text-body text-decoration-none" rel="nofollow" href="/files/windows-pack">Windows pack</a>
+            </div>
+        </details>
+    </div>
+</div>
+
+<div class="row g-4 align-items-start mb-5">
+    <aside class="col-lg-3 d-none d-lg-block">
+        <nav class="index-chapter-nav" aria-label="Category sections">
+            <div class="index-eyebrow mb-2">Sections</div>
+            <ul class="nav flex-column gap-1 mb-4">
+                <li class="nav-item"><a class="nav-link index-chapter-link" href="#cat-releases">Releases &amp; intros</a></li>
+                <li class="nav-item"><a class="nav-link index-chapter-link" href="#cat-media">Text, art &amp; media</a></li>
+                <li class="nav-item"><a class="nav-link index-chapter-link" href="#cat-networks">BBS &amp; networks</a></li>
+                <li class="nav-item"><a class="nav-link index-chapter-link" href="#cat-platforms">Platforms</a></li>
+                <li class="nav-item"><a class="nav-link index-chapter-link" href="#cat-tools">Tools &amp; cracking</a></li>
+                <li class="nav-item"><a class="nav-link index-chapter-link" href="#cat-culture">Scene culture</a></li>
+            </ul>
+            <div class="index-eyebrow mb-2">Related</div>
+            <ul class="nav flex-column gap-1">
+                <li class="nav-item"><a class="nav-link index-chapter-link" href="/file/stats">View archive statistics</a></li>
+                <li class="nav-item"><a class="nav-link index-chapter-link" href="/terms">Glossary of terms</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <div class="col-lg-9">
+        <div id="category-empty" class="alert alert-secondary d-none" role="status">
+            No categories match your filter.
+            <button type="button" id="category-empty-reset" class="btn btn-link btn-sm p-0 ms-2 align-baseline">Reset filter</button>
+        </div>
+
+        <div class="d-flex flex-column gap-5">
+
+            {{/*  1. Releases & intros  */}}
+            <section id="cat-releases" data-category-section style="scroll-margin-top: 5rem;">
+                <div class="mb-3">
+                    <div class="index-chapter-era font-monospace mb-1">Section 1</div>
+                    <h2 class="h4 fw-semibold mb-0">Releases &amp; intros</h2>
+                </div>
+                <div class="row row-cols-1 row-cols-md-2 g-3">
+                    <div class="col" data-category-card data-keywords="cracktro crack intro crack screen loader intro dos windows">
+                        <div class="card{{$cardClass}}">
+                            <div class="card-body d-flex flex-column">
+                                <h3 class="h5 card-title fw-semibold mb-1">Intros &amp; cracktros</h3>
+                                <div class="font-monospace small text-body-secondary mb-2">cracktro &middot; loader &middot; intro &middot; crack-screen</div>
+                                <p class="card-text small">
+                                    Mini adverts created by cracking groups to announce their releases to the community, originally launching whenever the cracked software was run.
+                                </p>
+                                <div class="mt-auto pt-2 d-flex flex-wrap gap-2">
+                                    <a href="/files/intro" class="btn btn-sm btn-outline-primary">All intros</a>
+                                    <a href="/files/intro-msdos" class="btn btn-sm btn-outline-secondary">DOS</a>
+                                    <a href="/files/intro-windows" class="btn btn-sm btn-outline-secondary">Windows</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col" data-category-card data-keywords="nfo information text readme release text">
+                        <div class="card{{$cardClass}}">
+                            <div class="card-body d-flex flex-column">
+                                <h3 class="h5 card-title fw-semibold mb-1">NFO &amp; release text</h3>
+                                <div class="font-monospace small text-body-secondary mb-2">NFO &middot; information text &middot; README</div>
+                                <p class="card-text small">
+                                    Stylized plain-text files bundled with Scene releases, documenting group info, release notes, and greetings.
+                                </p>
+                                <div class="mt-auto pt-2">
+                                    <a href="/files/nfo" class="btn btn-sm btn-outline-primary">Browse NFO files</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col" data-category-card data-keywords="installer installation app setup">
+                        <div class="card{{$cardClass}}">
+                            <div class="card-body d-flex flex-column">
+                                <h3 class="h5 card-title fw-semibold mb-1">Installers</h3>
+                                <div class="font-monospace small text-body-secondary mb-2">installation program</div>
+                                <p class="card-text small">
+                                    Custom installation programs created by Scene groups to walk users through unpacking and installing multi-disk or repackaged releases.
+                                </p>
+                                <div class="mt-auto pt-2">
+                                    <a href="/files/installer" class="btn btn-sm btn-outline-primary">Browse installers</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col" data-category-card data-keywords="proof release proof photo retail">
+                        <div class="card{{$cardClass}}">
+                            <div class="card-body d-flex flex-column">
+                                <h3 class="h5 card-title fw-semibold mb-1">Release proofs</h3>
+                                <div class="font-monospace small text-body-secondary mb-2">retail verification</div>
+                                <p class="card-text small">
+                                    Photographs verifying that physical media sold in retail stores was the source of a warez release.
+                                </p>
+                                <div class="mt-auto pt-2">
+                                    <a href="/files/proof" class="btn btn-sm btn-outline-primary">Browse proofs</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col" data-category-card data-keywords="demo demoscene production visuals audio">
+                        <div class="card{{$cardClass}}">
+                            <div class="card-body d-flex flex-column">
+                                <h3 class="h5 card-title fw-semibold mb-1">Demoscene productions</h3>
+                                <div class="font-monospace small text-body-secondary mb-2">demo &middot; demoscene</div>
+                                <p class="card-text small">
+                                    Artistic executables generating real-time visuals and audio to showcase programming, music, and graphic skill.
+                                </p>
+                                <div class="mt-auto pt-2">
+                                    <a href="/files/demoscene" class="btn btn-sm btn-outline-primary">Browse demos</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col" data-category-card data-keywords="magazine disk mag emag zine newsletter issues">
+                        <div class="card{{$cardClass}}">
+                            <div class="card-body d-flex flex-column">
+                                <h3 class="h5 card-title fw-semibold mb-1">Magazines</h3>
+                                <div class="font-monospace small text-body-secondary mb-2">e-mag &middot; disk mag &middot; zine</div>
+                                <p class="card-text small">
+                                    Digitally distributed magazines and newsletters where groups and sceners shared articles, reviews, and community gossip before the web.
+                                </p>
+                                <div class="mt-auto pt-2 d-flex flex-wrap gap-2">
+                                    <a href="/files/magazine" class="btn btn-sm btn-outline-primary">Browse issues</a>
+                                    <a href="/magazine" class="btn btn-sm btn-outline-secondary">Magazine titles</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-12" data-category-card data-keywords="file pack ansi pack dos pack msdos pack text pack windows pack image pack collection">
+                        <div class="card{{$cardClass}}">
+                            <div class="card-body">
+                                <h3 class="h5 card-title fw-semibold mb-1">File packs</h3>
+                                <p class="card-text small mb-3">
+                                    Curated collections of files grouped around a common format or platform.
+                                </p>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <a href="/files/ansi-pack" class="btn btn-sm btn-outline-secondary">ANSI art packs</a>
+                                    <a href="/files/msdos-pack" class="btn btn-sm btn-outline-secondary">{{msdos}} software packs</a>
+                                    <a href="/files/text-pack" class="btn btn-sm btn-outline-secondary">Text &amp; NFO packs</a>
+                                    <a href="/files/windows-pack" class="btn btn-sm btn-outline-secondary">Windows software packs</a>
+                                    <a href="/files/image-pack" class="btn btn-sm btn-outline-secondary">Image packs</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {{/*  2. Text, art & media  */}}
+            <section id="cat-media" data-category-section style="scroll-margin-top: 5rem;">
+                <div class="mb-3">
+                    <div class="index-chapter-era font-monospace mb-1">Section 2</div>
+                    <h2 class="h4 fw-semibold mb-0">Text, art &amp; media</h2>
+                </div>
+                <div class="row row-cols-1 row-cols-md-2 g-3">
+                    <div class="col-md-12" data-category-card data-keywords="ansi color text ansimation ansi animation branding logo ansi bbs advert ansi ftp advert ansi nfo">
+                        <div class="card{{$cardClass}}">
+                            <div class="card-body">
+                                <h3 class="h5 card-title fw-semibold mb-1">ANSI text art &amp; animations</h3>
+                                <div class="font-monospace small text-body-secondary mb-2">ANSI color text &middot; ANSImation &middot; logos &middot; adverts</div>
+                                <p class="card-text small mb-3">
+                                    Stylized ANSI color text art created for theming Bulletin Board Systems, advertising FTP sites, and designing group logos and NFOs.
+                                </p>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <a href="/files/ansi" class="btn btn-sm btn-outline-primary">All ANSI art</a>
+                                    <a href="/files/animation" class="btn btn-sm btn-outline-secondary">ANSImations</a>
+                                    <a href="/files/ansi-brand" class="btn btn-sm btn-outline-secondary">Branding &amp; logos</a>
+                                    <a href="/files/ansi-bbs" class="btn btn-sm btn-outline-secondary">BBS board ads</a>
+                                    <a href="/files/ansi-ftp" class="btn btn-sm btn-outline-secondary">FTP site ads</a>
+                                    <a href="/files/ansi-nfo" class="btn btn-sm btn-outline-secondary">ANSI color NFOs</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-12" data-category-card data-keywords="text file amiga text apple 2 apple ii atari st pdf html document">
+                        <div class="card{{$cardClass}}">
+                            <div class="card-body">
+                                <h3 class="h5 card-title fw-semibold mb-1">Plain text &amp; documents</h3>
+                                <p class="card-text small mb-3">
+                                    The vast majority of Scene releases involve text and documents, prized for being small and platform-agnostic.
+                                </p>
+                                <div class="row row-cols-1 row-cols-md-2 g-2 small">
+                                    <div class="col"><a href="/files/text" class="fw-semibold">All text files</a> <span class="text-body-secondary">&middot; across all platforms</span></div>
+                                    <div class="col"><a href="/files/text-apple2" class="fw-semibold">Apple II files</a> <span class="text-body-secondary">&middot; 8-bit Apple microcomputer</span></div>
+                                    <div class="col"><a href="/files/text-amiga" class="fw-semibold">Amiga files</a> <span class="text-body-secondary">&middot; 16-bit Commodore</span></div>
+                                    <div class="col"><a href="/files/pdf" class="fw-semibold">PDF documents</a> <span class="text-body-secondary">&middot; portable document format</span></div>
+                                    <div class="col"><a href="/files/text-atari-st" class="fw-semibold">Atari ST files</a> <span class="text-body-secondary">&middot; 16-bit Atari</span></div>
+                                    <div class="col"><a href="/files/html" class="fw-semibold">HTML documents</a> <span class="text-body-secondary">&middot; web format</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col" data-category-card data-keywords="image art picture pixel photoshop photo">
+                        <div class="card{{$cardClass}}">
+                            <div class="card-body d-flex flex-column">
+                                <h3 class="h5 card-title fw-semibold mb-1">Images</h3>
+                                <p class="card-text small">
+                                    Pixel art, Photoshop creations, and historical Scene photos.
+                                </p>
+                                <div class="mt-auto pt-2">
+                                    <a href="/files/image" class="btn btn-sm btn-outline-primary">Browse images</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col" data-category-card data-keywords="music mod tracker chiptune audio">
+                        <div class="card{{$cardClass}}">
+                            <div class="card-body d-flex flex-column">
+                                <h3 class="h5 card-title fw-semibold mb-1">Music</h3>
+                                <p class="card-text small">
+                                    Module tracks and songs from productions or inspired by The Scene.
+                                </p>
+                                <div class="mt-auto pt-2">
+                                    <a href="/files/music" class="btn btn-sm btn-outline-primary">Browse music</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-12" data-category-card data-keywords="video avi tv news logo animation">
+                        <div class="card{{$cardClass}}">
+                            <div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-3">
+                                <div>
+                                    <h3 class="h5 card-title fw-semibold mb-1">Videos</h3>
+                                    <p class="card-text small mb-0">
+                                        Pre-YouTube niche series dramatizing The Scene, recordings of TV news reports, and group logo animations.
+                                    </p>
+                                </div>
+                                <a href="/files/video" class="btn btn-sm btn-outline-primary text-nowrap">Browse videos</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {{/*  3. BBS & networks  */}}
+            <section id="cat-networks" data-category-section style="scroll-margin-top: 5rem;">
+                <div class="mb-3">
+                    <div class="index-chapter-era font-monospace mb-1">Section 3</div>
+                    <h2 class="h4 fw-semibold mb-0">BBS &amp; networks</h2>
+                </div>
+                <div class="row row-cols-1 row-cols-md-2 g-3">
+                    <div class="col-md-12" data-category-card data-keywords="bbs board bulletin board system bbstro ansi ads image ads text ads">
+                        <div class="card{{$cardClass}}">
+                            <div class="card-body">
+                                <h3 class="h5 card-title fw-semibold mb-1">BBS</h3>
+                                <div class="font-monospace small text-body-secondary mb-2">bulletin board system</div>
+                                <p class="card-text small mb-3">
+                                    Dial-up computer servers offering message boards, real-time chat, and file sharing over landline telephone networks via modem.
+                                </p>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <a href="/files/bbs" class="btn btn-sm btn-outline-primary">All adverts</a>
+                                    <a href="/files/bbstro" class="btn btn-sm btn-outline-secondary">BBS-tros</a>
+                                    <a href="/files/ansi-bbs" class="btn btn-sm btn-outline-secondary">ANSI ads</a>
+                                    <a href="/files/bbs-image" class="btn btn-sm btn-outline-secondary">Image ads</a>
+                                    <a href="/files/bbs-text" class="btn btn-sm btn-outline-secondary">Texts &amp; ads</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col" data-category-card data-keywords="pcboard pcb ppe @x color ads">
+                        <div class="card{{$cardClass}}">
+                            <div class="card-body d-flex flex-column">
+                                <h3 class="h5 card-title fw-semibold mb-1">PCBoard</h3>
+                                <div class="font-monospace small text-body-secondary mb-2">PCB &middot; PPE &middot; @X color</div>
+                                <p class="card-text small">
+                                    Bulletin board software by Clark Development Company widely used by "elite" PC boards of the 1990s.
+                                </p>
+                                <div class="mt-auto pt-2 d-flex flex-wrap gap-2">
+                                    <a href="/files/pcboard" class="btn btn-sm btn-outline-primary">All PCBoard</a>
+                                    <a href="/files/pcboard-ppe" class="btn btn-sm btn-outline-secondary">PPE apps</a>
+                                    <a href="/files/pcboard-text" class="btn btn-sm btn-outline-secondary">Color ads</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col" data-category-card data-keywords="ftp site file site advert topsite">
+                        <div class="card{{$cardClass}}">
+                            <div class="card-body d-flex flex-column">
+                                <h3 class="h5 card-title fw-semibold mb-1">FTP sites</h3>
+                                <div class="font-monospace small text-body-secondary mb-2">file site</div>
+                                <p class="card-text small">
+                                    Internet file servers that supplanted dial-up BBSes in the early to mid-1990s for faster release distribution.
+                                </p>
+                                <div class="mt-auto pt-2">
+                                    <a href="/files/ftp" class="btn btn-sm btn-outline-primary">Browse FTP adverts</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {{- block "morecategories" . -}}{{ "<!-- More categories -->" | safeHTML -}}{{end}}
+
         </div>
     </div>
 </div>
-<div class="row row-cols-1 row-cols-lg-2 g-4 mt-1">
-    {{/*  descriptions  */}}
-    <div class="col">
-        <div class="card{{$cardClass}}">
-            <div class="card-body">
-                <h2 class="h5 card-title">Included programs</h2>
-                <h3 class="h6 card-subtitle mb-2 text-body-secondary">cracktro, loader, intro, crack-screen</h3>
-                <p class="card-text">
-                    Cracktros and loaders are mini adverts created by cracking groups to announce their
-                    releases to the community.
-                    Initially, these inserted ads launched whenever the cracked software was in use.
-                </p>
-                <div class="text-start">
-                <span class="card-link text-secondary">Runs on Microsoft</span>
-                    <div class="{{$rowCols}}">
-                        <div class="col-sm">
-                <a href="/files/intro-windows" class="{{$linkClass}}">Windows</a>
-                        </div>
-                        <div class="col-sm">
-                <a href="/files/intro-msdos" class="{{$linkClass}}">DOS</a>
-                        </div>
-                        <div class="col-sm">
-                <a href="/files/intro" class="{{$linkClass}}">show all</a>
-                        </div>
-                    </div>
-                </div>
-                <hr>
-                <h3 class="h6 card-subtitle mb-2 text-body-secondary">installation program</h3>
-                <p class="card-text">
-                    As software repackaging by Scene groups became more complicated, there was a need to develop installation programs that walk the users through installing their ill-gotten wares.
-                </p>
-                <span class="{{$linkClass}}">Browse the <a href="/files/installer" class="{{$linkClass}}">installers</a></span>
-            </div>
-        </div>
-    </div>
-    <div class="col">
-        <div class="card{{$cardClass}}">
-            <div class="card-body">
-                <h2 class="h5 card-title">Release text</h2>
-                <h3 class="h6 card-subtitle mb-2 text-body-secondary">NFO, information text, README</h3>
-                <p class="card-text">
-                    Text files are generally in every scene release.
-                    Often, they are stylised with text art and arranged in a standard format.
-                    In the early days, these texts included detailed group information, but now they focus more on
-                    describing the software.
-                </p>
-                <span class="{{$linkClass}}">Browse the <a href="/files/nfo" class="{{$linkClass}}">nfo files</a></span>
-                <hr>
-                <h3 class="h6 card-subtitle mb-2 text-body-secondary">release proof</h3>
-                <p class="card-text">
-                    A proof of a release is usually a photograph to verify that physical media sold in retail stores is the source of the warez release.
-                </p>
-                <span class="{{$linkClass}}">Browse the <a href="/files/proof" class="{{$linkClass}}">proofs</a></span>
-                <hr>
-                <h3 class="h6 card-subtitle mb-2 text-body-secondary">Demoscene production</h3>
-                <p class="card-text">
-                    Demoscene productions are artistic apps that generate visuals and audio to show the creators' programming, audio, and graphic abilities. Early demo productions developed within the warez scene before they distanced themselves and spun into their own community.
-                </p>
-                <span class="{{$linkClass}}">Browse the <a href="/files/demoscene" class="{{$linkClass}}">demos</a></span>
-            </div>
-        </div>
-    </div>
-    <div class="col">
-        <div class="card{{$cardClass}}">
-            <div class="card-body">
-                <h2 class="h5 card-title">Text art advertisements</h2>
-                <h3 class="h6 card-subtitle mb-2 text-body-secondary">ANSI color text</h3>
-                <p class="card-text">
-                    Stylized ANSI text art was commonly created for the theming and advertising of Bulletin Board Systems.
-                </p>
-                <span class="{{$linkClass}}">Browse all the <a href="/files/ansi" class="{{$linkClass}}">ansi files</a></span>
-                <hr>
-                <h3 class="h6 card-subtitle mb-2 text-body-secondary">ANSImation</h3>
-                <span class="{{$linkClass}}">Browse the <a href="/files/animation" class="{{$linkClass}}">ansi animations</a></span>
-                <hr>
-                <h3 class="h6 card-subtitle mb-2 text-body-secondary">branding &amp; logo</h3>
-                <span class="{{$linkClass}}">Browse the <a href="/files/ansi-brand" class="{{$linkClass}}">ansi logos</a></span>
-                <hr>
-                <h3 class="h6 card-subtitle mb-2 text-body-secondary">BBS board advert</h3>
-                <span class="{{$linkClass}}">Browse the <a href="/files/ansi-bbs" class="{{$linkClass}}">ansi board ads</a></span>
-                <hr>
-                <h3 class="h6 card-subtitle mb-2 text-body-secondary">FTP site advert</h3>
-                <span class="{{$linkClass}}">Browse the <a href="/files/ansi-ftp" class="{{$linkClass}}">ansi site ads</a></span>
-                <hr>
-                <h3 class="h6 card-subtitle mb-2 text-body-secondary">ANSI color NFO</h3>
-                <span class="{{$linkClass}}">Browse the <a href="/files/ansi-nfo" class="{{$linkClass}}">ansi nfos</a></span>
-            </div>
-        </div>
-    </div>
-    <div class="col">
-        <div class="card{{$cardClass}}">
-            <div class="card-body">
-                <h2 class="h5 card-title">BBS</h2>
-                <h3 class="h6 card-subtitle mb-2 text-body-secondary">bulletin board system</h3>
-                <p class="card-text">
-                    Bulletin Board Systems were like proto web-forums that offered message boards, real-time chat, and file sharing but used a text user interface and ran on the landline telephone network. 
-                    Users had to use their PCs or microcomputers with a modem peripheral to dial and connect to the individual boards.
-                </p>
-                <span class="{{$linkClass}}">Browse the <a href="/files/bbs" class="{{$linkClass}}">adverts</a></span>
-                <div class="{{$rowCols}} mt-2">
-                  <div class="col-sm">
-                    <span class="card-link text-secondary">Or only the</span>
-                  </div>
-                  <div class="col-sm">
-            <a href="/files/bbstro" class="{{$linkClass}}">BBS-tros</a>
-                    </div>
-                    <div class="col-sm">
-            <a href="/files/ansi-bbs" class="{{$linkClass}}">ansi ads</a>
-                    </div>
-                    <div class="col-sm">
-            <a href="/files/bbs-image" class="{{$linkClass}}">images ads</a>
-                    </div>
-                    <div class="col-sm">
-            <a href="/files/bbs-text" class="{{$linkClass}}">texts &amp; ads</a>
-                    </div>
-                </div>
-                <hr>
-                <h2 class="h5 card-title">PCB</h2>
-                <h3 class="h6 card-subtitle mb-2 text-body-secondary">PCBoard</h3>
-                <p class="card-text">
-                    PCBoard was a bulletin board application by the Clark Development Company that was often used by the "elite" PC boards of the 1990s.
-                </p>
-                <span class="{{$linkClass}}">Browse the <a href="/files/pcboard" class="{{$linkClass}}">files</a></span> 
-                <div class="{{$rowCols}} mt-2">
-                  <div class="col-sm">
-                    <span class="card-link text-secondary">Or only the</span>
-                  </div>
-                  <div class="col-sm">
-            <a href="/files/pcboard-ppe" class="{{$linkClass}}">PPE apps</a>
-                  </div>
-                  <div class="col-sm">
-            <a href="/files/pcboard-text" class="{{$linkClass}}">color ads</a>
-                  </div>
-                </div>
-                <hr>
-                <h2 class="h5 card-title">FTP</h2>
-                <h3 class="h6 card-subtitle mb-2 text-body-secondary">file site</h3>
-                <p class="card-text">
-                    FTP sites eventually supplanted BBS boards as The Scene moved onto the Internet in the early to mid-1990s. The utilitarian sites were more efficient at organizing and transferring files but lacked the social features of the earlier boards.
-                </p>
-                <span class="{{$linkClass}}">Browse the <a href="/files/ftp" class="{{$linkClass}}">adverts</a></span> 
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row row-cols-1 row-cols-lg-3 g-4 mt-2">
-    <div class="col">
-        <div class="card{{$cardClass}}">
-            <div class="card-body">
-                <h2 class="h5 card-title mb-2">Magazine</h2>
-                <p class="card-text">
-                    Before the web and social media existed, groups and individuals used to exchange ideas and write articles on their communities in digitally distributed magazines and newsletters.
-                </p>
-                <p class="{{$linkClass}} mb-0">Browse the
-                 <a href="/files/magazine" class="{{$linkClass}}">issues</a></p>
-                <hr>
-                <p class="{{$linkClass}} mb-0">Or the
-                 <a href="/magazine" class="{{$linkClass}}">magazine titles</a>
-                </p>
-            </div>
-        </div>
-    </div>
-    <div class="col">
-        <div class="card{{$cardClass}}">
-            <div class="card-body">
-                <h2 class="h5 card-title mb-2">File pack</h2>
-                <p class="card-text">
-                    Curated file packs are collections of files with a common theme.
-                </p>
-                <p class="{{$linkClass}}">Browse the packs containing</p>
-                <div class="text-start">
-                    <div class="row row-cols-1 row-cols-sm-2 g-3 p-3 g-md-0 p-md-0">
-                      <div class="col">
-                <a href="/files/ansi-pack" class="{{$linkClass}}">ansi art</a>
-                        </div>
-                        <div class="col">
-                <a href="/files/msdos-pack" class="{{$linkClass}}">{{msdos}} software</a>
-                        </div>
-                        <div class="col">
-                <a href="/files/text-pack" class="{{$linkClass}}">text and nfos</a>
-                        </div>
-                        <div class="col">
-                <a href="/files/windows-pack" class="{{$linkClass}}">Windows software</a>
-                        </div>
-                        <div class="col">
-                <a href="/files/image-pack" class="{{$linkClass}}">images</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col">
-        <div class="card{{$cardClass}}">
-            <div class="card-body">
-                <h2 class="h5 card-title mb-2">Database</h2>
-                <p class="card-text">
-                    Scene databases are often private datasets of cracked software titles, release dates and
-                    associated groups.
-                    Due to their scope and size, these sets are often incomplete and sometimes inaccurate.
-                </p>
-                <span class="{{$linkClass}}">Browse the <a href="/files/database" class="{{$linkClass}}">databases</a></span>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row row-cols-1 row-cols-md-1 g-4 mt-2">
-    <div class="col">
-        <div class="card{{$cardClass}}">
-            <div class="card-body">
-                <h2 class="h5 card-title">Text file</h2>
-                <p class="card-text">
-                    The vast majority of scene releases involve text and documents.
-                    Plain text files have the advantage of being platform-agnostic and small in file size.
-                </p>
-                <p class="{{$linkClass}}">Browse the text</p>
-                <div class="text-start">
-                    <div class="row row-cols-1 row-cols-sm-2 g-3 p-3 g-md-0 p-md-0">
-                        <div class="col">
-                <a href="/files/text" class="{{$linkClass}}">files, everything</a>
-                        </div>
-                        <div class="col">
-                <a href="/files/text-apple2" class="{{$linkClass}}">Apple II files</a><span class="text-secondary">, a popular 8-bit microcomputer from Apple</span>
-                        </div>
-                        <div class="col">
-                <a href="/files/text-amiga" class="{{$linkClass}}">Amiga files</a><span class="text-secondary">, a 16-bit microcomputer from Commodore</span>
-                        </div>
-                        <div class="col">
-                <a href="/files/pdf" class="{{$linkClass}}">PDF documents</a><span class="text-secondary">, an alternative format</span>
-                        </div>
-                        <div class="col">
-                <a href="/files/text-atari-st" class="{{$linkClass}}">ST files</a><span class="text-secondary">, a 16-bit microcomputer from Atari</span>
-                        </div>
-                        <div class="col">
-                <a href="/files/html" class="{{$linkClass}}">HTML documents</a><span class="text-secondary">, a web format</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-{{- block "morecategories" . -}}{{ "<!-- More categories -->" | safeHTML -}}{{end}}
+
+<script>
+(() => {
+  const input = document.getElementById('category-filter');
+  const clearBtn = document.getElementById('category-filter-clear');
+  const emptyReset = document.getElementById('category-empty-reset');
+  const emptyState = document.getElementById('category-empty');
+  const countEl = document.getElementById('category-filter-count');
+  if (!input) return;
+
+  const cards = Array.from(document.querySelectorAll('[data-category-card]'));
+  const sections = Array.from(document.querySelectorAll('[data-category-section]'));
+  const total = cards.length;
+
+  const platformTabs = [
+    { id: 'dos-tab', match: ['dos', 'msdos', 'ms-dos', 'pc-dos', 'ibm'] },
+    { id: 'windows-tab', match: ['win', 'windows'] },
+    { id: 'console-tab', match: ['console', 'video game', 'snes', 'genesis', 'playstation'] },
+    { id: 'mac-tab', match: ['mac', 'macos', 'os x', 'osx', 'apple'] },
+    { id: 'linux-tab', match: ['linux', 'unix'] },
+    { id: 'script-tab', match: ['script', 'shell', 'php', 'perl', 'python', 'ruby'] },
+    { id: 'java-tab', match: ['java'] },
+  ];
+
+  function update() {
+    const q = input.value.trim().toLowerCase();
+    clearBtn.classList.toggle('d-none', q === '');
+
+    let visible = 0;
+    cards.forEach((card) => {
+      const text = (card.textContent + ' ' + (card.dataset.keywords || '')).toLowerCase();
+      const match = q === '' || text.includes(q);
+      card.classList.toggle('d-none', !match);
+      if (match) visible++;
+    });
+
+    sections.forEach((sec) => {
+      const hasVisible = sec.querySelector('[data-category-card]:not(.d-none)') !== null;
+      sec.classList.toggle('d-none', !hasVisible);
+    });
+
+    if (q !== '' && typeof bootstrap !== 'undefined') {
+      const tabMatch = platformTabs.find((t) => t.match.some((k) => k.includes(q) || q.includes(k)));
+      if (tabMatch) {
+        const btn = document.getElementById(tabMatch.id);
+        if (btn) bootstrap.Tab.getOrCreateInstance(btn).show();
+      }
+    }
+
+    emptyState.classList.toggle('d-none', visible > 0);
+    countEl.textContent = q === '' ? `${total} categories` : `${visible} of ${total} matching`;
+  }
+
+  function reset() {
+    input.value = '';
+    update();
+    input.focus();
+  }
+
+  input.addEventListener('input', update);
+  clearBtn.addEventListener('click', reset);
+  if (emptyReset) emptyReset.addEventListener('click', reset);
+  update();
+})();
+</script>
+{{- end }}
 </div>
 {{- end}}

@@ -122,7 +122,7 @@ func TestSorts(t *testing.T) {
 
 	got := st.SortName()
 	be.Equal(t, got[0].Name, "ANSI art")
-	be.Equal(t, got[20].Name, "Windows files")
+	be.Equal(t, got[len(got)-1].Name, "Windows files")
 
 	got = st.SortCount()
 	be.True(t, got[0].Count > got[1].Count)

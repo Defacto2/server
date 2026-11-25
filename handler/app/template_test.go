@@ -728,45 +728,52 @@ func TestCategoriesTemplate(t *testing.T) {
 	var buf bytes.Buffer
 	err = tmpl.ExecuteTemplate(&buf, "content", map[string]any{
 		"stats": true,
-		"counter": map[string]any{
-			"Record": map[string]any{
-				"MinYear": 1981,
-				"MaxYear": 2024,
-				"Count":   42,
-				"Bytes":   2048,
+		"statSummary": map[string]any{
+			"CountFmt":  "42",
+			"BytesFmt":  "2.0 kB",
+			"MinYear":   1981,
+			"MaxYear":   2024,
+			"SpanYears": 44,
+		},
+		"statRows": []map[string]any{
+			{
+				"Name":     "ANSI art",
+				"URI":      "ansi",
+				"Count":    10,
+				"CountFmt": "10",
+				"CountPct": 100,
+				"Bytes":    1024,
+				"BytesFmt": "1.0 kB",
+				"BytesPct": 100,
+				"MinYear":  1984,
+				"MaxYear":  1999,
 			},
 		},
-		"orderByYear":  []map[string]any{{"Name": "MS-DOS", "MinYear": 1984, "MaxYear": 1999}},
-		"orderByName":  []map[string]any{{"Name": "ANSI", "Count": 10, "Bytes": 1024}},
-		"orderByCount": []map[string]any{{"Name": "ANSI", "Count": 10, "Bytes": 1024}},
-		"orderByBytes": []map[string]any{{"Name": "ANSI", "Bytes": 1024}},
 	})
 	be.Err(t, err, nil)
 
 	out := buf.String()
 	be.True(t, strings.Contains(out, `<div class="container-xxl">`))
 	be.True(t, !strings.Contains(out, `text-left`))
-	be.True(t, strings.Contains(out, `42 files`))
-	be.True(t, strings.Contains(out, `<span class="text-body-secondary">Total</span>`))
-	be.True(t, strings.Contains(out, `list-group list-group-flush small mb-0`))
-	be.True(t, strings.Contains(out, `font-monospace text-end text-nowrap`))
-	be.True(t, strings.Contains(out, `aria-controls="windows-tab-pane" aria-selected="false"`))
-	be.True(t, !strings.Contains(out, `on the describing`))
-	be.True(t, !strings.Contains(out, `within warez scene`))
-	be.True(t, !strings.Contains(out, `often used the "elite"`))
-	be.True(t, !strings.Contains(out, `is video game system`))
-	be.True(t, !strings.Contains(out, `class="badge bg-`))
-	be.True(t, strings.Contains(out, `bg-warning-subtle text-warning-emphasis border-warning-subtle`))
-	be.True(t, !strings.Contains(out, `lead card-link`))
-	be.True(t, !strings.Contains(out, `card-subtitle lead`))
-	be.True(t, strings.Contains(out, `<h3 class="h6 card-subtitle mb-2 text-body-secondary">`))
-	be.True(t, strings.Index(out, `Publishing years`) < strings.Index(out, `/files/text-amiga`))
+	be.True(t, strings.Contains(out, `id="category-stats-table"`))
+	be.True(t, strings.Contains(out, `44 years of releases`))
+	be.True(t, strings.Contains(out, `href="/files/ansi"`))
+	be.True(t, strings.Contains(out, `href="/file"`))
+	be.True(t, !strings.Contains(out, `id="category-filter"`))
+	be.True(t, !strings.Contains(out, `/files/text-amiga`))
 
 	buf.Reset()
 	err = tmpl.ExecuteTemplate(&buf, "content", map[string]any{"stats": false})
 	be.Err(t, err, nil)
-	be.True(t, !strings.Contains(buf.String(), `Publishing years`))
-	be.True(t, strings.Contains(buf.String(), `/files/text-amiga`))
+	catOut := buf.String()
+	be.True(t, !strings.Contains(catOut, `id="category-stats-table"`))
+	be.True(t, strings.Contains(catOut, `id="category-filter"`))
+	be.True(t, strings.Contains(catOut, `data-category-card`))
+	be.True(t, strings.Contains(catOut, `aria-controls="windows-tab-pane" aria-selected="false"`))
+	be.True(t, strings.Contains(catOut, `/files/text-amiga`))
+	be.True(t, !strings.Contains(catOut, `class="badge bg-`))
+	be.True(t, !strings.Contains(catOut, `lead card-link`))
+	be.True(t, !strings.Contains(catOut, `card-subtitle lead`))
 }
 
 func TestArtifactsTemplate(t *testing.T) {
