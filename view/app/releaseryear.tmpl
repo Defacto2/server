@@ -1,79 +1,175 @@
-{{- /*  
-    releaseryear.tmpl  
-    This template is for the list of the releases organized by the first year of the earliest release.
-      - Releaser  /releaser/year
+{{- /*
+    releaseryear.tmpl
+    This template is for the list of releasers organized by the first year of the earliest release.
+      - Releasers /releaser/year
       - Magazines /magazine
-      -  "        /magazine/a-z
       - BBS       /bbs/year
     Timelines can be found in releasertimeline.tmpl
 */ -}}
 {{- define "content" }}
-{{- $class := "row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3"}}
-{{- $editor := index . "editor"}}
-{{- $h1 := index . "h1"}}
+{{- $class := "row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3" }}
+{{- $editor := index . "editor" }}
+{{- $h1 := index . "h1" }}
 {{- $orderBy := index .stats.orderBy }}
 {{- $name := .itemName }}
 {{- $path := "g" }}
 {{- $prevYear := 0 }}
 {{- $pubs := index .stats.pubs }}
 {{- $decades := releaseDecades .releasers }}
-<div class="container-xxl">
-    <div class="d-flex flex-wrap align-items-baseline justify-content-between gap-2 mb-3">
-      <p class="lead mb-0"><small>Showing {{$pubs}}{{if ne $orderBy ""}}, ordered {{$orderBy | safeHTML}}{{end}}.</small></p>
+<div class="container-xxl mb-5">
+  <div class="bg-body-tertiary border rounded-2 px-3 py-2 mb-3 d-flex flex-wrap align-items-center justify-content-between gap-2">
+    <div class="d-flex flex-wrap align-items-baseline gap-3 small">
+      <span class="text-body-secondary" id="releaser-year-count">Showing {{$pubs}}{{if ne $orderBy ""}}, ordered {{$orderBy | safeHTML}}{{end}}.</span>
       {{- if gt (len $decades) 1 }}
-      <nav class="d-flex flex-wrap align-items-center gap-2 small" aria-label="Jump to decade">
-        <span class="text-body-secondary">Decades:</span>
+      <nav class="d-flex flex-wrap align-items-center gap-2" aria-label="Jump to decade">
+        <span class="text-body-secondary fw-medium">Decades:</span>
         {{- range $decades }}
-        <a class="link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="#year-{{.Year}}">{{.Label}}</a>
+        <a class="link-underline link-underline-opacity-0 link-underline-opacity-75-hover font-monospace" href="#year-{{.Year}}">{{.Label}}</a>
         {{- end }}
       </nav>
       {{- end }}
     </div>
+    {{- if ge (len .releasers) 3 }}
+    <div class="input-group input-group-sm ms-auto" style="width: 16rem; max-width: 100%;">
+      <input type="search" id="releaser-year-filter" class="form-control" placeholder="Filter by name..." aria-label="Filter releasers by name" autocomplete="off">
+      <button type="button" id="releaser-year-clear" class="btn btn-outline-secondary" aria-label="Clear filter" disabled>Clear</button>
+    </div>
+    {{- end }}
+  </div>
+
+  {{- if ge (len .releasers) 3 }}
+  <div id="releaser-year-empty" class="alert alert-light border text-center my-4 d-none" role="status">
+    No matches for <strong id="releaser-year-empty-query"></strong>.
+    <button type="button" id="releaser-year-empty-clear" class="btn btn-link btn-sm p-0 ms-1 align-baseline">Clear filter</button>
+  </div>
+  {{- end }}
+
 {{- range $index, $rel := .releasers -}}
     {{- $mdMissing := false }}
     {{- if and (ne $h1 "BBS") (ne $h1 "FTP") (eq true $editor)}}{{- $mdMissing = tidbitMissing $rel.Unique.URI }}{{end}}
     {{- $year := $rel.Unique.Year.Int }}
-    {{- $difference := sub $prevYear $year}}
-    {{- $displayYear := or (eq $prevYear 0) (gt $year $prevYear)}}
+    {{- $difference := sub $prevYear $year }}
+    {{- $displayYear := or (eq $prevYear 0) (gt $year $prevYear) }}
     {{- $initialism := initialisms $rel.Unique.URI }}
   {{- /* conditionals must always begin after these vars */ -}}
   {{- if $displayYear }}
-    <!-- this case will only match years that exist in the fetched records -->
-    {{- if ne $index 0}}</div><!-- this is the closing element -->{{ end }}
+    {{- if ne $index 0 }}
+    </div>
+  </section>
+    {{- end }}
     {{- if gt $difference 1 }}
-      <!-- we iterate through any missing years -->
       {{- range yearRange $prevYear $year }}
         {{- if hasTimeline . }}
-        <h2 id="year-{{.}}" class="text-end fw-light fs-4 mt-3 me-3" style="scroll-margin-top: 4.5rem;">{{.}}</h2>
-        {{- template "timeline" . }}
+  <section class="mb-3" data-year-timeline-only>
+    <div class="d-flex align-items-center gap-3 mt-4 mb-2">
+      <h2 id="year-{{.}}" class="h5 font-monospace text-body-secondary mb-0" style="scroll-margin-top: 5rem;">{{.}}</h2>
+      <div class="flex-grow-1 border-top" aria-hidden="true"></div>
+    </div>
+    {{- template "timeline" . }}
+  </section>
         {{- end }}
       {{- end }}
     {{- end }}
-    <!-- but also display timelines of the years with artifact records -->
-    <h2 id="year-{{$year}}" class="text-end display-6 mt-3 p-3" style="scroll-margin-top: 4.5rem;">{{$year}}</h2>
+  <section class="mb-4" data-year-section>
+    <div class="d-flex align-items-center gap-3 mt-4 mb-2">
+      <h2 id="year-{{$year}}" class="h3 font-monospace fw-semibold mb-0" style="scroll-margin-top: 5rem;">{{$year}}</h2>
+      <div class="flex-grow-1 border-top" aria-hidden="true"></div>
+    </div>
     {{- template "timeline" $year }}
-    <div class="{{$class}}"><!-- this is the opening element -->
-  {{- end}}
-        <div class="col">
-            <div class="position-relative p-3 border bg-body-tertiary h-100 rounded d-flex flex-column justify-content-between gap-2">
-              <div class="d-flex justify-content-between align-items-start gap-2">
-                <h3 class="h5 mb-0">
-                  <a class="link-underline link-underline-opacity-0 link-underline-opacity-75-hover stretched-link" href="/{{ $path }}/{{ $rel.Unique.URI }}">{{fmtURI $rel.Unique.URI}}</a>
-                </h3>
-                {{- if eq $mdMissing true }}
-                <small class="small fw-medium text-warning-emphasis bg-warning-subtle border border-warning-subtle rounded-pill px-2 py-0 flex-shrink-0">❌ markdown</small>
-                {{- end }}
-              </div>
-              <div class="small text-body-secondary">
-                {{- if ne $initialism "" }}<span class="fw-medium">{{ $initialism }}</span> &middot; {{end}}
-                {{- byteFileS $name $rel.Unique.Count $rel.Unique.Bytes }}
-              </div>
-            </div>
+    <div class="{{$class}}">
+  {{- end }}
+      <div class="col releaser-year-item">
+        <div class="position-relative p-3 border bg-body-tertiary h-100 rounded d-flex flex-column justify-content-between gap-2">
+          <div class="d-flex justify-content-between align-items-start gap-2">
+            <h3 class="h5 mb-0">
+              <a class="link-underline link-underline-opacity-0 link-underline-opacity-75-hover stretched-link" href="/{{ $path }}/{{ $rel.Unique.URI }}">{{fmtURI $rel.Unique.URI}}</a>
+            </h3>
+            {{- if eq $mdMissing true }}
+            <small class="small fw-medium text-warning-emphasis bg-warning-subtle border border-warning-subtle rounded-pill px-2 py-0 flex-shrink-0">no bio</small>
+            {{- end }}
+          </div>
+          <div class="small text-body-secondary">
+            {{- if ne $initialism "" }}<span class="fw-medium">{{ $initialism }}</span> &middot; {{end}}
+            {{- byteFileS $name $rel.Unique.Count $rel.Unique.Bytes }}
+          </div>
         </div>
+      </div>
     {{- $prevYear = $year }}
-{{- end}}
+{{- end }}
 {{- if gt (len .releasers) 0 }}
     </div>
+  </section>
 {{- end }}
 </div>
+
+{{- if ge (len .releasers) 3 }}
+<script>
+(() => {
+  const input = document.getElementById('releaser-year-filter');
+  const clearBtn = document.getElementById('releaser-year-clear');
+  const emptyEl = document.getElementById('releaser-year-empty');
+  const emptyQueryEl = document.getElementById('releaser-year-empty-query');
+  const emptyClearBtn = document.getElementById('releaser-year-empty-clear');
+  const countEl = document.getElementById('releaser-year-count');
+  if (!input) return;
+
+  const items = Array.from(document.querySelectorAll('.releaser-year-item'));
+  const sections = Array.from(document.querySelectorAll('[data-year-section]'));
+  const timelineOnly = Array.from(document.querySelectorAll('[data-year-timeline-only]'));
+  const defaultSummary = countEl ? countEl.textContent : '';
+  const total = items.length;
+
+  for (const item of items) {
+    item._text = item.textContent.toLowerCase();
+  }
+
+  function apply() {
+    const raw = input.value.trim();
+    const tokens = raw.toLowerCase().split(/\s+/).filter(Boolean);
+    const active = tokens.length > 0;
+    let visible = 0;
+
+    for (const item of items) {
+      const match = !active || tokens.every((t) => item._text.includes(t));
+      item.classList.toggle('d-none', !match);
+      if (match) visible++;
+    }
+
+    for (const sec of sections) {
+      const hasVisible = sec.querySelector('.releaser-year-item:not(.d-none)') !== null;
+      sec.classList.toggle('d-none', !hasVisible);
+    }
+
+    for (const sec of timelineOnly) {
+      sec.classList.toggle('d-none', active);
+    }
+
+    if (clearBtn) clearBtn.disabled = input.value === '';
+    if (countEl) {
+      countEl.textContent = active ? `Showing ${visible} of ${total}` : defaultSummary;
+    }
+    if (emptyEl) {
+      emptyEl.classList.toggle('d-none', !active || visible > 0);
+      if (emptyQueryEl) emptyQueryEl.textContent = raw;
+    }
+  }
+
+  function reset() {
+    input.value = '';
+    apply();
+    input.focus();
+  }
+
+  input.addEventListener('input', apply);
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && input.value !== '') {
+      e.preventDefault();
+      reset();
+    }
+  });
+  if (clearBtn) clearBtn.addEventListener('click', reset);
+  if (emptyClearBtn) emptyClearBtn.addEventListener('click', reset);
+})();
+</script>
+{{- end }}
 {{- end }}

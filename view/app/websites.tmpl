@@ -1,44 +1,59 @@
-{{- /* 
+{{- /*
     websites.tmpl ~ List of websites with accordion.
 */ -}}
 {{- define "content" }}
-<div class="container-xxl">
-<div class="bg-body-tertiary border rounded py-2 px-3 mb-4">
-  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
-    <nav class="nav nav-pills gap-1" aria-label="Website categories">
+<div class="container-xxl mb-5">
+  <div class="bg-body-tertiary border rounded-2 px-3 py-2 mb-3">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 pb-2">
+      <div class="d-flex flex-wrap align-items-center gap-2">
+        <div class="btn-group btn-group-sm" role="group" aria-label="Toggle all sections">
+          <button type="button" class="btn btn-outline-secondary" id="websites-expand-all">Expand all</button>
+          <button type="button" class="btn btn-outline-secondary" id="websites-collapse-all">Collapse all</button>
+        </div>
+      </div>
+      <div class="d-flex flex-wrap align-items-center gap-2 ms-auto">
+        <span class="small text-body-secondary text-nowrap font-monospace" id="websites-count"></span>
+        <div class="input-group input-group-sm" style="width: 17rem; max-width: 100%;">
+          <input type="search" id="websites-filter" class="form-control" placeholder="Filter sites..." aria-label="Filter websites by name or description" autocomplete="off">
+          <button type="button" id="websites-filter-clear" class="btn btn-outline-secondary" aria-label="Clear filter" disabled>Clear</button>
+        </div>
+      </div>
+    </div>
+    <nav class="d-flex flex-wrap align-items-baseline gap-3 pt-2 border-top small" aria-label="Website categories">
+      <span class="text-body-secondary fw-medium">Categories:</span>
       {{- range .accordion }}
-      <a class="nav-link py-1 px-2 small website-jump" data-collapse-target="collapse{{ .ID }}" href="#website-sec-{{ .ID }}">{{ .Title }}</a>
+      <a class="link-underline link-underline-opacity-0 link-underline-opacity-75-hover website-jump" data-collapse-target="collapse{{ .ID }}" href="#website-sec-{{ .ID }}">{{ .Title }}</a>
       {{- end }}
     </nav>
-    <div class="btn-group btn-group-sm flex-shrink-0 ms-auto" role="group" aria-label="Toggle all sections">
-      <button type="button" class="btn btn-outline-secondary" id="websites-expand-all">Expand all</button>
-      <button type="button" class="btn btn-outline-secondary" id="websites-collapse-all">Collapse all</button>
-    </div>
   </div>
-</div>
 
-<div class="accordion accordion-flush" id="websitesAccordion">
-{{- range .accordion -}}
-    <div class="accordion-item" id="website-sec-{{ .ID }}" style="scroll-margin-top: 4.5rem;">
-        <h2 class="accordion-header">
-          <button class="accordion-button{{- if .Open }}{{else}} collapsed{{end}} fs-5" type="button" 
-            data-bs-toggle="collapse" data-bs-target="#collapse{{ .ID }}" aria-expanded="{{ .Open }}" aria-controls="collapse{{ .ID }}">
-            <span>{{ .Name }}</span>
-            <span class="badge text-bg-secondary ms-2 fw-normal fs-6">{{ len .Sites }}</span>
-          </button>
-        </h2>
-        <div id="collapse{{ .ID }}" class="accordion-collapse collapse{{- if .Open }} show{{end}}">
-          <div class="accordion-body">
-            <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3">
-              {{- range .Sites -}}
-                  {{- template "website" . -}}
-              {{- end}}
-            </div>
+  <div id="websites-empty" class="alert alert-light border text-center my-4 d-none" role="status">
+    No websites matched <strong id="websites-empty-query"></strong>.
+    <button type="button" id="websites-empty-clear" class="btn btn-link btn-sm p-0 ms-1 align-baseline">Clear filter</button>
+  </div>
+
+  <div class="accordion accordion-flush border-top border-bottom" id="websitesAccordion">
+  {{- range .accordion -}}
+    <div class="accordion-item website-section" id="website-sec-{{ .ID }}" style="scroll-margin-top: 5rem;">
+      <h2 class="accordion-header">
+        <button class="accordion-button{{- if .Open }}{{else}} collapsed{{end}} fs-5" type="button"
+          data-bs-toggle="collapse" data-bs-target="#collapse{{ .ID }}" aria-expanded="{{ .Open }}" aria-controls="collapse{{ .ID }}">
+          <span>{{ .Name }}</span>
+          <span class="small font-monospace text-body-secondary ms-2 website-section-count">{{ len .Sites }}</span>
+        </button>
+      </h2>
+      <div id="collapse{{ .ID }}" class="accordion-collapse collapse{{- if .Open }} show{{end}}">
+        <div class="accordion-body px-0 px-sm-2">
+          <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3">
+            {{- range .Sites -}}
+                {{- template "website" . -}}
+            {{- end}}
           </div>
         </div>
       </div>
-{{- end}}
-</div>
+    </div>
+  {{- end}}
+  </div>
 </div>
 
 <script>
@@ -69,6 +84,74 @@
       }
     });
   });
+
+  const input = document.getElementById('websites-filter');
+  const clearBtn = document.getElementById('websites-filter-clear');
+  const emptyEl = document.getElementById('websites-empty');
+  const emptyQueryEl = document.getElementById('websites-empty-query');
+  const emptyClearBtn = document.getElementById('websites-empty-clear');
+  const countEl = document.getElementById('websites-count');
+  if (!input) return;
+
+  const sections = Array.from(accordion.querySelectorAll('.website-section'));
+  const cards = Array.from(accordion.querySelectorAll('.website-card-item'));
+  const total = cards.length;
+  for (const card of cards) {
+    card._text = (card.textContent + ' ' + (card.dataset.url || '')).toLowerCase();
+  }
+
+  function applyFilter() {
+    const raw = input.value.trim();
+    const tokens = raw.toLowerCase().split(/\s+/).filter(Boolean);
+    const active = tokens.length > 0;
+    let visible = 0;
+
+    for (const sec of sections) {
+      const secCards = sec.querySelectorAll('.website-card-item');
+      let secVisible = 0;
+      for (const card of secCards) {
+        const match = !active || tokens.every((t) => card._text.includes(t));
+        card.classList.toggle('d-none', !match);
+        if (match) secVisible++;
+      }
+      visible += secVisible;
+      sec.classList.toggle('d-none', active && secVisible === 0);
+      const secCount = sec.querySelector('.website-section-count');
+      if (secCount) secCount.textContent = String(secVisible);
+      if (active && secVisible > 0 && window.bootstrap?.Collapse) {
+        const col = sec.querySelector('.accordion-collapse');
+        if (col && !col.classList.contains('show')) {
+          bootstrap.Collapse.getOrCreateInstance(col, { toggle: false }).show();
+        }
+      }
+    }
+
+    if (clearBtn) clearBtn.disabled = input.value === '';
+    if (countEl) {
+      countEl.textContent = active ? `${visible} of ${total}` : `${total} sites`;
+    }
+    if (emptyEl) {
+      emptyEl.classList.toggle('d-none', !active || visible > 0);
+      if (emptyQueryEl) emptyQueryEl.textContent = raw;
+    }
+  }
+
+  function reset() {
+    input.value = '';
+    applyFilter();
+    input.focus();
+  }
+
+  input.addEventListener('input', applyFilter);
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && input.value !== '') {
+      e.preventDefault();
+      reset();
+    }
+  });
+  if (clearBtn) clearBtn.addEventListener('click', reset);
+  if (emptyClearBtn) emptyClearBtn.addEventListener('click', reset);
+  applyFilter();
 })();
 </script>
 {{- end}}

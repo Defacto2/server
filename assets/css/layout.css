@@ -686,7 +686,7 @@ a {
 }
 
 @media (width >= 992px) {
-  .tidbit-prose.tidbit-columns {
+  .tidbit-columns {
     column-count: 2;
     column-gap: 2.25rem;
     column-rule: 1px solid #e9ecef;
@@ -794,6 +794,12 @@ a {
 .tidbit-related-label {
   font-weight: 600;
   color: #495057;
+}
+
+.scener-jump.disabled {
+  color: var(--bs-tertiary-color);
+  pointer-events: none;
+  text-decoration: none;
 }
 
 #milestones {

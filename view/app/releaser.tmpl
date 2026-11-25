@@ -8,12 +8,12 @@
 {{- $name := .itemName }}
 {{- $path := "g" }}
 {{- $pubs := index .stats.pubs }}
-<div class="container-xxl">
-    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-      <p class="lead mb-0"><small>Showing {{$pubs}}{{if ne $orderBy ""}}, ordered {{$orderBy | safeHTML}}{{end}}.</small></p>
+<div class="container-xxl mb-5">
+    <div class="bg-body-tertiary border rounded-2 px-3 py-2 mb-3 d-flex flex-wrap align-items-center justify-content-between gap-2">
+      <span class="small text-body-secondary">Showing {{$pubs}}{{if ne $orderBy ""}}, ordered {{$orderBy | safeHTML}}{{end}}.</span>
       {{- if ge (len .releasers) 3 }}
       <div class="d-flex flex-wrap align-items-center gap-2 ms-auto">
-        <span class="small text-body-secondary text-nowrap" id="releaser-count">{{$pubs}}</span>
+        <span class="small text-body-secondary text-nowrap font-monospace" id="releaser-count">{{$pubs}}</span>
         <div class="input-group input-group-sm" style="width: 17rem; max-width: 100%;">
           <input type="search" id="releaser-filter" class="form-control" placeholder="Filter by name or count..." aria-label="Filter by name or count" autocomplete="off">
           <button type="button" id="releaser-filter-clear" class="btn btn-outline-secondary" aria-label="Clear filter" disabled>Clear</button>
@@ -124,7 +124,7 @@
                   <a class="link-underline link-underline-opacity-0 link-underline-opacity-75-hover stretched-link" href="/{{ $path }}/{{ $rel.Unique.URI }}">{{fmtURI $rel.Unique.URI}}</a>
                 </h2>
                 {{- if eq $mdMissing true }}
-                <small class="small fw-medium text-warning-emphasis bg-warning-subtle border border-warning-subtle rounded-pill px-2 py-0 flex-shrink-0">❌ markdown</small>
+                <small class="small fw-medium text-warning-emphasis bg-warning-subtle border border-warning-subtle rounded-pill px-2 py-0 flex-shrink-0">no bio</small>
                 {{- end }}
               </div>
               <div class="small text-body-secondary">
