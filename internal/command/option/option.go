@@ -307,6 +307,9 @@ func (o *Opts) Thumb() {
 }
 
 func (o *Opts) thumb(filter string) {
+	if o == nil {
+		return
+	}
 	*o = append(*o,
 		"-filter", filter, // resize filter
 		"-thumbnail", size400x400, // the use of thumbnail is more performant than other flags

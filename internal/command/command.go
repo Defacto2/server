@@ -220,11 +220,7 @@ func (r *Runner) Run(ctx context.Context, name string, arg ...string) ([]byte, e
 	}
 
 	if err != nil {
-		const format = "command run %s: %w"
-		if len(out) > 0 {
-			return out, fmt.Errorf(format, name, err)
-		}
-		return out, fmt.Errorf(format, name, err)
+		return out, fmt.Errorf("command run %s: %w", name, err)
 	}
 
 	return out, nil
@@ -247,12 +243,7 @@ func CopyFile(sl *slog.Logger, src, dst string) error {
 	if err != nil {
 		return fmt.Errorf(format, "create dest", err)
 	}
-
-	defer func() {
-		if cErr := d.Close(); cErr != nil && err == nil {
-			err = fmt.Errorf(format, "close dest", cErr)
-		}
-	}()
+	defer func() { _ = d.Close() }()
 
 	n, err := io.Copy(d, s)
 	if err != nil {
@@ -260,6 +251,9 @@ func CopyFile(sl *slog.Logger, src, dst string) error {
 	}
 	if err := d.Sync(); err != nil {
 		return fmt.Errorf(format, "sync dest", err)
+	}
+	if err := d.Close(); err != nil {
+		return fmt.Errorf(format, "close dest", err)
 	}
 
 	sl.Debug("file.copied", slog.String("path", dst), slog.Int64("bytes", n))

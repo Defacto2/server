@@ -162,7 +162,7 @@ func (ds Dirs) BinTextImager(ctx context.Context, sl *slog.Logger, srcBinary, un
 	_ = f.Close()
 
 	defer func() {
-		if err := os.Remove(dst); !errors.Is(err, os.ErrNotExist) {
+		if err := os.Remove(dst); err != nil && !errors.Is(err, os.ErrNotExist) {
 			sl.Error("binary text imager could not remove temporary file",
 				slog.String("file", dst), slog.Any("error", err))
 		}
@@ -239,7 +239,7 @@ func stripBSAVEHeader(sl *slog.Logger, src string) (string, func(), error) {
 		return "", nil, fmt.Errorf(format, "close", err)
 	}
 	cleanup := func() {
-		if err := os.Remove(tmpPath); !errors.Is(err, os.ErrNotExist) && sl != nil {
+		if err := os.Remove(tmpPath); err != nil && !errors.Is(err, os.ErrNotExist) && sl != nil {
 			sl.Error("binary text imager could not remove temporary raw dump",
 				slog.String("file", tmpPath), slog.Any("error", err))
 		}
@@ -268,7 +268,7 @@ func thedrawCOM(sl *slog.Logger, src string) (string, func(), bool, error) {
 		return "", nil, false, fmt.Errorf(format, "close temp", err)
 	}
 	cleanup := func() {
-		if err := os.Remove(tmpPath); !errors.Is(err, os.ErrNotExist) && sl != nil {
+		if err := os.Remove(tmpPath); err != nil && !errors.Is(err, os.ErrNotExist) && sl != nil {
 			sl.Error("text imager could not remove temporary thedraw file",
 				slog.String("file", tmpPath), slog.Any("error", err))
 		}
@@ -301,7 +301,7 @@ func (ds Dirs) CGAImager(ctx context.Context, sl *slog.Logger, srcDump, unid str
 	_ = f.Close()
 
 	defer func() {
-		if err := os.Remove(dst); !errors.Is(err, os.ErrNotExist) {
+		if err := os.Remove(dst); err != nil && !errors.Is(err, os.ErrNotExist) {
 			sl.Error("cga imager could not remove temporary file",
 				slog.String("file", dst), slog.Any("error", err))
 		}

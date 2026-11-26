@@ -2,17 +2,21 @@ package command_test
 
 import (
 	"bytes"
-	"log/slog"
+	"context"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
 	"github.com/Defacto2/server/internal/command"
-	"github.com/Defacto2/server/internal/dir"
+	"github.com/Defacto2/server/internal/logs"
+	"github.com/Defacto2/server/internal/testutil"
 	"github.com/nalgeon/be"
 )
 
 // checked in Sep 26, test coverage was good at over 65+%
+
+var testLog = logs.Discard()
 
 func TestLookups(t *testing.T) {
 	t.Parallel()
@@ -23,28 +27,29 @@ func TestLookups(t *testing.T) {
 
 func TestCopyFile(t *testing.T) {
 	t.Parallel()
-	sl := slog.Default()
+	sl := testLog
 
 	got := command.CopyFile(nil, "", "")
 	be.Err(t, got)
 
-	tmp, got := dir.CreateTemp("command_test")
-	be.Err(t, got, nil)
+	tmpDir := t.TempDir()
+	src := filepath.Join(tmpDir, "src.txt")
+	const want = "hello world"
+	be.Err(t, os.WriteFile(src, []byte(want), 0o600), nil)
 
 	got = command.CopyFile(sl, "", "")
 	be.Err(t, got)
 
-	got = command.CopyFile(sl, tmp.Name(), "")
+	got = command.CopyFile(sl, src, "")
 	be.Err(t, got)
 
-	dst := tmp.Name() + ".txt"
-	got = command.CopyFile(sl, tmp.Name(), dst)
+	dst := filepath.Join(tmpDir, "dst.txt")
+	got = command.CopyFile(sl, src, dst)
 	be.Err(t, got, nil)
 
-	t.Cleanup(func() {
-		_ = tmp.Close()
-		_ = os.Remove(tmp.Name())
-	})
+	b, err := os.ReadFile(dst)
+	be.Err(t, err, nil)
+	be.Equal(t, string(b), want)
 }
 
 func TestLookup(t *testing.T) {
@@ -66,13 +71,13 @@ func TestLookupS(t *testing.T) {
 	t.Parallel()
 
 	got := command.LookupS(t.Context(), "", "", "")
+	be.Err(t, got, command.ErrNoMatch)
+
+	got = command.LookupS(t.Context(), "thiscommanddoesnotexist", "", "version")
 	be.Err(t, got)
 
-	got = command.LookupS(t.Context(), "thiscommanddoesnotexist", "", "")
-	be.Err(t, got)
-
-	got = command.LookupS(t.Context(), "go", "", "")
-	be.Err(t, got)
+	got = command.LookupS(t.Context(), "go", "version", "not-a-real-version")
+	be.Err(t, got, command.ErrVersion)
 
 	// version arg output example:
 	// go version go1.16.5 linux/amd64
@@ -90,7 +95,7 @@ func TestRun(t *testing.T) {
 	be.Err(t, got)
 
 	const none = ""
-	r.Log = slog.Default()
+	r.Log = testLog
 	_, got = r.Run(ctx, "", none)
 	be.Err(t, got)
 
@@ -105,7 +110,25 @@ func TestRun(t *testing.T) {
 	be.Err(t, got, nil)
 	be.True(t, bytes.HasPrefix(b, []byte("go version go1.")))
 
-	// test timeout
+	b, got = command.Run(ctx, testLog, "go", "version")
+	be.Err(t, got, nil)
+	be.True(t, bytes.HasPrefix(b, []byte("go version go1.")))
+
+	wd := t.TempDir()
+	buff := testutil.Buffer(t)
+	r = command.Runner{Log: buff.Log, WorkingDir: wd}
+	b, got = r.Run(ctx, "pwd")
+	be.Err(t, got, nil)
+	wantWD, err := filepath.EvalSymlinks(wd)
+	be.Err(t, err, nil)
+	be.Equal(t, strings.TrimSpace(string(b)), wantWD)
+	be.True(t, buff.Contains("command executed"))
+	be.True(t, buff.Contains("exit_code=0"))
+
+	canceled, cancel := context.WithCancel(ctx)
+	cancel()
+	_, got = r.Run(canceled, "go", "version")
+	be.Err(t, got, context.Canceled)
 }
 
 func TestFormatOutput(t *testing.T) {

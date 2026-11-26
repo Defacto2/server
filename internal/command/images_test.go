@@ -2,7 +2,6 @@ package command_test
 
 import (
 	"errors"
-	"log/slog"
 	"os"
 	"path/filepath"
 	"slices"
@@ -13,19 +12,23 @@ import (
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/dir"
-	"github.com/Defacto2/server/internal/logs"
 	"github.com/Defacto2/server/internal/testutil"
 	"github.com/nalgeon/be"
 )
 
-const (
-	invalid = "this-is#invalid!"
-)
+const invalid = "this-is#invalid!"
 
 var (
 	testdata      = testutil.Testdata()
 	testdataCount = testutil.CountTest()
 )
+
+func requireTool(t *testing.T, name string) {
+	t.Helper()
+	if _, err := command.Lookup(name); err != nil {
+		t.Skipf("%s not available: %v", name, err)
+	}
+}
 
 // setupTestDir copies all files from testdata/ to tempDir. A string that should normally
 // be the result of [testing.TempDir]. After the transfer there is a file count to confirm
@@ -139,7 +142,7 @@ func TestImagesDelete(t *testing.T) {
 func TestImagesPixelate(t *testing.T) {
 	t.Parallel()
 
-	sl := slog.Default()
+	sl := testLog
 
 	dir := t.TempDir()
 	unid, _ := setupTestDir(t, dir)
@@ -184,7 +187,7 @@ func TestDirsThumbs(t *testing.T) {
 	count := countFiles(t, thumbdir)
 	be.Equal(t, count, 0)
 
-	sl := slog.Default()
+	sl := testLog
 	err := dirs.Thumbs(t.Context(), sl, unid, command.Pixel)
 	be.Err(t, err, nil)
 
@@ -222,7 +225,7 @@ func TestAlignThumbs(t *testing.T) {
 	count := countFiles(t, thumbdir)
 	be.Equal(t, count, 0)
 
-	sl := slog.Default()
+	sl := testLog
 
 	align := command.Top
 	err := align.Thumbs(t.Context(), sl, unid, preview, thumbnail)
@@ -265,7 +268,7 @@ func TestCropImages(t *testing.T) {
 	thumbdir := t.TempDir()
 	unid, path := setupTestDir(t, thumbdir)
 
-	sl := slog.Default()
+	sl := testLog
 	preview := dir.Directory(path)
 
 	crop := command.SquareTop
@@ -288,85 +291,56 @@ func TestCropImages(t *testing.T) {
 func TestPictureImager(t *testing.T) {
 	t.Parallel()
 
-	prevdir := t.TempDir()
-	thumbdir := t.TempDir()
-
-	dirs := command.Dirs{
-		Preview:   dir.Directory(prevdir),  // previews will be generated here
-		Thumbnail: dir.Directory(thumbdir), // thumbnails will be generated here
+	tests := []struct {
+		name      string
+		file      string
+		wantBytes int64
+	}{
+		{"bmp", "TEST.BMP", 750054},
+		{"gif", "TEST.GIF", 2646},
+		{"jpg", "TEST.JPG", 16461},
+		{"pcx", "TEST.PCX", 29530},
+		{"png", "TEST.PNG", 4163},
+		{"webp", "TEST.WEBP", 2768},
 	}
 
-	sl := slog.Default()
-	id := uuid.New()
-	unid := id.String()
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 
-	bmp, err := filepath.Abs(filepath.Join(testdata, "TEST.BMP"))
-	be.Err(t, err, nil)
-	err = dirs.PictureImager(t.Context(), sl, bmp, unid)
-	be.Err(t, err, nil)
+			prevdir := t.TempDir()
+			thumbdir := t.TempDir()
+			dirs := command.Dirs{
+				Preview:   dir.Directory(prevdir),
+				Thumbnail: dir.Directory(thumbdir),
+			}
 
-	bmpSt, err := os.Stat(bmp)
-	be.Err(t, err, nil)
-	bmpSize := bmpSt.Size()
-	const bmpBytes = 750054 // confirm the test files have not been modified
-	be.Equal(t, bmpSize, bmpBytes)
+			src, err := filepath.Abs(filepath.Join(testdata, tt.file))
+			be.Err(t, err, nil)
 
-	preImg := filepath.Join(prevdir, unid+".png")
-	preSt, err := os.Stat(preImg)
-	be.Err(t, err, nil)
-	preSize := preSt.Size()
-	const preBytes = 1629 // this could change depending on the tool set?
-	be.True(t, preSize >= preBytes)
+			unid := uuid.New().String()
+			be.Err(t, dirs.PictureImager(t.Context(), testLog, src, unid), nil)
 
-	gif, err := filepath.Abs(filepath.Join(testdata, "TEST.GIF"))
-	be.Err(t, err, nil)
-	err = dirs.PictureImager(t.Context(), sl, gif, unid)
-	be.Err(t, err, nil)
-	gifSt, err := os.Stat(gif)
-	be.Err(t, err, nil)
-	gifSize := gifSt.Size()
-	const gifBytes = 2646
-	be.True(t, gifSize >= gifBytes)
+			// Confirm the source fixture was not modified.
+			srcSt, err := os.Stat(src)
+			be.Err(t, err, nil)
+			be.Equal(t, srcSt.Size(), tt.wantBytes)
 
-	jpg, err := filepath.Abs(filepath.Join(testdata, "TEST.JPG"))
-	be.Err(t, err, nil)
-	err = dirs.PictureImager(t.Context(), sl, jpg, unid)
-	be.Err(t, err, nil)
-	jpgSt, err := os.Stat(jpg)
-	be.Err(t, err, nil)
-	jpgSize := jpgSt.Size()
-	const jpgBytes = 16461
-	be.Equal(t, jpgSize, jpgBytes)
+			// Confirm a non-empty preview and WebP thumbnail were generated.
+			prevEntries, err := os.ReadDir(prevdir)
+			be.Err(t, err, nil)
+			be.True(t, len(prevEntries) > 0)
+			for _, e := range prevEntries {
+				info, statErr := e.Info()
+				be.Err(t, statErr, nil)
+				be.True(t, info.Size() > 0)
+			}
 
-	pcx, err := filepath.Abs(filepath.Join(testdata, "TEST.PCX"))
-	be.Err(t, err, nil)
-	err = dirs.PictureImager(t.Context(), sl, pcx, unid)
-	be.Err(t, err, nil)
-	pcxSt, err := os.Stat(pcx)
-	be.Err(t, err, nil)
-	pcxSize := pcxSt.Size()
-	const pcxBytes = 29530
-	be.Equal(t, pcxSize, pcxBytes)
-
-	png, err := filepath.Abs(filepath.Join(testdata, "TEST.PNG"))
-	be.Err(t, err, nil)
-	err = dirs.PictureImager(t.Context(), sl, png, unid)
-	be.Err(t, err, nil)
-	pngSt, err := os.Stat(png)
-	be.Err(t, err, nil)
-	pngSize := pngSt.Size()
-	const pngBytes = 4163
-	be.Equal(t, pngSize, pngBytes)
-
-	web, err := filepath.Abs(filepath.Join(testdata, "TEST.WEBP"))
-	be.Err(t, err, nil)
-	err = dirs.PictureImager(t.Context(), sl, web, unid)
-	be.Err(t, err, nil)
-	webSt, err := os.Stat(web)
-	be.Err(t, err, nil)
-	webSize := webSt.Size()
-	const webBytes = 2768
-	be.Equal(t, webSize, webBytes)
+			thumbSt, err := os.Stat(filepath.Join(thumbdir, unid+".webp"))
+			be.Err(t, err, nil)
+			be.True(t, thumbSt.Size() > 0)
+		})
+	}
 }
 
 func TestCropText(t *testing.T) {
@@ -379,12 +353,18 @@ func TestCropText(t *testing.T) {
 	const srcSize = 440
 	be.True(t, srcSt.Size() >= srcSize)
 
-	sl := slog.Default()
+	sl := testLog
 	id := uuid.New()
+	cleanupCrop := func(dst string) {
+		if dst != "" && dst != src {
+			t.Cleanup(func() { _ = dir.RemoveAll(filepath.Dir(dst)) })
+		}
+	}
 
 	txt := command.Text{UUID: id.String()}
 	dst, err := txt.Crop(sl, src)
 	be.Err(t, err, nil)
+	cleanupCrop(dst)
 
 	dstSt, err := os.Stat(dst)
 	be.Err(t, err, nil)
@@ -396,6 +376,7 @@ func TestCropText(t *testing.T) {
 	txt.MaxCols = 1
 	dst, err = txt.Crop(sl, src)
 	be.Err(t, err, nil)
+	cleanupCrop(dst)
 	dstSt, err = os.Stat(dst)
 	be.Err(t, err, nil)
 	wants = int64(2)
@@ -405,6 +386,7 @@ func TestCropText(t *testing.T) {
 	txt.MaxCols = 40
 	dst, err = txt.Crop(sl, src)
 	be.Err(t, err, nil)
+	cleanupCrop(dst)
 	dstSt, err = os.Stat(dst)
 	be.Err(t, err, nil)
 	wants = int64(246)
@@ -414,14 +396,16 @@ func TestCropText(t *testing.T) {
 	txt.MaxCols = 80
 	dst, err = txt.Crop(sl, src)
 	be.Err(t, err, nil)
+	cleanupCrop(dst)
 	dstSt, err = os.Stat(dst)
 	be.Err(t, err, nil)
 	wants = int64(150)
 	be.True(t, dstSt.Size() >= wants)
 }
 
-func TestTextImagerVgaFont(t *testing.T) {
+func TestTextVGA(t *testing.T) {
 	t.Parallel()
+	requireTool(t, command.Ansilove)
 
 	prevdir := t.TempDir()
 	thumbdir := t.TempDir()
@@ -430,7 +414,7 @@ func TestTextImagerVgaFont(t *testing.T) {
 		Thumbnail: dir.Directory(thumbdir),
 	}
 
-	sl := slog.Default()
+	sl := testLog
 	id := uuid.New()
 	unid := id.String()
 	src := testutil.FileData("testascii").Abs()
@@ -460,8 +444,9 @@ func TestTextImagerVgaFont(t *testing.T) {
 	be.True(t, tst.Size() >= tstSize)
 }
 
-func TestTextImagerAmigaFont(t *testing.T) {
+func TestTextAmiga(t *testing.T) {
 	t.Parallel()
+	requireTool(t, command.Ansilove)
 
 	prevdir := t.TempDir()
 	thumbdir := t.TempDir()
@@ -470,7 +455,7 @@ func TestTextImagerAmigaFont(t *testing.T) {
 		Thumbnail: dir.Directory(thumbdir),
 	}
 
-	sl := slog.Default()
+	sl := testLog
 	id := uuid.New()
 	unid := id.String()
 	src := testutil.FileData("testascii").Abs()
@@ -498,7 +483,7 @@ func TestTextImagerAmigaFont(t *testing.T) {
 	be.True(t, tst.Size() >= tstSize)
 }
 
-func TestTextImagerUTF8(t *testing.T) {
+func TestTextUTF8(t *testing.T) {
 	t.Parallel()
 
 	prevdir := t.TempDir()
@@ -508,7 +493,7 @@ func TestTextImagerUTF8(t *testing.T) {
 		Thumbnail: dir.Directory(thumbdir),
 	}
 
-	sl := slog.Default()
+	sl := testLog
 	unid := uuid.New().String()
 	src := testutil.FileData("testuni").Abs()
 
@@ -528,7 +513,7 @@ func TestTextImagerUTF8(t *testing.T) {
 	be.True(t, tst.Size() > 0)
 }
 
-func TestTextImagerANSImation(t *testing.T) {
+func TestTextAnim(t *testing.T) {
 	t.Parallel()
 
 	prevdir := t.TempDir()
@@ -538,7 +523,7 @@ func TestTextImagerANSImation(t *testing.T) {
 		Thumbnail: dir.Directory(thumbdir),
 	}
 
-	sl := slog.Default()
+	sl := testLog
 	unid := uuid.New().String()
 	src := testutil.FileData("maximum3ans").Abs()
 
@@ -558,7 +543,7 @@ func TestTextImagerANSImation(t *testing.T) {
 	be.True(t, tst.Size() > 0)
 }
 
-func TestTextImagerANSIBlink(t *testing.T) {
+func TestTextBlink(t *testing.T) {
 	t.Parallel()
 
 	prevdir := t.TempDir()
@@ -568,7 +553,7 @@ func TestTextImagerANSIBlink(t *testing.T) {
 		Thumbnail: dir.Directory(thumbdir),
 	}
 
-	sl := slog.Default()
+	sl := testLog
 	unid := uuid.New().String()
 	blinkSrc := filepath.Join(t.TempDir(), "blink.ans")
 	be.Err(t, os.WriteFile(blinkSrc, []byte("\x1b[5;31mHello World\x1b[0m\r\n"), 0o600), nil)
@@ -592,7 +577,7 @@ func TestTextImagerANSIBlink(t *testing.T) {
 	be.True(t, tst.Size() > 0)
 }
 
-func TestAnsiAnimation(t *testing.T) {
+func TestANSImation(t *testing.T) {
 	t.Parallel()
 
 	prevdir := t.TempDir()
@@ -602,7 +587,7 @@ func TestAnsiAnimation(t *testing.T) {
 		Thumbnail: dir.Directory(thumbdir),
 	}
 
-	sl := slog.Default()
+	sl := testLog
 	unid := uuid.New().String()
 	src := testutil.FileData("maximum3ans").Abs()
 
@@ -631,7 +616,7 @@ func TestAnsiAnimation(t *testing.T) {
 func TestOptimizePNG(t *testing.T) {
 	t.Parallel()
 
-	sl := slog.Default()
+	sl := testLog
 
 	got := command.OptimizePNG(t.Context(), sl, "")
 	be.Err(t, got)
@@ -640,9 +625,9 @@ func TestOptimizePNG(t *testing.T) {
 	be.Err(t, got)
 
 	name, dirs := setupTestDir(t, t.TempDir())
-	bmp, got := filepath.Abs(filepath.Join(dirs, name+".png"))
+	notImg, got := filepath.Abs(filepath.Join(dirs, name+".ASCII"))
 	be.Err(t, got, nil)
-	got = command.OptimizePNG(t.Context(), sl, bmp)
+	got = command.OptimizePNG(t.Context(), sl, notImg)
 	be.Err(t, got)
 
 	png, got := filepath.Abs(filepath.Join(dirs, name+".PNG"))
@@ -654,6 +639,7 @@ func TestOptimizePNG(t *testing.T) {
 
 func TestTextDeferred(t *testing.T) {
 	t.Parallel()
+	requireTool(t, command.Ansilove)
 
 	extradir := t.TempDir()
 	prevdir := t.TempDir()
@@ -664,7 +650,7 @@ func TestTextDeferred(t *testing.T) {
 		Thumbnail: dir.Directory(thumbdir),
 	}
 
-	sl := slog.Default()
+	sl := testLog
 	id := uuid.New()
 	unid := id.String()
 	src := testutil.FileData("testascii").Abs()
@@ -707,7 +693,7 @@ func TestThumbs(t *testing.T) {
 	t.Parallel()
 
 	dirs := command.Dirs{}
-	sl := logs.Discard()
+	sl := testLog
 	got := dirs.Thumbs(t.Context(), sl, "", -1)
 	be.Err(t, got)
 
@@ -732,12 +718,12 @@ func TestThumbs(t *testing.T) {
 	be.True(t, st.Size() < 10_000)
 }
 
-func TestThumbsPixelAndPhoto(t *testing.T) {
+func TestThumbsModes(t *testing.T) {
 	t.Parallel()
 
 	prevdir := t.TempDir()
 	thumbdir := t.TempDir()
-	sl := logs.Discard()
+	sl := testLog
 	unid := uuid.New().String()
 	src := filepath.Join(prevdir, unid+".png")
 	testutil.CopyPNG(t, src)
@@ -778,7 +764,7 @@ func TestAlign(t *testing.T) {
 	thumbdir := t.TempDir()
 	unid, _ := setupTestDir(t, prevdir)
 
-	sl := slog.Default()
+	sl := testLog
 	got := command.Top.Thumbs(t.Context(), sl, "", "", "")
 	be.Err(t, got)
 
@@ -791,7 +777,7 @@ func TestAlign(t *testing.T) {
 func TestCrop(t *testing.T) {
 	t.Parallel()
 
-	sl := slog.Default()
+	sl := testLog
 	got := command.OneTwo.Images(t.Context(), sl, "", "")
 	be.Err(t, got)
 
