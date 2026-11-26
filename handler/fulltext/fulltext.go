@@ -362,6 +362,9 @@ func Snippet(query, body string, wordWindow int) string { //nolint:cyclop
 }
 
 func truncateByWords(s string, maxWords int) string {
+	if maxWords < 0 {
+		return s
+	}
 	words := strings.Fields(s)
 	if len(words) > maxWords {
 		return strings.Join(words[:maxWords], " ")

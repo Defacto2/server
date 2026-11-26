@@ -270,10 +270,8 @@ func Determiner() URIS {
 // NameByURI returns the name of a tag belonging to the URI slug.
 func NameByURI(slug string) string {
 	slug = strings.ToLower(strings.TrimSpace(slug))
-	for key, value := range Names() {
-		if slug == key.String() {
-			return value
-		}
+	if tag, ok := uriToTag[slug]; ok {
+		return names[tag]
 	}
 	return "error: unknown slug '" + slug + "'"
 }

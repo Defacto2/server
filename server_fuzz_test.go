@@ -3,6 +3,7 @@ package main_test
 
 import (
 	"embed"
+	"log/slog"
 	"strings"
 	"sync"
 	"testing"
@@ -12,28 +13,31 @@ import (
 	"github.com/Defacto2/server/handler/tidbit"
 )
 
-// NOTE: all fuzz tests must be in root
+// NOTE:these fuzz tests should be in root
 // go test -fuzz=FuzzSearch -fuzztime=30s
 // go test -fuzz=FuzzSearch -fuzztime=10000x
 
 var (
-	ts   fulltext.Tidbits
-	once sync.Once
-	//go:embed public/**/*
+	ts       fulltext.Tidbits
+	setupErr error
+	once     sync.Once
+	//go:embed public/md/tidbit/*.md
 	publicFS embed.FS
 )
 
 // setupOnce populates the index once for the session.
-func setupOnce() {
+func setupOnce(tb testing.TB) {
+	tb.Helper()
 	once.Do(func() {
-		if err := ts.NewIndex(publicFS, tidbit.Dir); err != nil {
-			panic(err)
-		}
+		setupErr = ts.NewIndex(publicFS, tidbit.Dir)
 	})
+	if setupErr != nil {
+		tb.Fatal(setupErr)
+	}
 }
 
 func FuzzSearch(f *testing.F) {
-	setupOnce()
+	setupOnce(f)
 
 	f.Add("razor")
 	f.Add("defacto2")
@@ -77,22 +81,26 @@ func FuzzSnippet(f *testing.F) {
 	f.Add("🚀", "Space exploration 🚀 is cool.", 2)
 
 	f.Fuzz(func(t *testing.T, query, body string, window int) {
-		defer func() {
-			if r := recover(); r != nil {
-				t.Errorf("Snippet panicked with query=%q body=%q window=%d: %v", query, body, window, r)
-			}
-		}()
-
 		result := fulltext.Snippet(query, body, window)
-		if query != "" && strings.Contains(strings.ToLower(body), strings.ToLower(query)) {
-			if result == "" {
-				t.Errorf("Snippet returned empty string for a valid match")
+		if query == "" {
+			if result != "" {
+				t.Errorf("Snippet(%q, %q, %d) = %q, want empty string", query, body, window, result)
 			}
+			return
+		}
+		if result == "" {
+			t.Errorf("Snippet(%q, %q, %d) returned empty string for non-empty query", query, body, window)
 		}
 	})
 }
 
 func FuzzAdd(f *testing.F) {
+	restore := slog.Default()
+	slog.SetDefault(slog.New(slog.DiscardHandler))
+	f.Cleanup(func() {
+		slog.SetDefault(restore)
+	})
+
 	// Seed with bad content
 	f.Add("biography.md", "# John Doe\nThis is **bold** and <script>alert('bad')</script>")
 	f.Add("empty.txt", "   ")
@@ -121,10 +129,7 @@ func FuzzAdd(f *testing.F) {
 		}
 		s = ts.Body(0)
 		if strings.Contains(s, "<script>") {
-			t.Logf("HTML anitization error: %q", s)
-		}
-		if strings.Contains(s, "**") {
-			t.Logf("Markdown sanitization error: %q", s)
+			t.Errorf("HTML sanitization error: %q", s)
 		}
 		if !utf8.ValidString(s) {
 			t.Errorf("Invalid UTF8 in body: %q", s)

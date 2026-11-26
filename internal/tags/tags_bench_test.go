@@ -10,21 +10,17 @@ import (
 // Use the following command to run all:
 // go test -bench=Benchmark -benchmem
 
-func BenchmarkTagByURI00(b *testing.B) {
-	slugs := [...]string{"dos", "windows", "demo", "ansi", "text", "image", "java", "linux"}
-	b.Run("", func(b *testing.B) {
-		for range b.N {
+func BenchmarkTagByURI(b *testing.B) {
+	slugs := [...]string{"dos", "Windows", "demo", "ANSI", "text", "image", "Java", "linux"}
+	b.Run("linear", func(b *testing.B) {
+		for b.Loop() {
 			for _, slug := range slugs {
-				tagbyuri00(b, slug)
+				_ = tagbyuri00(slug)
 			}
 		}
 	})
-}
-
-func BenchmarkTagByURI01(b *testing.B) {
-	slugs := [...]string{"dos", "windows", "demo", "ansi", "text", "image", "java", "linux"}
-	b.Run("", func(b *testing.B) {
-		for range b.N {
+	b.Run("map", func(b *testing.B) {
+		for b.Loop() {
 			for _, slug := range slugs {
 				_ = tags.TagByURI(slug)
 			}
@@ -32,10 +28,10 @@ func BenchmarkTagByURI01(b *testing.B) {
 	})
 }
 
-func tagbyuri00(b *testing.B, slug string) tags.Tag {
-	b.Helper()
+func tagbyuri00(slug string) tags.Tag {
+	slug = strings.ToLower(slug)
 	for key, value := range tags.URIs() {
-		if strings.ToLower(slug) == value {
+		if slug == value {
 			return key
 		}
 	}
@@ -43,70 +39,51 @@ func tagbyuri00(b *testing.B, slug string) tags.Tag {
 }
 
 func BenchmarkURIsCalls(b *testing.B) {
-	b.ReportAllocs()
-	b.Run("", func(b *testing.B) {
-		for range b.N {
-			_ = tags.URIs()
-		}
-	})
+	for b.Loop() {
+		_ = tags.URIs()
+	}
 }
 
 func BenchmarkNamesCalls(b *testing.B) {
-	b.ReportAllocs()
-	b.Run("", func(b *testing.B) {
-		for range b.N {
-			_ = tags.Names()
-		}
-	})
+	for b.Loop() {
+		_ = tags.Names()
+	}
 }
 
 // BenchmarkInfosCalls tests the optimized cached map.
 func BenchmarkInfosCalls(b *testing.B) {
-	b.ReportAllocs()
-	b.Run("", func(b *testing.B) {
-		for range b.N {
-			_ = tags.Infos()
-		}
-	})
+	for b.Loop() {
+		_ = tags.Infos()
+	}
 }
 
 func BenchmarkDeterminerCalls(b *testing.B) {
-	b.ReportAllocs()
-	b.Run("", func(b *testing.B) {
-		for range b.N {
-			_ = tags.Determiner()
-		}
-	})
+	for b.Loop() {
+		_ = tags.Determiner()
+	}
 }
 
 func BenchmarkBuildSimulation(b *testing.B) {
-	b.ReportAllocs()
-	b.Run("", func(b *testing.B) {
-		for range b.N {
-			for range 40 {
-				_ = tags.URIs()
-				_ = tags.Names()
-				_ = tags.Infos()
-			}
+	for b.Loop() {
+		for range 40 {
+			_ = tags.URIs()
+			_ = tags.Names()
+			_ = tags.Infos()
 		}
-	})
+	}
 }
 
-func BenchmarkIsCat00(b *testing.B) {
-	names := [...]string{"announcements", "demo", "text", "ansi", "linux"}
-	b.Run("", func(b *testing.B) {
-		for range b.N {
+func BenchmarkIsCategory(b *testing.B) {
+	names := [...]string{"announcements", " DEMO ", "text", "ANSI", "linux"}
+	b.Run("linear", func(b *testing.B) {
+		for b.Loop() {
 			for _, name := range names {
-				iscat00(name)
+				_ = iscat00(name)
 			}
 		}
 	})
-}
-
-func BenchmarkIsCat01(b *testing.B) {
-	names := [...]string{"announcements", "demo", "text", "ansi", "linux"}
-	b.Run("", func(b *testing.B) {
-		for range b.N {
+	b.Run("map", func(b *testing.B) {
+		for b.Loop() {
 			for _, name := range names {
 				_ = tags.IsCategory(name)
 			}
@@ -128,23 +105,19 @@ func iscat00(name string) bool {
 }
 
 func BenchmarkIsPlatform(b *testing.B) {
-	names := [...]string{"ansi", "dos", "windows", "linux", "java"}
-	b.Run("", func(b *testing.B) {
-		for range b.N {
-			for _, name := range names {
-				_ = tags.IsPlatform(name)
-			}
+	names := [...]string{"ansi", "DOS", " WINDOWS ", "linux", "java"}
+	for b.Loop() {
+		for _, name := range names {
+			_ = tags.IsPlatform(name)
 		}
-	})
+	}
 }
 
 func BenchmarkIsTag(b *testing.B) {
-	names := [...]string{"ansi", "demo", "windows", "text", "java"}
-	b.Run("", func(b *testing.B) {
-		for range b.N {
-			for _, name := range names {
-				_ = tags.IsTag(name)
-			}
+	names := [...]string{"ansi", " DEMO ", "WINDOWS", "text", "java"}
+	for b.Loop() {
+		for _, name := range names {
+			_ = tags.IsTag(name)
 		}
-	})
+	}
 }

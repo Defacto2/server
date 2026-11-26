@@ -11,7 +11,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/dir"
@@ -26,7 +25,6 @@ import (
 
 const (
 	screenshot = "SCREEN.PNG"
-	screenSize = 328_468
 	pictImg    = "PICTURE-IMAGER"
 )
 
@@ -54,18 +52,13 @@ func main() {
 	// Image file handlers
 
 	printOut("Running Images Pixelate")
-	const timeout = 15 * time.Second
-	ctx, cancel := context.WithTimeout(ctx, timeout)
-
 	err := command.ImagesPixelate(ctx, sl, "SCREEN", dstDir)
 	if err != nil {
-		cancel()
 		log.Fatal(err)
 	}
 	newpath := filepath.Join(dstDir, "SCREEN-PIXELATE.PNG")
 	err = os.Rename(dst, newpath)
 	if err != nil {
-		cancel()
 		log.Fatal(err)
 	}
 	copyScreen(sl, src, dst)
@@ -81,7 +74,6 @@ func main() {
 	}
 	err = d.PictureImager(ctx, sl, src, pictImg)
 	if err != nil {
-		cancel()
 		log.Fatal(err)
 	}
 
@@ -90,7 +82,6 @@ func main() {
 	copyScreen(sl, src, gthImg)
 	err = d.Thumbs(ctx, sl, pixel, command.Pixel)
 	if err != nil {
-		cancel()
 		log.Fatal(err)
 	}
 
@@ -99,21 +90,18 @@ func main() {
 	copyScreen(sl, src, gthImg)
 	err = d.Thumbs(ctx, sl, photo, command.Photo)
 	if err != nil {
-		cancel()
 		log.Fatal(err)
 	}
 
-	const webp = "OPTIMIZE.PNG"
-	srcWebp := testutil.FileData("testpng").Abs()
-	dstWebp := filepath.Join(dstDir, webp)
-	err = command.CopyFile(sl, srcWebp, dstWebp)
+	const optPNG = "OPTIMIZE.PNG"
+	srcPNG := testutil.FileData("testpng").Abs()
+	dstPNG := filepath.Join(dstDir, optPNG)
+	err = command.CopyFile(sl, srcPNG, dstPNG)
 	if err != nil {
-		cancel()
 		log.Fatal(err)
 	}
-	err = command.OptimizePNG(ctx, sl, dstWebp)
+	err = command.OptimizePNG(ctx, sl, dstPNG)
 	if err != nil {
-		cancel()
 		log.Fatal(err)
 	}
 
@@ -122,24 +110,20 @@ func main() {
 	ascii := testutil.FileData("testascii").Abs()
 	err = d.TextDeferred(ctx, sl, ascii, "DEFERRED_TXT")
 	if err != nil {
-		cancel()
 		log.Fatal(err)
 	}
 	err = d.DizDeferred(sl, ascii, "DEFERRED_DIZ")
 	if err != nil {
-		cancel()
 		log.Fatal(err)
 	}
 
 	cp437 := testutil.FileData("testcp437").Abs()
 	err = d.TextImager(ctx, sl, cp437, "ASCII-DOS", false)
 	if err != nil {
-		cancel()
 		log.Fatal(err)
 	}
 	err = d.TextImager(ctx, sl, ascii, "ASCII-AMIGA", true)
 	if err != nil {
-		cancel()
 		log.Fatal(err)
 	}
 
@@ -151,18 +135,20 @@ func main() {
 	}
 	loc, err := t.Crop(sl, ascii)
 	if err != nil {
-		cancel()
 		log.Fatal(err)
 	}
 	newpath = filepath.Join(dstDir, "ASCII-1rows.txt")
-	err = os.Rename(loc, newpath)
+	if loc == ascii {
+		err = command.CopyFile(sl, loc, newpath)
+	} else {
+		err = os.Rename(loc, newpath)
+		_ = os.Remove(filepath.Dir(loc))
+	}
 	if err != nil {
-		cancel()
 		log.Fatal(err)
 	}
 
 	printOut("TEST.ASCII cropped:", newpath)
-	cancel()
 }
 
 func initData() (src, dstDir string) { //nolint:nonamedreturns
@@ -172,7 +158,7 @@ func initData() (src, dstDir string) { //nolint:nonamedreturns
 	if err != nil {
 		log.Fatal(err)
 	}
-	if st.Size() != screenSize {
+	if st.Size() != testutil.SCREENPNG {
 		log.Fatal("unexpected file size for src")
 	}
 
@@ -215,7 +201,7 @@ func copyScreen(sl *slog.Logger, src, dst string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	if st.Size() != screenSize {
+	if st.Size() != testutil.SCREENPNG {
 		log.Fatal("unexpected file size for src:", src, "dst:", dst)
 	}
 }
@@ -238,13 +224,14 @@ func alignThumbs(ctx context.Context, sl *slog.Logger, src, dst, dstDir string) 
 		if err != nil {
 			log.Fatal(err)
 		}
-		newpath := filepath.Join(dstDir, "SCREEN-THUMB-ALIGN-"+strings.ToUpper(s)+".PNG")
-		err = os.Rename(dst, newpath)
+		generated := filepath.Join(dstDir, "SCREEN.webp")
+		newpath := filepath.Join(dstDir, "SCREEN-THUMB-ALIGN-"+strings.ToUpper(s)+".webp")
+		err = os.Rename(generated, newpath)
 		if err != nil {
 			log.Fatal(err)
 		}
-		copyScreen(sl, src, dst)
 	}
+	copyScreen(sl, src, dst)
 }
 
 func cropImages(ctx context.Context, sl *slog.Logger, src, dst, dstDir string) {
@@ -262,7 +249,8 @@ func cropImages(ctx context.Context, sl *slog.Logger, src, dst, dstDir string) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		newpath := filepath.Join(dstDir, "SCREEN-CROP-IMAGE-"+strings.ToUpper(s)+".PNG")
+		name := strings.ReplaceAll(s, ":", "to")
+		newpath := filepath.Join(dstDir, "SCREEN-CROP-IMAGE-"+name+".PNG")
 		err = os.Rename(dst, newpath)
 		if err != nil {
 			log.Fatal(err)
