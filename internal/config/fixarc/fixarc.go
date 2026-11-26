@@ -1,4 +1,4 @@
-// Package fixarc checks for redundant SAE ARC files that require re-archiving.
+// Package fixarc checks for redundant SEA ARC files that require re-archiving.
 package fixarc
 
 import (

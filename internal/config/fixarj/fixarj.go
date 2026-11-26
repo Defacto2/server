@@ -39,7 +39,7 @@ func Files(ctx context.Context, exec boil.ContextExecutor) (models.FileSlice, er
 	return files, nil
 }
 
-// Invalid returns true if the arj file fails the 7zz list command.
+// Invalid returns true if the arj file fails the 7zz test command.
 // The path is the path to the arj archive file.
 func Invalid(ctx context.Context, sl *slog.Logger, path string) bool {
 	const msg = "arj fixer is invalid"
