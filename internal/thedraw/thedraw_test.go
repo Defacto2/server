@@ -14,41 +14,89 @@ import (
 	"github.com/nalgeon/be"
 )
 
+// Layout of the TheDraw COM file header, which mirrors the format in thedraw.go.
+const (
+	rleStubLen   = 0xF0 // 240 byte stub with the RLE decoder
+	rawStubLen   = 0xB0 // 176 byte stub with the raw VRAM copy
+	rowsOff      = 4    // raw: row count, 1 byte
+	payloadOff   = 4    // rle: payload length, 2 bytes
+	colsOff      = 5    // raw: column count, 2 bytes
+	startOff     = 7    // rle: start offset into the 80 column screen, 2 bytes
+	sigOff       = 9
+	leaOff       = 0x79 // location of the raw stub's load instruction
+	wordBytes    = 2
+	signature    = "TheDraw COM file Screen Save\x1A"
+	rawLEA       = "\x8D\x36\xB0\x01" // LEA SI, [01B0h]
+	jumpOverStub = "\xEB\x3D\x90"
+)
+
 func buildTheDrawCOM(t *testing.T, payload []byte) []byte {
 	t.Helper()
-	const (
-		stubLen    = 0xF0
-		payloadOff = 4
-		sigOff     = 9
-		wordBytes  = 2
-	)
 	n := len(payload)
-	if n < 0 || n > math.MaxUint16 {
+	if n > math.MaxUint16 {
 		t.Fatalf("payload too large: %d", n)
-		return nil
 	}
-	out := make([]byte, stubLen+n)
-	copy(out[0:3], []byte{0xEB, 0x3D, 0x90})
-	binary.LittleEndian.PutUint16(out[payloadOff:payloadOff+wordBytes], uint16(n))
-	copy(out[sigOff:], []byte("TheDraw COM file Screen Save\x1A"))
-	copy(out[stubLen:], payload)
+	out := make([]byte, rleStubLen+n)
+	copy(out, jumpOverStub)
+	binary.LittleEndian.PutUint16(out[payloadOff:payloadOff+wordBytes], uint16(n)) //nolint:gosec // G115: n is checked above
+	copy(out[sigOff:], signature)
+	copy(out[rleStubLen:], payload)
 	return out
 }
 
-func TestIsTheDrawCOM(t *testing.T) {
-	t.Parallel()
-
-	valid := buildTheDrawCOM(t, []byte{0x0F, 'H', 'i', 0x18})
-	be.True(t, thedraw.IsCOM(valid))
-
-	be.True(t, !thedraw.IsCOM(nil))
-	be.True(t, !thedraw.IsCOM([]byte("Hello world\r\n")))
-
-	truncated := valid[:len(valid)-1]
-	be.True(t, !thedraw.IsCOM(truncated))
+// buildTheDrawRaw returns an uncompressed (176 byte stub) TheDraw COM file.
+// The cells are character and attribute byte pairs, which are not checked against rows and cols.
+func buildTheDrawRaw(rows byte, cols uint16, cells []byte) []byte {
+	out := make([]byte, rawStubLen+len(cells))
+	copy(out, jumpOverStub)
+	out[rowsOff] = rows
+	binary.LittleEndian.PutUint16(out[colsOff:colsOff+wordBytes], cols)
+	copy(out[sigOff:], signature)
+	copy(out[leaOff:], rawLEA)
+	copy(out[rawStubLen:], cells)
+	return out
 }
 
-func TestExtractTheDrawANS(t *testing.T) {
+func TestIsCOM(t *testing.T) {
+	t.Parallel()
+
+	rle := func() []byte { return buildTheDrawCOM(t, []byte{0x0F, 'H', 'i', 0x18}) }
+	badJump := rle()
+	badJump[0] = 0x00
+	badSig := rle()
+	badSig[9] = 'X'
+	truncated := rle()
+	truncated = truncated[:len(truncated)-1]
+
+	const row = 80 * 2
+	rows2 := make([]byte, 2*row)
+	tests := []struct {
+		name string
+		data []byte
+		want bool
+	}{
+		{"valid rle", rle(), true},
+		{"valid raw", buildTheDrawRaw(2, 80, rows2), true},
+		{"nil", nil, false},
+		{"text", []byte("Hello world\r\n"), false},
+		{"truncated rle", truncated, false},
+		{"wrong jump", badJump, false},
+		{"wrong signature", badSig, false},
+		{"zero payload", buildTheDrawCOM(t, nil), false},
+		{"raw zero rows", buildTheDrawRaw(0, 80, rows2), false},
+		{"raw too many columns", buildTheDrawRaw(1, 161, make([]byte, 161*2)), false},
+		{"raw truncated", buildTheDrawRaw(2, 80, rows2[:row]), false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			be.Equal(t, thedraw.IsCOM(tt.data), tt.want)
+		})
+	}
+}
+
+func TestExtractRLE(t *testing.T) {
 	t.Parallel()
 
 	// FG bright cyan (0x0B), "HI", BG red (0x14 -> bg=4), repeat 'X' 3 times (0x1A 0x02 'X'),
@@ -67,24 +115,18 @@ func TestExtractTheDrawANS(t *testing.T) {
 	got, err := thedraw.Extract(raw)
 	be.Err(t, err, nil)
 
-	s := string(got)
-	be.True(t, strings.Contains(s, "HI"))
-	be.True(t, strings.Contains(s, "XXX"))
-	be.True(t, strings.Contains(s, "    !"))
-	// CGA fg 0x0B -> bright cyan (1;36), bg 0x04 -> red (41), blink -> 5.
-	be.True(t, strings.Contains(s, "\x1b[0;1;36m"))
-	be.True(t, strings.Contains(s, "\x1b[41m"))
-	be.True(t, strings.Contains(s, ";5;"))
-
-	// Trailing blank 80-space row should be trimmed (only 1 CRLF between line 0 and line 1).
-	be.Equal(t, strings.Count(s, "\r\n"), 1)
+	// Row 0: bright cyan "HI", red background "XXX", then a reset before the line break.
+	// Row 1: bold, blinking cyan on red, four spaces and "!". The blank trailing row is trimmed.
+	want := "\x1b[0;1;36mHI\x1b[41mXXX\x1b[0m\r\n" +
+		"\x1b[1;5;36;41m    !\x1b[0m"
+	be.Equal(t, string(got), want)
 
 	blink, err := ansimate.DetectBlink(bytes.NewReader(got))
 	be.Err(t, err, nil)
 	be.True(t, blink)
 }
 
-func TestExtractTheDrawANSFullRowWrap(t *testing.T) {
+func TestExtractFullRow(t *testing.T) {
 	t.Parallel()
 
 	// 80 '#' chars + newline + "ROW2" -> should not insert an extra blank line between row 0 and row 1.
@@ -94,12 +136,12 @@ func TestExtractTheDrawANSFullRowWrap(t *testing.T) {
 	got, err := thedraw.Extract(raw)
 	be.Err(t, err, nil)
 
-	s := string(got)
-	be.True(t, strings.Contains(s, strings.Repeat("#", 80)+"ROW2"))
-	be.Equal(t, strings.Count(s, "\r\n"), 0)
+	// A full 80 column row wraps by itself, so no CRLF is added.
+	want := "\x1b[0;1m" + strings.Repeat("#", 80) + "ROW2\x1b[0m"
+	be.Equal(t, string(got), want)
 }
 
-func TestDecodeTheDrawFile(t *testing.T) {
+func TestDecode(t *testing.T) {
 	t.Parallel()
 
 	path := filepath.Join(t.TempDir(), "TEST.COM")
@@ -108,44 +150,121 @@ func TestDecodeTheDrawFile(t *testing.T) {
 
 	got, err := thedraw.Decode(path)
 	be.Err(t, err, nil)
-	be.True(t, bytes.Contains(got, []byte("OK")))
+	want, err := thedraw.Extract(raw)
+	be.Err(t, err, nil)
+	be.Equal(t, string(got), string(want))
+	be.Equal(t, string(got), "\x1b[0;1;33mOK\x1b[0m")
 }
 
-func TestExtractTheDrawANSUncompressed176(t *testing.T) {
+func TestExtractRaw(t *testing.T) {
 	t.Parallel()
 
 	const (
-		stubLen    = 0xB0
 		rows       = 2
 		cols       = 80
-		cellBytes  = 2
-		attrWhite  = 0x0F
+		attrWhite  = 0x0F // bright white on black
 		attrCyan   = 0x0B
 		attrBlueBG = 0x1F
 	)
-	raw := make([]byte, stubLen+rows*cols*cellBytes)
-	copy(raw[0:3], []byte{0xEB, 0x3D, 0x90})
-	raw[4] = rows
-	binary.LittleEndian.PutUint16(raw[5:7], cols)
-	copy(raw[9:], []byte("TheDraw COM file Screen Save\x1A"))
-	// Mimic the LEA SI, [01B0h] instruction inside the 176-byte stub.
-	copy(raw[0x79:], []byte{0x8D, 0x36, 0xB0, 0x01})
-
-	for i := stubLen; i+1 < len(raw); i += cellBytes {
-		raw[i] = ' '
-		raw[i+1] = attrWhite
+	cells := make([]byte, 0, rows*cols*2)
+	for range rows * cols {
+		cells = append(cells, ' ', attrWhite)
 	}
-	copy(raw[stubLen:], []byte{'S', attrCyan, 'U', attrCyan})
-	row1 := stubLen + cols*cellBytes
-	copy(raw[row1:], []byte{'R', attrBlueBG, 'G', attrBlueBG})
+	copy(cells, []byte{'S', attrCyan, 'U', attrCyan})
+	copy(cells[cols*2:], []byte{'R', attrBlueBG, 'G', attrBlueBG})
+	raw := buildTheDrawRaw(rows, cols, cells)
 
 	be.True(t, thedraw.IsCOM(raw))
 	got, err := thedraw.Extract(raw)
 	be.Err(t, err, nil)
 
-	s := string(got)
-	be.True(t, strings.Contains(s, "SU"))
-	be.True(t, strings.Contains(s, "RG"))
-	be.True(t, strings.Contains(s, "\x1b[0;1;36m"))
-	be.True(t, strings.Contains(s, ";44m"))
+	// Row 0: bold cyan "SU". Row 1: white on blue "RG". Trailing blanks are trimmed.
+	want := "\x1b[0;1;36mSU\r\n" +
+		"\x1b[37;44mRG\x1b[0m"
+	be.Equal(t, string(got), want)
+}
+
+func TestExtractSanitizes(t *testing.T) {
+	t.Parallel()
+
+	const (
+		attr = 0x07
+		cols = 6
+	)
+	// Control bytes that could break lines or inject terminal escape sequences.
+	chars := [cols]byte{0x00, '\r', '\n', 0x1A, 0x1B, 'A'}
+	cells := make([]byte, 0, len(chars)*2)
+	for _, ch := range chars {
+		cells = append(cells, ch, attr)
+	}
+	raw := buildTheDrawRaw(1, cols, cells)
+
+	got, err := thedraw.Extract(raw)
+	be.Err(t, err, nil)
+	be.Equal(t, string(got), "\x1b[0m     A")
+	be.Equal(t, bytes.Count(got, []byte{0x1B}), 1) // only the SGR reset
+}
+
+func TestDecodeErrors(t *testing.T) {
+	t.Parallel()
+
+	t.Run("missing file", func(t *testing.T) {
+		t.Parallel()
+
+		_, err := thedraw.Decode(filepath.Join(t.TempDir(), "MISSING.COM"))
+		be.Err(t, err, os.ErrNotExist)
+	})
+
+	t.Run("too large", func(t *testing.T) {
+		t.Parallel()
+
+		// A valid COM that is only rejected for being larger than the 64KB limit.
+		const payloadLen = 65537 - rleStubLen // file is exactly one byte over the limit, so truncation keeps it valid
+		raw := buildTheDrawCOM(t, bytes.Repeat([]byte{'A'}, payloadLen))
+		be.True(t, thedraw.IsCOM(raw))
+		be.Equal(t, len(raw), 65537)
+
+		path := filepath.Join(t.TempDir(), "BIG.COM")
+		be.Err(t, os.WriteFile(path, raw, 0o600), nil)
+		_, err := thedraw.Decode(path)
+		be.Err(t, err, thedraw.ErrNotCOM)
+	})
+
+	t.Run("not a COM", func(t *testing.T) {
+		t.Parallel()
+
+		path := filepath.Join(t.TempDir(), "TEXT.COM")
+		be.Err(t, os.WriteFile(path, []byte("Hello world\r\n"), 0o600), nil)
+		_, err := thedraw.Decode(path)
+		be.Err(t, err, thedraw.ErrNotCOM)
+	})
+}
+
+func TestExtractStartOffset(t *testing.T) {
+	t.Parallel()
+
+	const rowBytes = 80 * 2 // bytes per row of 80 cells
+	tests := []struct {
+		name    string
+		start   uint16
+		payload []byte
+		want    string
+	}{
+		// Offset 6 is row 0, column 3. Cells before the cursor have no attribute set,
+		// so they are drawn as black.
+		{"column", 6, []byte{0x07, 'A', 'B'}, "\x1b[0;30m   \x1b[0mAB"},
+		// Rows before the cursor are empty lines.
+		{"row", 2*rowBytes + 4, []byte{0x07, 'X'}, "\r\n\r\n\x1b[0;30m  \x1b[0mX"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			raw := buildTheDrawCOM(t, tt.payload)
+			binary.LittleEndian.PutUint16(raw[startOff:startOff+wordBytes], tt.start)
+			got, err := thedraw.Extract(raw)
+			be.Err(t, err, nil)
+			be.Equal(t, string(got), tt.want)
+		})
+	}
 }

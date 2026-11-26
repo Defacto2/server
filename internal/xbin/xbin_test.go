@@ -2,15 +2,22 @@ package xbin_test
 
 import (
 	"encoding/binary"
-	"math"
-	"strings"
 	"testing"
 
 	"github.com/Defacto2/server/internal/xbin"
 	"github.com/nalgeon/be"
 )
 
-func buildTestXBIN(w, h, fontH, flags byte, pal, font, body []byte) []byte {
+// buildTestXBIN returns an XBIN file. The pal and font data are only valid when
+// their flags (0x01 palette, 0x02 font) are set, otherwise the test fails.
+func buildTestXBIN(t *testing.T, w, h, fontH, flags byte, pal, font, body []byte) []byte {
+	t.Helper()
+	if len(pal) > 0 && (flags&0x01) == 0 {
+		t.Fatal("palette data given without the palette flag")
+	}
+	if len(font) > 0 && (flags&0x02) == 0 {
+		t.Fatal("font data given without the font flag")
+	}
 	hdr := []byte{
 		'X', 'B', 'I', 'N', 0x1A,
 		w, 0x00,
@@ -19,39 +26,60 @@ func buildTestXBIN(w, h, fontH, flags byte, pal, font, body []byte) []byte {
 		flags,
 	}
 	out := append([]byte{}, hdr...)
-	if (flags & 0x01) != 0 {
-		out = append(out, pal...)
-	}
-	if (flags & 0x02) != 0 {
-		out = append(out, font...)
-	}
+	out = append(out, pal...)
+	out = append(out, font...)
 	return append(out, body...)
+}
+
+// span returns the expected HTML for a run of text with the given colors.
+func span(fg, bg, text string) string {
+	return `<span style="color:` + fg + `;background-color:` + bg + `;">` + text + `</span>`
+}
+
+func TestRenderNotXBIN(t *testing.T) {
+	t.Parallel()
+
+	_, err := xbin.Render([]byte("invalid"))
+	be.Err(t, err, xbin.ErrNotXBIN)
 }
 
 func TestRenderUncompressed(t *testing.T) {
 	t.Parallel()
 
-	_, err := xbin.Render([]byte("invalid"))
-	be.Err(t, err, xbin.ErrNotXBIN)
-
-	// 4x2 uncompressed, default CGA palette, iCE colors enabled (flag 0x08).
-	// Background 0x90 -> bright blue (#5555ff) instead of blinking blue (#0000aa).
+	// 4x2 uncompressed with the default CGA palette. Attribute 0x9F has the high
+	// bit set, which is either a bright background (iCE colors, flag 0x08)
+	// or a blinking foreground that keeps the dark background.
 	body := []byte{
 		'X', 0x9F, 'B', 0x0F, 0x00, 0x00, 0x00, 0x00,
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // trailing blank row trimmed
 	}
-	xb := buildTestXBIN(4, 2, 16, 0x08, nil, nil, body)
-	buf, err := xbin.Render(xb)
-	be.Err(t, err, nil)
+	tests := []struct {
+		name  string
+		flags byte
+		bgX   string
+	}{
+		{"ice colors", 0x08, "#5555ff"}, // bright blue
+		{"blink", 0x00, "#0000aa"},      // blue, blink bit ignored
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 
-	got := buf.String()
-	be.True(t, !strings.Contains(got, "\x00"))
-	be.True(t, strings.Contains(got, `<span style="color:#ffffff;background-color:#5555ff;">X</span>`))
-	be.True(t, strings.Contains(got, `<span style="color:#ffffff;background-color:#000000;">B</span>`))
-	be.Equal(t, strings.Count(got, "\n"), 1)
+			xb := buildTestXBIN(t, 4, 2, 16, tt.flags, nil, nil, body)
+			buf, err := xbin.Render(xb)
+			be.Err(t, err, nil)
+
+			// The blank second row is trimmed, leaving one row of four cells.
+			want := "<div>" +
+				span("#ffffff", tt.bgX, "X") +
+				span("#ffffff", "#000000", "B") +
+				span("#000000", "#000000", "  ") + "\n</div>"
+			be.Equal(t, buf.String(), want)
+		})
+	}
 }
 
-func TestRenderCompressedWithPaletteFontSAUCE(t *testing.T) {
+func TestRenderCompressed(t *testing.T) {
 	t.Parallel()
 
 	pal := make([]byte, 48)
@@ -70,25 +98,39 @@ func TestRenderCompressedWithPaletteFontSAUCE(t *testing.T) {
 		0xC1, '*', 0x0F,
 	}
 	// flags = Palette(1) | Font(2) | Compress(4) | NonBlink(8) = 0x0F
-	xb := buildTestXBIN(4, 2, 16, 0x0F, pal, font, body)
-
-	if len(xb) > math.MaxUint32 {
-		t.Fatalf("xb length %d exceeds max uint32", len(xb))
-	}
-	sauce := make([]byte, 128)
-	copy(sauce[:7], "SAUCE00")
-	binary.LittleEndian.PutUint32(sauce[90:94], uint32(len(xb))) //nolint:gosec // G115: len(xb) is checked above
-	xb = append(xb, 0x1A)
-	xb = append(xb, sauce...)
+	xb := buildTestXBIN(t, 4, 2, 16, 0x0F, pal, font, body)
 
 	buf, err := xbin.Render(xb)
 	be.Err(t, err, nil)
-	got := buf.String()
-	be.True(t, strings.Contains(got, `<span style="color:#864d04;background-color:#000000;">A</span>`))
-	be.True(t, strings.Contains(got, `<span style="color:#ffffff;background-color:#000000;">B</span>`))
-	be.True(t, strings.Contains(got, `<span style="color:#864d04;background-color:#000000;">C</span>`))
-	be.True(t, strings.Contains(got, `<span style="color:#ffffff;background-color:#000000;">C</span>`))
-	be.True(t, strings.Contains(got, `<span style="color:#864d04;background-color:#000000;">DE</span>`))
-	be.True(t, strings.Contains(got, `<span style="color:#ffffff;background-color:#000000;">**</span>`))
-	be.Equal(t, strings.Count(got, "\n"), 2)
+	want := "<div>" +
+		span("#864d04", "#000000", "A") +
+		span("#ffffff", "#000000", "B") +
+		span("#864d04", "#000000", "C") +
+		span("#ffffff", "#000000", "C") + "\n" +
+		span("#864d04", "#000000", "DE") +
+		span("#ffffff", "#000000", "**") + "\n</div>"
+	be.Equal(t, buf.String(), want)
+}
+
+func TestRenderSAUCE(t *testing.T) {
+	t.Parallel()
+
+	// 4x2 uncompressed with only 2 cells of data. Without trimming, the appended
+	// EOF marker and SAUCE record would be decoded as extra cells.
+	body := []byte{'X', 0x0F, 'Y', 0x0F}
+	xb := buildTestXBIN(t, 4, 2, 16, 0x08, nil, nil, body)
+	want, err := xbin.Render(xb)
+	be.Err(t, err, nil)
+
+	sauce := make([]byte, 128)
+	copy(sauce[:7], "SAUCE00")
+	copy(sauce[82:90], "20260101") // date
+	sauce[94], sauce[95] = 6, 0    // DataType XBin, FileType 0
+	size := uint32(len(xb))        //nolint:gosec // G115: the fixture is a few bytes
+	binary.LittleEndian.PutUint32(sauce[90:94], size)
+	withSAUCE := append(append(append([]byte{}, xb...), 0x1A), sauce...)
+
+	got, err := xbin.Render(withSAUCE)
+	be.Err(t, err, nil)
+	be.Equal(t, got.String(), want.String())
 }
