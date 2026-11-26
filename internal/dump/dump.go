@@ -164,7 +164,7 @@ func DecodeCGA(data []byte, pal color.Palette, scale int) *image.Paletted {
 	}
 
 	x1 := Width * scale
-	y1 := Height * Scale
+	y1 := Height * scale
 	img := image.NewPaletted(image.Rect(0, 0, x1, y1), pal)
 	const banks = 2
 	const mask = 3 // 2-bit mask
@@ -179,21 +179,20 @@ func DecodeCGA(data []byte, pal color.Palette, scale int) *image.Paletted {
 			break
 		}
 		row := data[bankOffset : bankOffset+rows]
-		dstRow := y * Scale * img.Stride
+		dstRow := y * scale * img.Stride
 		firstLine := img.Pix[dstRow : dstRow+x1]
 		for bx := range rows {
 			b := row[bx]
-			baseX := bx * pixelsPerByte * Scale
+			baseX := bx * pixelsPerByte * scale
 			for p := range pixelsPerByte {
 				idx := (b >> (shift - bpp*p)) & mask
-				px := baseX + p*Scale
-				firstLine[px+0] = idx
-				firstLine[px+1] = idx
-				firstLine[px+2] = idx
-				firstLine[px+3] = idx
+				px := baseX + p*scale
+				for sx := range scale {
+					firstLine[px+sx] = idx
+				}
 			}
 		}
-		for sy := 1; sy < Scale; sy++ {
+		for sy := 1; sy < scale; sy++ {
 			nextRow := dstRow + sy*img.Stride
 			copy(img.Pix[nextRow:nextRow+x1], firstLine)
 		}

@@ -7,11 +7,8 @@ package nils
 import (
 	"bytes"
 	"context"
-	"database/sql"
-	"embed"
 	"errors"
 	"fmt"
-	"io/fs"
 	"log/slog"
 	"mime/multipart"
 	"reflect"
@@ -28,19 +25,15 @@ var (
 	ErrContext     = errors.New("nils: ctx context is invalid")
 	ErrEchoHandler = errors.New("nils: echo handler func is invalid")
 	ErrEchoRoutes  = errors.New("nils: echo routes is invalid")
-	ErrEmbedFS     = errors.New("nils: embed file system instance is invalid")
 	ErrFS          = errors.New("nils: file system instance is invalid")
 
-	ErrBytesBuf     = errors.New("bytes buffer pointer is nil")
-	ErrEchoContext  = errors.New("echo context pointer is nil")
-	ErrEchoEcho     = errors.New("echo echo pointer is nil") //nolint:dupword
-	ErrEchoGroup    = errors.New("echo group pointer is nil")
-	ErrFileHeader   = errors.New("multipart file header pointer is nil")
-	ErrModels       = errors.New("models file pointer is nil")
-	ErrModelSummary = errors.New("model summary pointer is nil")
-	ErrSQLDB        = errors.New("sql db database pointer is nil")
-	ErrSQLTx        = errors.New("sql tx transaction pointer is nil")
-	ErrSlogLogger   = errors.New("slog logger pointer is nil")
+	ErrBytesBuf    = errors.New("bytes buffer pointer is nil")
+	ErrEchoContext = errors.New("echo context pointer is nil")
+	ErrEchoEcho    = errors.New("echo echo pointer is nil") //nolint:dupword
+	ErrEchoGroup   = errors.New("echo group pointer is nil")
+	ErrFileHeader  = errors.New("multipart file header pointer is nil")
+	ErrModels      = errors.New("models file pointer is nil")
+	ErrSlogLogger  = errors.New("slog logger pointer is nil")
 
 	ErrPointer = errors.New("pointer is nil")
 )
@@ -88,16 +81,8 @@ func pointers(n int, argType reflect.Type) error {
 		return fmt.Errorf(format, n, ErrEchoHandler)
 	case reflect.TypeFor[echo.Routes]():
 		return fmt.Errorf(format, n, ErrEchoRoutes)
-	case reflect.TypeFor[embed.FS]():
-		return fmt.Errorf(format, n, ErrEmbedFS)
-	case reflect.TypeFor[fs.FS]():
-		return fmt.Errorf(format, n, ErrFS)
 	case reflect.TypeFor[*slog.Logger]():
 		return fmt.Errorf(format, n, ErrSlogLogger)
-	case reflect.TypeFor[*sql.DB]():
-		return fmt.Errorf(format, n, ErrSQLDB)
-	case reflect.TypeFor[*sql.Tx]():
-		return fmt.Errorf(format, n, ErrSQLTx)
 	case reflect.TypeFor[*echo.Context]():
 		return fmt.Errorf(format, n, ErrEchoContext)
 	case reflect.TypeFor[*echo.Echo]():

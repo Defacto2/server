@@ -1,106 +1,42 @@
 package extensions_test
 
 import (
-	"slices"
+	"strings"
 	"testing"
 
 	"github.com/Defacto2/server/internal/extensions"
 	"github.com/nalgeon/be"
 )
 
-// checked in Sep 26, test coverage was at 100%
-
-const (
-	archives  = 9
-	documents = 15
-	images    = 10
-	medias    = 8
-)
-
-func TestArchive(t *testing.T) {
+func TestExtensions(t *testing.T) {
 	t.Parallel()
-	a := extensions.Archive()
-	be.True(t, len(a) == archives)
-	for v := range slices.Values(a) {
-		be.True(t, v != "")
+
+	lists := []struct {
+		name string
+		exts []string
+	}{
+		{"archive", extensions.Archive()},
+		{"document", extensions.Document()},
+		{"image", extensions.Image()},
+		{"media", extensions.Media()},
 	}
-}
 
-func TestDocument(t *testing.T) {
-	t.Parallel()
-	a := extensions.Document()
-	be.True(t, len(a) == documents)
-	for v := range slices.Values(a) {
-		be.True(t, v != "")
-	}
-}
+	seen := make(map[string]string)
+	for _, list := range lists {
+		t.Run(list.name, func(t *testing.T) {
+			t.Parallel()
+			be.True(t, len(list.exts) > 0)
+			for _, ext := range list.exts {
+				be.True(t, len(ext) > 1 && strings.HasPrefix(ext, "."))
+				be.Equal(t, ext, strings.ToLower(ext))
+			}
+		})
 
-func TestImage(t *testing.T) {
-	t.Parallel()
-	a := extensions.Image()
-	be.True(t, len(a) == images)
-	for v := range slices.Values(a) {
-		be.True(t, v != "")
-	}
-}
-
-func TestMedia(t *testing.T) {
-	t.Parallel()
-	a := extensions.Media()
-	be.True(t, len(a) == medias)
-	for v := range slices.Values(a) {
-		be.True(t, v != "")
-	}
-}
-
-func TestNoDuplicateArchive(t *testing.T) {
-	t.Parallel()
-	a := extensions.Archive()
-	unique := make(map[string]bool)
-	for _, ext := range a {
-		if unique[ext] {
-			t.Errorf("duplicate extension found: %s", ext)
+		for _, ext := range list.exts {
+			if prev, dup := seen[ext]; dup {
+				t.Errorf("duplicate extension %q in %s and %s", ext, prev, list.name)
+			}
+			seen[ext] = list.name
 		}
-		unique[ext] = true
 	}
-	be.Equal(t, len(unique), len(a))
-}
-
-func TestNoDuplicateDocument(t *testing.T) {
-	t.Parallel()
-	a := extensions.Document()
-	unique := make(map[string]bool)
-	for _, ext := range a {
-		if unique[ext] {
-			t.Errorf("duplicate extension found: %s", ext)
-		}
-		unique[ext] = true
-	}
-	be.Equal(t, len(unique), len(a))
-}
-
-func TestNoDuplicateImage(t *testing.T) {
-	t.Parallel()
-	a := extensions.Image()
-	unique := make(map[string]bool)
-	for _, ext := range a {
-		if unique[ext] {
-			t.Errorf("duplicate extension found: %s", ext)
-		}
-		unique[ext] = true
-	}
-	be.Equal(t, len(unique), len(a))
-}
-
-func TestNoDuplicateMedia(t *testing.T) {
-	t.Parallel()
-	a := extensions.Media()
-	unique := make(map[string]bool)
-	for _, ext := range a {
-		if unique[ext] {
-			t.Errorf("duplicate extension found: %s", ext)
-		}
-		unique[ext] = true
-	}
-	be.Equal(t, len(unique), len(a))
 }

@@ -93,43 +93,34 @@ func TestIsDir(t *testing.T) {
 	t.Parallel()
 	tmpDir := t.TempDir()
 
-	t.Run("valid directory", func(t *testing.T) {
+	t.Run("valid", func(t *testing.T) {
 		t.Parallel()
 		d := dir.Directory(tmpDir)
 		err := d.IsDir()
 		be.True(t, err == nil)
 	})
 
-	t.Run("empty path returns ErrNoPath", func(t *testing.T) {
+	t.Run("empty", func(t *testing.T) {
 		t.Parallel()
 		d := dir.Directory("")
 		err := d.IsDir()
 		be.True(t, errors.Is(err, dir.ErrNoPath))
 	})
 
-	t.Run("non-existent directory returns ErrNoDir", func(t *testing.T) {
+	t.Run("missing", func(t *testing.T) {
 		t.Parallel()
 		d := dir.Directory("/nonexistent/path/that/does/not/exist")
 		err := d.IsDir()
 		be.True(t, errors.Is(err, dir.ErrNoDir))
 	})
 
-	t.Run("file instead of directory returns ErrFile", func(t *testing.T) {
+	t.Run("file", func(t *testing.T) {
 		t.Parallel()
-		// Create a temp file
-		tmpFile, err := dir.CreateTemp("test-*.txt")
-		be.True(t, err == nil)
+		filePath := filepath.Join(t.TempDir(), "test.txt")
+		be.Err(t, os.WriteFile(filePath, nil, 0o600), nil)
 
-		defer func() {
-			err := tmpFile.Close()
-			t.Log(err)
-		}()
-		defer func() {
-			err := os.Remove(tmpFile.Name())
-			t.Log(err)
-		}()
-		d := dir.Directory(tmpFile.Name())
-		err = d.IsDir()
+		d := dir.Directory(filePath)
+		err := d.IsDir()
 		be.True(t, errors.Is(err, dir.ErrFile))
 	})
 }
@@ -180,44 +171,49 @@ func TestCheck(t *testing.T) {
 	tmpDir := t.TempDir()
 	sl := logs.Discard()
 
-	t.Run("valid writable directory", func(t *testing.T) {
+	t.Run("writable", func(t *testing.T) {
 		t.Parallel()
 		d := dir.Directory(tmpDir)
 		err := d.Check(sl)
 		be.True(t, err == nil)
 	})
 
-	t.Run("non-existent directory returns error", func(t *testing.T) {
+	t.Run("missing", func(t *testing.T) {
 		t.Parallel()
 		d := dir.Directory("/nonexistent/path/for/check")
 		err := d.Check(sl)
 		be.Err(t, err)
 	})
 
-	t.Run("file instead of directory returns error", func(t *testing.T) {
+	t.Run("file", func(t *testing.T) {
 		t.Parallel()
-		// Create a temp file
-		tmpFile, err := dir.CreateTemp("test-*.txt")
-		be.True(t, err == nil)
-		defer func() {
-			if err := tmpFile.Close(); err != nil {
-				t.Log(err)
-			}
-		}()
-		defer func() {
-			if err := os.Remove(tmpFile.Name()); err != nil {
-				t.Log(err)
-			}
-		}()
-		d := dir.Directory(tmpFile.Name())
-		err = d.Check(sl)
+		filePath := filepath.Join(t.TempDir(), "test.txt")
+		be.Err(t, os.WriteFile(filePath, nil, 0o600), nil)
+
+		d := dir.Directory(filePath)
+		err := d.Check(sl)
 		be.Err(t, err)
 	})
 
-	t.Run("nil logger returns error", func(t *testing.T) {
+	t.Run("nil logger", func(t *testing.T) {
 		t.Parallel()
 		d := dir.Directory(tmpDir)
 		err := d.Check(nil)
+		be.Err(t, err)
+	})
+
+	t.Run("read-only", func(t *testing.T) {
+		t.Parallel()
+		if os.Geteuid() == 0 {
+			t.Skip("root bypasses directory permissions")
+		}
+		roDir := filepath.Join(t.TempDir(), "ro")
+		be.Err(t, os.Mkdir(roDir, 0o500), nil)
+		t.Cleanup(func() {
+			_ = os.Chmod(roDir, 0o700)
+		})
+
+		err := dir.Directory(roDir).Check(sl)
 		be.Err(t, err)
 	})
 }
@@ -244,63 +240,10 @@ func TestCheckTempFileCreation(t *testing.T) {
 	be.Equal(t, len(filesBefore), len(filesAfter))
 }
 
-func TestJoinNormalization(t *testing.T) {
-	t.Parallel()
-	tests := []struct {
-		name     string
-		dirPath  string
-		fileName string
-		check    func(string) bool
-	}{
-		{
-			name:     "removes double slashes",
-			dirPath:  "/tmp/",
-			fileName: "file.txt",
-			check: func(result string) bool {
-				// Should not have double slashes
-				for i := range len(result) - 1 {
-					if result[i] == '/' && result[i+1] == '/' {
-						return false
-					}
-				}
-				return true
-			},
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			d := dir.Directory(tt.dirPath)
-			result := d.Join(tt.fileName)
-			be.True(t, tt.check(result))
-		})
-	}
-}
-
-func TestErrorTypes(t *testing.T) {
-	t.Parallel()
-	tests := []struct {
-		name string
-		err  error
-	}{
-		{"ErrFile", dir.ErrFile},
-		{"ErrSave", dir.ErrSave},
-		{"ErrNoPath", dir.ErrNoPath},
-		{"ErrNoDir", dir.ErrNoDir},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			be.True(t, tt.err != nil)
-			be.True(t, len(tt.err.Error()) > 0)
-		})
-	}
-}
-
 func TestIsTemp(t *testing.T) {
 	t.Parallel()
+
+	be.True(t, !dir.IsTemp(nil))
 
 	const wantMatch = dir.Pattern + "-random"
 	// use a virtual file system to test os.DirEntry
@@ -347,7 +290,23 @@ func TestMkdirStale(t *testing.T) {
 	be.Err(t, err, nil)
 	be.True(t, strings.Contains(prefix, include))
 
+	// Calling again with the same name reuses the existing directory.
+	reused, err := dir.MkdirStale(include)
+	be.Err(t, err, nil)
+	be.Equal(t, reused, prefix)
+
 	st, err = os.Stat(prefix)
+	be.Err(t, err, nil)
+	be.True(t, st.IsDir())
+
+	// If a regular file occupies the target name, fall back to a randomized subdir.
+	const collide = "stale_file_collision"
+	blocker := filepath.Join(os.TempDir(), dir.Pattern+"-"+collide)
+	be.Err(t, os.WriteFile(blocker, nil, 0o600), nil)
+	fallback, err := dir.MkdirStale(collide)
+	be.Err(t, err, nil)
+	be.True(t, fallback != blocker)
+	st, err = os.Stat(fallback)
 	be.Err(t, err, nil)
 	be.True(t, st.IsDir())
 
@@ -365,9 +324,19 @@ func TestMkdirStale(t *testing.T) {
 		be.Err(t, err, nil)
 		err = dir.RemoveAll(prefix)
 		be.Err(t, err, nil)
+		err = dir.RemoveAll(fallback)
+		be.Err(t, err, nil)
+		_ = os.Remove(blocker)
 		err = dir.RemoveAll(emoji)
 		be.Err(t, err, nil)
 	})
+}
+
+func TestRemoveAllOutsideTemp(t *testing.T) {
+	t.Parallel()
+
+	be.Err(t, dir.RemoveAll("/etc/hosts"))
+	be.Err(t, dir.RemoveAll(filepath.Join(os.TempDir(), "..")))
 }
 
 func TestPurgeTemp(t *testing.T) {
@@ -380,25 +349,32 @@ func TestPurgeTemp(t *testing.T) {
 	// Fresh dir is skipped when stale threshold is large.
 	rep, err := dir.PurgeTemp(time.Hour, false)
 	be.Err(t, err, nil)
-	be.Equal(t, 1, rep.Found)
-	be.Equal(t, int64(512), rep.FoundBytes)
-	be.Equal(t, 1, rep.Skipped)
-	be.Equal(t, 0, rep.Removed)
+	be.Equal(t, rep.Found, 1)
+	be.Equal(t, rep.FoundBytes, int64(512))
+	be.Equal(t, rep.Skipped, 1)
+	be.Equal(t, rep.Removed, 0)
 
 	// Dry run reports removal without deleting.
 	rep, err = dir.PurgeTemp(0, true)
 	be.Err(t, err, nil)
-	be.Equal(t, 1, rep.Found)
-	be.Equal(t, 1, rep.Removed)
+	be.Equal(t, rep.Found, 1)
+	be.Equal(t, rep.Removed, 1)
 	_, statErr := os.Stat(tmp)
 	be.Err(t, statErr, nil)
 
 	// Real purge deletes the directory.
 	rep, err = dir.PurgeTemp(0, false)
 	be.Err(t, err, nil)
-	be.Equal(t, 1, rep.Found)
-	be.Equal(t, 1, rep.Removed)
-	be.Equal(t, int64(512), rep.RemovedBytes)
+	be.Equal(t, rep.Found, 1)
+	be.Equal(t, rep.Removed, 1)
+	be.Equal(t, rep.RemovedBytes, int64(512))
 	_, statErr = os.Stat(tmp)
+	be.True(t, os.IsNotExist(statErr))
+
+	// CleanTemp removes matching directories via PurgeTemp.
+	tmp2, err := dir.MkdirTemp("cleantest")
+	be.Err(t, err, nil)
+	be.Err(t, dir.CleanTemp(0), nil)
+	_, statErr = os.Stat(tmp2)
 	be.True(t, os.IsNotExist(statErr))
 }

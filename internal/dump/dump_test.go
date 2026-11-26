@@ -13,7 +13,7 @@ import (
 	"github.com/nalgeon/be"
 )
 
-func TestExtractCGARawAndBSAVE(t *testing.T) {
+func TestExtractRaw(t *testing.T) {
 	t.Parallel()
 
 	raw := make([]byte, 16384)
@@ -38,7 +38,7 @@ func TestExtractCGARawAndBSAVE(t *testing.T) {
 	be.Equal(t, got[8192], byte(0x55))
 }
 
-func TestExtractCGALinear(t *testing.T) {
+func TestExtractLinear(t *testing.T) {
 	t.Parallel()
 
 	linear := make([]byte, 16384)
@@ -56,44 +56,99 @@ func TestExtractCGALinear(t *testing.T) {
 	be.Equal(t, got[8192], byte(0x55))
 }
 
-func TestExtractCGASPI(t *testing.T) {
+func TestExtractSPI(t *testing.T) {
 	t.Parallel()
 
-	// 128 * 128 = 16384 bytes encoded as 128 pairs of (0x5A, 127).
-	const pairs = 128
-	spi := make([]byte, 0, 10+5+pairs*2)
-	spi = append(spi, 0xE9, 0x05, 0x00, 'H', 'I')
-	spi = append(spi, 'S', 'P', 'I')
-	spi = binary.LittleEndian.AppendUint16(spi, pairs)
-	for range pairs {
-		spi = append(spi, 0x5A, 127)
-	}
+	t.Run("full", func(t *testing.T) {
+		t.Parallel()
+		// 128 * 128 = 16384 bytes encoded as 128 pairs of (0x5A, 127).
+		const pairs = 128
+		spi := make([]byte, 0, 10+5+pairs*2)
+		spi = append(spi, 0xE9, 0x05, 0x00, 'H', 'I')
+		spi = append(spi, 'S', 'P', 'I')
+		spi = binary.LittleEndian.AppendUint16(spi, pairs)
+		for range pairs {
+			spi = append(spi, 0x5A, 127)
+		}
 
-	got, err := dump.ExtractCGA(spi)
-	be.Err(t, err, nil)
-	be.Equal(t, len(got), 16384)
-	be.Equal(t, got[0], byte(0x5A))
-	be.Equal(t, got[16383], byte(0x5A))
+		got, err := dump.ExtractCGA(spi)
+		be.Err(t, err, nil)
+		be.Equal(t, len(got), 16384)
+		be.Equal(t, got[0], byte(0x5A))
+		be.Equal(t, got[16383], byte(0x5A))
+	})
+
+	t.Run("padded", func(t *testing.T) {
+		t.Parallel()
+		// False "SPI" occurrence in prefix followed by a real 16,000-byte SPI stream (padded to 16,384).
+		const pairs = 125 // 125 * 128 = 16000 bytes
+		spi := []byte{0xEB, 0x05, 'S', 'P', 'I', 0xFF, 0xFF, 'S', 'P', 'I'}
+		spi = binary.LittleEndian.AppendUint16(spi, pairs)
+		for range pairs {
+			spi = append(spi, 0x5A, 127)
+		}
+
+		got, err := dump.ExtractCGA(spi)
+		be.Err(t, err, nil)
+		be.Equal(t, len(got), 16384)
+		be.Equal(t, got[0], byte(0x5A))
+		be.Equal(t, got[15999], byte(0x5A))
+		be.Equal(t, got[16000], byte(0x00))
+	})
 }
 
-func TestExtractCGACom(t *testing.T) {
+func TestExtractCOM(t *testing.T) {
 	t.Parallel()
 
-	// Stub: mov ax, 0xB800; mov es, ax; mov si, 0x0110 (offset 0x10)
-	stub := []byte{
-		0xB8, 0x00, 0xB8,
-		0x8E, 0xC0,
-		0xBE, 0x10, 0x01,
+	tests := []struct {
+		name string
+		stub []byte
+		off  int
+	}{
+		{
+			name: "direct",
+			// mov ax, 0xB800; mov es, ax; mov si, 0x0110 (offset 0x10)
+			stub: []byte{0xB8, 0x00, 0xB8, 0x8E, 0xC0, 0xBE, 0x10, 0x01},
+			off:  0x10,
+		},
+		{
+			name: "via ax",
+			// mov ax, 0xB800; mov es, ax; mov ax, 0x0110; mov si, ax
+			stub: []byte{0xB8, 0x00, 0xB8, 0x8E, 0xC0, 0xB8, 0x10, 0x01, 0x8B, 0xF0},
+			off:  0x10,
+		},
+		{
+			name: "viewer ax",
+			// mov ax, 0x0004; int 0x10; mov ax, 0xB800; mov si, 0x0120
+			stub: []byte{0xB8, 0x04, 0x00, 0xCD, 0x10, 0xB8, 0x00, 0xB8, 0xBE, 0x20, 0x01},
+			off:  0x20,
+		},
+		{
+			name: "viewer al",
+			// mov al, 0x04; int 0x10; mov ax, 0xB800; mov si, 0x0120
+			stub: []byte{0xB0, 0x04, 0xCD, 0x10, 0xB8, 0x00, 0xB8, 0xBE, 0x20, 0x01},
+			off:  0x20,
+		},
+		{
+			name: "jmp",
+			stub: []byte{0xEB, 0x10},
+			off:  0x20,
+		},
 	}
-	com := make([]byte, 0x10+16384)
-	copy(com, stub)
-	com[0x10] = 0xCC
-	com[0x10+8192] = 0x33
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			com := make([]byte, tt.off+16384)
+			copy(com, tt.stub)
+			com[tt.off] = 0xAA
+			com[tt.off+8192] = 0x55
 
-	got, err := dump.ExtractCGA(com)
-	be.Err(t, err, nil)
-	be.Equal(t, got[0], byte(0xCC))
-	be.Equal(t, got[8192], byte(0x33))
+			got, err := dump.ExtractCGA(com)
+			be.Err(t, err, nil)
+			be.Equal(t, got[0], byte(0xAA))
+			be.Equal(t, got[8192], byte(0x55))
+		})
+	}
 }
 
 func TestCGAImage(t *testing.T) {
@@ -152,4 +207,54 @@ func TestPalettes(t *testing.T) {
 	def := dump.DecodeCGA(raw, nil, dump.Scale)
 	be.Equal(t, len(def.Palette), 4)
 	be.Equal(t, def.Palette[1], dump.PaletteCyan[1])
+}
+
+func TestScale(t *testing.T) {
+	t.Parallel()
+
+	raw := make([]byte, 16384)
+	raw[0] = 0xE4    // pixels: 3, 2, 1, 0
+	raw[8192] = 0x1B // row 1 pixels: 0, 1, 2, 3
+
+	tests := []struct {
+		name      string
+		scale     int
+		wantScale int
+	}{
+		{"1x", 1, 1},
+		{"2x", 2, 2},
+		{"3x", 3, 3},
+		{"4x", 4, 4},
+		{"zero", 0, dump.Scale},
+		{"over", 5, dump.Scale},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			img := dump.DecodeCGA(raw, dump.PaletteCyan, tt.scale)
+			be.Equal(t, img.Bounds().Dx(), dump.Width*tt.wantScale)
+			be.Equal(t, img.Bounds().Dy(), dump.Height*tt.wantScale)
+			be.Equal(t, img.ColorIndexAt(0, 0), uint8(3))
+			be.Equal(t, img.ColorIndexAt(tt.wantScale-1, tt.wantScale-1), uint8(3))
+			be.Equal(t, img.ColorIndexAt(tt.wantScale, 0), uint8(2))
+			be.Equal(t, img.ColorIndexAt(tt.wantScale, tt.wantScale), uint8(1))
+		})
+	}
+}
+
+func TestExtractErrors(t *testing.T) {
+	t.Parallel()
+
+	_, err := dump.ExtractCGA(nil)
+	be.Err(t, err, dump.ErrUnsupported)
+
+	_, err = dump.ExtractCGA([]byte("invalid"))
+	be.Err(t, err, dump.ErrUnsupported)
+
+	dir := t.TempDir()
+	be.Err(t, dump.CGAImage(filepath.Join(dir, "missing.cga"), filepath.Join(dir, "out.png")))
+
+	badSrc := filepath.Join(dir, "bad.cga")
+	be.Err(t, os.WriteFile(badSrc, []byte("not cga"), 0o600), nil)
+	be.Err(t, dump.CGAImage(badSrc, filepath.Join(dir, "out.png")), dump.ErrUnsupported)
 }

@@ -8,7 +8,7 @@ import (
 	"github.com/nalgeon/be"
 )
 
-func TestIsArchiveExt(t *testing.T) {
+func TestArchiveExt(t *testing.T) {
 	t.Parallel()
 
 	for _, name := range []string{
@@ -23,7 +23,7 @@ func TestIsArchiveExt(t *testing.T) {
 	}
 }
 
-func TestIsLegacyMagic(t *testing.T) {
+func TestArchive(t *testing.T) {
 	t.Parallel()
 
 	for _, sig := range []magicnumber.Signature{
