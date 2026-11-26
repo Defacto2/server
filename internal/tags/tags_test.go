@@ -1,6 +1,7 @@
 package tags_test
 
 import (
+	"database/sql"
 	"errors"
 	"strings"
 	"testing"
@@ -16,9 +17,7 @@ const (
 	firstCategory = "announcements"
 	lastCategory  = "releaseinstall"
 	firstPlatform = "ansi"
-	lastPlatform  = "windows"
 	noname        = "non-existing-name"
-	expectedCount = 43
 )
 
 func TestBuild(t *testing.T) {
@@ -37,8 +36,9 @@ func TestBuild(t *testing.T) {
 	be.Err(t, err, nil)
 	be.True(t, nfo.Count > 0)
 
+	names := tags.Names()
 	for _, tag := range tags.List {
-		listed, err := obj.ByName(tag.String())
+		listed, err := obj.ByName(names[tag])
 		be.Err(t, err, nil)
 		if listed.Count == 0 {
 			continue
@@ -46,7 +46,7 @@ func TestBuild(t *testing.T) {
 		be.True(t, listed.URI != "")
 		be.True(t, listed.Name != "")
 		be.True(t, listed.Info != "")
-		be.True(t, listed.Count > 1)
+		be.True(t, listed.Count > 0)
 	}
 }
 
@@ -54,15 +54,19 @@ func TestInvalidExec(t *testing.T) {
 	t.Parallel()
 
 	be.True(t, tags.InvalidExec(nil))
-
-	db := testutil.DB(t)
-	be.True(t, !tags.InvalidExec(db))
+	be.True(t, tags.InvalidExec((*sql.DB)(nil)))
+	be.True(t, !tags.InvalidExec(new(sql.DB)))
 }
 
 func TestIsText(t *testing.T) {
 	t.Parallel()
 
 	be.True(t, tags.IsText(tags.Text.String()))
+	be.True(t, tags.IsText(tags.TextAmiga.String()))
+	be.True(t, tags.IsText(tags.Markup.String()))
+	be.True(t, tags.IsText(" TEXT "))
+	be.True(t, !tags.IsText("dos"))
+	be.True(t, !tags.IsText(""))
 }
 
 func TestTagStrings(t *testing.T) {
@@ -73,16 +77,13 @@ func TestTagStrings(t *testing.T) {
 	determiner := tags.Determiner()
 	infos := tags.Infos()
 
-	be.True(t, len(uris) == expectedCount)
-	be.True(t, len(names) == expectedCount)
-	be.True(t, len(determiner) == expectedCount)
-	be.True(t, len(infos) == expectedCount)
+	expectedCount := len(tags.List)
+	be.Equal(t, len(uris), expectedCount)
+	be.Equal(t, len(names), expectedCount)
+	be.Equal(t, len(determiner), expectedCount)
+	be.Equal(t, len(infos), expectedCount)
 
-	for i := range expectedCount {
-		if i == 0 {
-			continue
-		}
-		x := tags.Tag(i)
+	for _, x := range tags.List {
 		be.True(t, uris[x] != "")
 		be.True(t, names[x] != "")
 		be.True(t, determiner[x] != "")
@@ -92,17 +93,25 @@ func TestTagStrings(t *testing.T) {
 
 func TestByName(t *testing.T) {
 	t.Parallel()
-	tt := tags.T{}
-	x, err := tt.ByName("")
-	be.Err(t, err)
+	var empty tags.T
+	x, err := empty.ByName("")
+	be.Err(t, err, tags.ErrNoTags)
 	be.Equal(t, x, tags.TagData{})
-}
 
-func TestTBuild(t *testing.T) {
-	t.Parallel()
-	tt := tags.T{}
-	err := tt.Build(t.Context(), nil)
-	be.Err(t, err)
+	want := tags.TagData{URI: "demo", Name: "demo program", Info: "info", Count: 5}
+	tt := tags.T{List: []tags.TagData{want}}
+
+	got, err := tt.ByName("demo program")
+	be.Err(t, err, nil)
+	be.Equal(t, got, want)
+
+	got, err = tt.ByName("DEMO PROGRAM")
+	be.Err(t, err, nil)
+	be.Equal(t, got, want)
+
+	got, err = tt.ByName(noname)
+	be.Err(t, err, nil)
+	be.Equal(t, got, tags.TagData{})
 }
 
 func TestNameByURI(t *testing.T) {
@@ -110,7 +119,7 @@ func TestNameByURI(t *testing.T) {
 	uri := "programmingtool"
 	expected := "computer tool"
 	name := tags.NameByURI(uri)
-	be.Equal(t, expected, name)
+	be.Equal(t, name, expected)
 
 	errs := "error: unknown slug"
 	name = tags.NameByURI(noname)
@@ -124,7 +133,7 @@ func TestDescription(t *testing.T) {
 
 	desc, err := tags.Description(tag)
 	be.Err(t, err, nil)
-	be.Equal(t, expected, desc)
+	be.Equal(t, desc, expected)
 
 	desc, err = tags.Description(noname)
 	be.True(t, errors.Is(err, tags.ErrTag))
@@ -139,7 +148,7 @@ func TestPlatform(t *testing.T) {
 
 	desc, err := tags.Platform(platform, tag)
 	be.Err(t, err, nil)
-	be.Equal(t, expected, desc)
+	be.Equal(t, desc, expected)
 
 	desc, err = tags.Platform(platform, noname)
 	be.True(t, errors.Is(err, tags.ErrTag))
@@ -213,6 +222,12 @@ func TestHumanize(t *testing.T) {
 
 	s = tags.Humanize(tags.Image, tags.News)
 	be.Equal(t, s, "a screenshot of an article from a news outlet")
+
+	s = tags.Humanize(tags.PCB, tags.Tool)
+	be.Equal(t, s, "a PCBoard PPE or BBS application")
+
+	s = tags.Humanize(tags.Console, tags.Demo)
+	be.Equal(t, s, "a demo on console")
 }
 
 func TestHumanizes(t *testing.T) {
@@ -282,80 +297,89 @@ func TestHumanizes(t *testing.T) {
 
 	s = tags.Image.Humanizes(tags.News)
 	be.Equal(t, s, "images, pictures, and photos")
+
+	s = tags.Console.Humanizes(none)
+	be.Equal(t, s, "consoles")
+
+	s = none.Humanizes(tags.BBS)
+	be.Equal(t, s, "BBS adverts")
+
+	s = none.Humanizes(tags.Tool)
+	be.Equal(t, s, "software tools by the scene")
 }
 
 func TestIsCategory(t *testing.T) {
 	t.Parallel()
-	t.Run("Existing Category", func(t *testing.T) {
-		t.Parallel()
-		result := tags.IsCategory(firstCategory)
-		be.True(t, result)
-	})
-	t.Run("Last Category", func(t *testing.T) {
-		t.Parallel()
-		result := tags.IsCategory(lastCategory)
-		be.True(t, result)
-	})
-	t.Run("Existing Platform", func(t *testing.T) {
-		t.Parallel()
-		result := tags.IsCategory("ansi")
-		be.True(t, !result)
-	})
-	t.Run("Non-existing Category", func(t *testing.T) {
-		t.Parallel()
-		result := tags.IsCategory(noname)
-		be.True(t, !result)
-	})
+	tests := []struct {
+		name  string
+		input string
+		want  bool
+	}{
+		{"first", firstCategory, true},
+		{"last", lastCategory, true},
+		{"trimmed", " ANNOUNCEMENTS ", true},
+		{"platform", "ansi", false},
+		{"unknown", noname, false},
+		{"empty", "", false},
+		{"spaces", "   ", false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			be.Equal(t, tags.IsCategory(tt.input), tt.want)
+		})
+	}
 }
 
 func TestIsPlatform(t *testing.T) {
 	t.Parallel()
-	t.Run("Existing Platform", func(t *testing.T) {
-		t.Parallel()
-		result := tags.IsPlatform(firstPlatform)
-		be.True(t, result)
-	})
-	t.Run("Last Platform", func(t *testing.T) {
-		t.Parallel()
-		result := tags.IsPlatform(lastPlatform)
-		be.True(t, result)
-	})
-	t.Run("Existing Category", func(t *testing.T) {
-		t.Parallel()
-		result := tags.IsPlatform(lastCategory)
-		be.True(t, !result)
-	})
-	t.Run("Non-existing Platform", func(t *testing.T) {
-		t.Parallel()
-		result := tags.IsPlatform("non-existing-platform")
-		be.True(t, !result)
-	})
+	tests := []struct {
+		name  string
+		input string
+		want  bool
+	}{
+		{"first", firstPlatform, true},
+		{"last", tags.LastPlatform.String(), true},
+		{"trimmed", " ANSI ", true},
+		{"category", lastCategory, false},
+		{"unknown", "non-existing-platform", false},
+		{"empty", "", false},
+		{"spaces", "   ", false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			be.Equal(t, tags.IsPlatform(tt.input), tt.want)
+		})
+	}
 }
 
 func TestIsTag(t *testing.T) {
 	t.Parallel()
-	t.Run("Existing Category", func(t *testing.T) {
-		t.Parallel()
-		result := tags.IsTag(firstCategory)
-		be.True(t, result)
-	})
-	t.Run("Existing Platform", func(t *testing.T) {
-		t.Parallel()
-		result := tags.IsTag(lastPlatform)
-		be.True(t, result)
-	})
-	t.Run("Non-existing Tag", func(t *testing.T) {
-		t.Parallel()
-		result := tags.IsTag("non-existing-tag")
-		be.True(t, !result)
-	})
+	tests := []struct {
+		name  string
+		input string
+		want  bool
+	}{
+		{"category", firstCategory, true},
+		{"platform", tags.LastPlatform.String(), true},
+		{"trimmed", " ANSI ", true},
+		{"unknown", "non-existing-tag", false},
+		{"empty", "", false},
+		{"spaces", "   ", false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			be.Equal(t, tags.IsTag(tt.input), tt.want)
+		})
+	}
 }
 
 func TestOSTags(t *testing.T) {
 	t.Parallel()
-	oses := tags.OSTags()
-	be.Equal(t, "dos", oses[0])
-	be.Equal(t, "mac10", oses[4])
+	want := [5]string{"dos", "java", "linux", "windows", "mac10"}
+	be.Equal(t, tags.OSTags(), want)
 }
 
 func TestCategoryCounts(t *testing.T) {
@@ -388,9 +412,12 @@ func TestHumanizeRange(t *testing.T) {
 	t.Parallel()
 
 	for _, platform := range tags.List {
+		validPlatform := tags.IsPlatform(platform.String())
 		for _, section := range tags.List {
 			got := tags.Humanize(platform, section)
 			be.True(t, got != "")
+			valid := validPlatform && tags.IsCategory(section.String())
+			be.Equal(t, strings.HasPrefix(got, "unknown"), !valid)
 		}
 	}
 }

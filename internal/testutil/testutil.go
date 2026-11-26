@@ -9,8 +9,8 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
-	"runtime"
 	"strings"
+	"sync"
 	"testing"
 
 	"github.com/Defacto2/server/internal/postgres/models"
@@ -63,41 +63,23 @@ func NewModel(tb testing.TB) *models.File {
 
 // File system helpers
 
-// OpenFS opens the root directory of the testutil package and closes on cleanup.
+// OpenFS opens the root directory of this Go project as an [fs.FS] and closes it on cleanup.
 func OpenFS(tb testing.TB) fs.FS {
 	tb.Helper()
 
 	return OpenRoot(tb).FS()
 }
 
-// OpenRoot opens the root directory of the testutil package and closes on cleanup.
+// OpenRoot opens the root directory of this Go project and closes it on cleanup.
 func OpenRoot(tb testing.TB) *os.Root {
 	tb.Helper()
 
-	return openRoot(tb, "..")
-}
-
-// ProjectFS opens the root directory of this Go project and closes on cleanup.
-func ProjectFS(tb testing.TB) fs.FS {
-	tb.Helper()
-
-	_, filename, _, ok := runtime.Caller(0)
-	if !ok {
-		tb.Fatal("runtime caller failed")
-	}
-	name := filepath.Join(filepath.Dir(filename), "..", "..")
-
-	return openRoot(tb, name).FS()
-}
-
-func openRoot(tb testing.TB, name string) *os.Root {
-	tb.Helper()
-	if name == "" {
-		name = ".."
+	rootPath := Project()
+	if rootPath == "" {
+		tb.Fatal("cannot resolve project root path")
 	}
 
-	// open root of the repo relative to this file
-	root, err := os.OpenRoot(name)
+	root, err := os.OpenRoot(rootPath)
 	if err != nil {
 		tb.Fatal("cannot open the root path", err)
 	}
@@ -111,6 +93,13 @@ func openRoot(tb testing.TB, name string) *os.Root {
 	return root
 }
 
+// ProjectFS opens the root directory of this Go project as an [fs.FS] and closes it on cleanup.
+func ProjectFS(tb testing.TB) fs.FS {
+	tb.Helper()
+
+	return OpenRoot(tb).FS()
+}
+
 // Binary text helpers
 
 // DOSBIN converts the string into a single page, MS-DOS BIN [binary text].
@@ -122,20 +111,20 @@ func DOSBIN(tb testing.TB, s string) [4000]byte {
 	tb.Helper()
 
 	const (
-		text = "hello world"
-		page = 4000
-		attr = byte(0x0F) // bright white on black background
-		rows = 80
+		text  = "hello world"
+		page  = 4000
+		chars = page / 2   // 80 columns * 25 rows = 2000 characters (2 bytes each)
+		attr  = byte(0x0F) // bright white on black background
 	)
 
 	if s == "" {
 		s = text
 	}
 
-	count := len(s)
-	if count > page {
-		s = s[:page]
+	if len(s) > chars {
+		s = s[:chars]
 	}
+	count := len(s)
 
 	var buf [page]byte
 	for i := range count {
@@ -144,7 +133,7 @@ func DOSBIN(tb testing.TB, s string) [4000]byte {
 		buf[x+1] = attr // append the same attribute for each character
 	}
 	// fill the remainder of the page with space characters
-	// to complete the 80*25=4000 character requirement
+	// to complete the 80*25=2000 character (4000 byte) requirement
 	for i := count * 2; i < page-1; i += 2 {
 		buf[i] = byte(' ')
 		buf[i+1] = attr
@@ -237,13 +226,35 @@ var Content3 = [...]string{
 
 // Logger helpers
 
+type syncBuffer struct {
+	mu  sync.Mutex
+	buf bytes.Buffer
+}
+
+func (b *syncBuffer) Write(p []byte) (int, error) {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	return b.buf.Write(p)
+}
+
+func (b *syncBuffer) String() string {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	return b.buf.String()
+}
+
+func (b *syncBuffer) Reset() {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	b.buf.Reset()
+}
+
 type Logger struct {
-	tb  testing.TB
-	buf *bytes.Buffer
+	buf *syncBuffer
 	Log *slog.Logger
 }
 
-// Buffer returns a custom debug logger that writes to [Logger].
+// Buffer returns a concurrency-safe debug logger that writes to [Logger].
 func Buffer(tb testing.TB) *Logger {
 	tb.Helper()
 
@@ -251,11 +262,10 @@ func Buffer(tb testing.TB) *Logger {
 		Level: slog.LevelDebug,
 	}
 
-	var w bytes.Buffer
+	w := &syncBuffer{}
 	return &Logger{
-		tb:  tb,
-		buf: &w,
-		Log: slog.New(slog.NewTextHandler(&w, opts)),
+		buf: w,
+		Log: slog.New(slog.NewTextHandler(w, opts)),
 	}
 }
 
@@ -271,7 +281,5 @@ func (l *Logger) Reset() {
 
 // Contains returns true if the substr is found in the content of the logger.
 func (l *Logger) Contains(substr string) bool {
-	l.tb.Helper()
-
 	return strings.Contains(l.buf.String(), substr)
 }

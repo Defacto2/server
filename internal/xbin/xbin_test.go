@@ -8,9 +8,9 @@ import (
 	"github.com/nalgeon/be"
 )
 
-// buildTestXBIN returns an XBIN file. The pal and font data are only valid when
+// testxbin returns an XBIN file. The pal and font data are only valid when
 // their flags (0x01 palette, 0x02 font) are set, otherwise the test fails.
-func buildTestXBIN(t *testing.T, w, h, fontH, flags byte, pal, font, body []byte) []byte {
+func testxbin(t *testing.T, w, h, fontH, flags byte, pal, font, body []byte) []byte {
 	t.Helper()
 	if len(pal) > 0 && (flags&0x01) == 0 {
 		t.Fatal("palette data given without the palette flag")
@@ -65,7 +65,7 @@ func TestRenderUncompressed(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			xb := buildTestXBIN(t, 4, 2, 16, tt.flags, nil, nil, body)
+			xb := testxbin(t, 4, 2, 16, tt.flags, nil, nil, body)
 			buf, err := xbin.Render(xb)
 			be.Err(t, err, nil)
 
@@ -98,7 +98,7 @@ func TestRenderCompressed(t *testing.T) {
 		0xC1, '*', 0x0F,
 	}
 	// flags = Palette(1) | Font(2) | Compress(4) | NonBlink(8) = 0x0F
-	xb := buildTestXBIN(t, 4, 2, 16, 0x0F, pal, font, body)
+	xb := testxbin(t, 4, 2, 16, 0x0F, pal, font, body)
 
 	buf, err := xbin.Render(xb)
 	be.Err(t, err, nil)
@@ -118,7 +118,7 @@ func TestRenderSAUCE(t *testing.T) {
 	// 4x2 uncompressed with only 2 cells of data. Without trimming, the appended
 	// EOF marker and SAUCE record would be decoded as extra cells.
 	body := []byte{'X', 0x0F, 'Y', 0x0F}
-	xb := buildTestXBIN(t, 4, 2, 16, 0x08, nil, nil, body)
+	xb := testxbin(t, 4, 2, 16, 0x08, nil, nil, body)
 	want, err := xbin.Render(xb)
 	be.Err(t, err, nil)
 

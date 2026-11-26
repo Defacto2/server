@@ -41,7 +41,7 @@ type Palette [PaletteColors]string
 type Options struct {
 	ICEColor bool // Treat attribute bit 7 as bright background (16 backgrounds) instead of blink.
 	Chars512 bool // Treat attribute bit 3 as glyph bank selector (limits foreground to 8 colors).
-	SkipTrim bool // Preserve trailing blank rows when false, trailing blank rows are trimmed.
+	SkipTrim bool // Preserve trailing blank rows; when false, trailing blank rows are trimmed.
 }
 
 // CGA returns the default IBM CGA/VGA 16-color text palette.
@@ -70,7 +70,7 @@ func ParsePalette(raw []byte) (Palette, bool) {
 	for i := range PaletteColors {
 		r, g, b := raw[i*3], raw[i*3+1], raw[i*3+2]
 		if r > maxPaletteVal || g > maxPaletteVal || b > maxPaletteVal {
-			return pal, false
+			return Palette{}, false
 		}
 		pal[i] = fmt.Sprintf("#%02x%02x%02x", scale(r), scale(g), scale(b))
 	}
@@ -83,12 +83,12 @@ func Rows(cells []Cell, cols int) [][]Cell {
 		return nil
 	}
 	rowCount := (len(cells) + cols - 1) / cols
-	rows := make([][]Cell, 0, rowCount)
-	for off := 0; off < len(cells); off += cols {
-		end := min(off+cols, len(cells))
-		row := make([]Cell, cols)
-		copy(row, cells[off:end])
-		rows = append(rows, row)
+	buf := make([]Cell, rowCount*cols)
+	copy(buf, cells)
+	rows := make([][]Cell, rowCount)
+	for i := range rowCount {
+		off := i * cols
+		rows[i] = buf[off : off+cols : off+cols]
 	}
 	return rows
 }
@@ -96,7 +96,7 @@ func Rows(cells []Cell, cols int) [][]Cell {
 // HTML renders rows into a <div>...</div> containing merged <span style="..."> runs.
 func HTML(rows [][]Cell, pal Palette, opts Options) *bytes.Buffer {
 	if !opts.SkipTrim {
-		rows = trim(rows)
+		rows = trim(rows, opts)
 	}
 	var out bytes.Buffer
 	out.WriteString("<div>")
@@ -130,8 +130,8 @@ func writeRow(out *bytes.Buffer, row []Cell, pal Palette, opts Options) {
 	out.WriteString("</span>")
 }
 
-// trim strips trailing rows containing only NUL/space characters and zero high attribute bits.
-func trim(rows [][]Cell) [][]Cell {
+// trim strips trailing rows containing only NUL/space characters and zero effective background bits.
+func trim(rows [][]Cell, opts Options) [][]Cell {
 	if len(rows) == 0 {
 		return nil
 	}
@@ -139,7 +139,7 @@ func trim(rows [][]Cell) [][]Cell {
 	for end > 0 {
 		blank := true
 		for _, c := range rows[end-1] {
-			if (c.Ch != 0 && c.Ch != ' ') || (c.Attr&hiAttrMask) != 0 {
+			if (c.Ch != 0 && c.Ch != ' ') || (attribute(c.Attr, opts)&hiAttrMask) != 0 {
 				blank = false
 				break
 			}

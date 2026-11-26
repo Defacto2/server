@@ -36,17 +36,22 @@ var testdata = TestData{
 }
 
 // Abs returns an absolute representation of the testfile path.
+// If the testfile is empty, it returns an empty string.
 func (tf Testfile) Abs() string {
-	path, _ := filepath.Abs(filepath.Join(Project(), "testutil", "testdata", string(tf)))
+	if tf == "" {
+		return ""
+	}
+	path, _ := filepath.Abs(filepath.Join(Testdata(), string(tf)))
 	return path
 }
 
-// Dir returns the directory path of the testfile.
+// Dir returns the absolute directory path containing the testfile.
+// If the testfile is empty, it returns an empty string.
 func (tf Testfile) Dir() string {
 	if tf == "" {
 		return ""
 	}
-	return filepath.Dir(string(tf))
+	return filepath.Dir(tf.Abs())
 }
 
 // CopyPNG copies a sample PNG image to the target destination.
@@ -61,11 +66,6 @@ func CopyTXT(tb testing.TB, dest string) {
 	tb.Helper()
 
 	cpEmbed(tb, dest, "LOGO.TXT")
-}
-
-// Count returns the number of [TestData] entries.
-func Count() int {
-	return len(testdata)
 }
 
 // CountTest returns the number of [TestData] entries that have a filename prefix of "TEST." (test plus a dot).
@@ -102,18 +102,18 @@ func Files() TestData {
 	return data
 }
 
-// Project returns the absolute representation to the root directory for this project repository.
+// Project returns the absolute path to the root directory of this project repository.
 func Project() string {
 	_, filename, _, ok := runtime.Caller(0)
 	if !ok {
 		return ""
 	}
-	return filepath.Dir(filepath.Dir(filename))
+	return filepath.Clean(filepath.Join(filepath.Dir(filename), "..", ".."))
 }
 
 // Testdata returns the absolute representation to the "testdata/" subdirectory found in this testutil package.
 func Testdata() string {
-	path, _ := filepath.Abs(filepath.Join(Project(), "testutil", "testdata"))
+	path, _ := filepath.Abs(filepath.Join(Project(), "internal", "testutil", "testdata"))
 	return path
 }
 

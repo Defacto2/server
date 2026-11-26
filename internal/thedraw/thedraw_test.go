@@ -218,11 +218,11 @@ func TestDecodeErrors(t *testing.T) {
 	t.Run("too large", func(t *testing.T) {
 		t.Parallel()
 
-		// A valid COM that is only rejected for being larger than the 64KB limit.
-		const payloadLen = 65537 - rleStubLen // file is exactly one byte over the limit, so truncation keeps it valid
-		raw := buildTheDrawCOM(t, bytes.Repeat([]byte{'A'}, payloadLen))
-		be.True(t, thedraw.IsCOM(raw))
-		be.Equal(t, len(raw), 65537)
+		// A valid COM padded to one byte over the 64KB limit so truncating to 64KB
+		// would still pass IsCOM if Decode did not enforce the size cap.
+		raw := make([]byte, 65537)
+		copy(raw, buildTheDrawCOM(t, []byte{0x0F, 'A'}))
+		be.True(t, thedraw.IsCOM(raw[:65536]))
 
 		path := filepath.Join(t.TempDir(), "BIG.COM")
 		be.Err(t, os.WriteFile(path, raw, 0o600), nil)

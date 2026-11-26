@@ -7,22 +7,27 @@ import (
 	"errors"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/Defacto2/server/internal/postgres"
 )
 
 // PostgreSQL database helpers
 
-var share = sync.OnceValue(func() *sql.DB {
+const pingTimeout = 3 * time.Second
+
+var share = sync.OnceValues(func() (*sql.DB, error) {
 	db, err := postgres.Open()
 	if err != nil {
-		return nil
+		return nil, err
 	}
-	if err := db.Ping(); err != nil {
+	ctx, cancel := context.WithTimeout(context.Background(), pingTimeout)
+	defer cancel()
+	if err := db.PingContext(ctx); err != nil {
 		_ = db.Close()
-		return nil
+		return nil, err
 	}
-	return db
+	return db, nil
 })
 
 // DB returns a shared Postgres database connection for use with tests.
@@ -30,26 +35,11 @@ var share = sync.OnceValue(func() *sql.DB {
 func DB(tb testing.TB) *sql.DB {
 	tb.Helper()
 
-	db := share()
+	db, err := share()
 	if db == nil {
-		tb.SkipNow()
+		tb.Skipf("postgres database unavailable: %v", err)
 	}
 	return db
-}
-
-// DBConns logs the active and maximum Postgres database connections.
-func DBConns(tb testing.TB) {
-	tb.Helper()
-
-	db := share()
-	if db == nil {
-		return
-	}
-	a, m, err := postgres.Connections(tb.Context(), db)
-	if err != nil {
-		tb.Fatalf("connections err: %v", err)
-	}
-	tb.Log("active database connections:", a, "maximum:", m)
 }
 
 // Tx returns a shared Postgres database connection for use with tests.
@@ -62,12 +52,12 @@ func Tx(tb testing.TB) *sql.Tx {
 
 	db := DB(tb)
 
-	// leave the context to background, however it might be useful to create
-	// a TxWithContext() in the future.
+	// Use context.Background() rather than tb.Context(): tb.Context() is canceled
+	// before tb.Cleanup runs, which would cancel the transaction before tx.Rollback().
 	ctx := context.Background()
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
-		tb.Skip("tx failed")
+		tb.Fatalf("begin tx: %v", err)
 	}
 
 	tb.Cleanup(func() {

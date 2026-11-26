@@ -48,5 +48,5 @@ func TestConfigDirectory(t *testing.T) {
 	be.Equal(t, s, "")
 
 	s = got.String()
-	be.Equal(t, s, ".")
+	be.Equal(t, s, testdata.Dir())
 }
