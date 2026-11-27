@@ -27,31 +27,31 @@ tasks:
       - cmd: go install github.com/aarondl/sqlboiler/v4/drivers/sqlboiler-psql@latest
       - cmd: go mod tidy
   assets:
-    desc: 'Build, compile and compress the web serve CSS and JS assets.'
+    desc: 'Build, compile and compress the web server CSS and JS assets.'
     cmds:
       - echo "Building assets..."
       - go run -modfile=runner/go.mod runner/runner.go
       - echo "Done!"
     aliases:
-      - 'js'
+      - 'a'
   build:
     desc: 'Build the binary of the web server.'
     deps: [assets]
     cmds:
       - cmd: echo "Building..."
-      - cmd: go build -o {{.BINNAME}} -v server.go
+      - cmd: go build -o {{.BINNAME}} -v .
         platforms: [linux, darwin, freebsd]
     aliases:
       - 'bin'
   build-release:
     aliases:
       - 'br'
-    desc: 'Build the release package of the web server embeded with the git version tag.'
+    desc: 'Build the release package of the web server embedded with the git version tag.'
     deps: [assets]
     cmds:
       - cmd: echo "Git status results:"
       - cmd: git status
-      - cmd: echo "Building snapshot..."
+      - cmd: echo "Building release..."
       - cmd: goreleaser build --clean --config init/.goreleaser.yaml
       - cmd: echo "Done!"
   build-snapshot:
@@ -68,10 +68,10 @@ tasks:
     deps: [assets]
     cmds:
       - cmd: echo "Building with race conditions..."
-      - cmd: go build -o {{.BINNAME}} -race -v server.go
+      - cmd: go build -o {{.BINNAME}} -race -v .
         platforms: [linux, darwin, freebsd]
       - cmd: ./{{.BINNAME}} --version
-        platforms: [linux, darwin]
+        platforms: [linux, darwin, freebsd]
       - cmd: echo "Done!"
     aliases:
       - 'race'
@@ -98,13 +98,12 @@ tasks:
     cmds:
       - cmd: clear
         platforms: [linux, darwin, freebsd]
-      #- cmd: gci write ./.. # this is redundant and conflicts with gofumpt
-      #  platforms: [linux]
       - cmd: go tool gofumpt -l -w -extra .
       - cmd: go fix ./...
       - cmd: pnpm exec eslint assets/js/
-      - cmd: pnpm exec spectral lint public/json/openapi.json
-      - cmd: pnpm exec stylelint --fix assets/css/*.css
+      - cmd: pnpm exec spectral lint -r init/.spectral.yaml public/json/openapi.json
+      - cmd: pnpm exec stylelint -c init/.stylelintrc.json --fix assets/css/*.css
+      - cmd: pnpm exec hihtml -s init/.hihtml.json --check-code --input view/
       - cmd: golangci-lint run -c init/.golangci.yaml
   lint:
     aliases:
@@ -125,7 +124,7 @@ tasks:
     cmds:
       - cmd: clear
         platforms: [linux, darwin, freebsd]
-      - cmd: pnpm exec hihtml --check-code --input view/
+      - cmd: pnpm exec hihtml -s init/.hihtml.json --check-code --input view/
   lint-js:
     aliases:
       - 'lj'
@@ -136,8 +135,8 @@ tasks:
       - cmd: clear
         platforms: [linux, darwin, freebsd]
       - cmd: pnpm exec eslint assets/js/
-      - cmd: pnpm exec spectral lint public/json/openapi.json
-      - cmd: pnpm exec stylelint --fix assets/css/*.css
+      - cmd: pnpm exec spectral lint -r init/.spectral.yaml public/json/openapi.json
+      - cmd: pnpm exec stylelint -c init/.stylelintrc.json --fix assets/css/*.css
   nil:
     aliases:
       - 'n'
@@ -170,10 +169,11 @@ tasks:
     silent: false
     desc: Update and apply patches to the web server dependencies.
     cmds:
-      - cmd: go get -u=patch -x
+      - cmd: go get -u=patch -x ./...
+      - cmd: go get -u=patch -x tool
       - cmd: go mod verify
       - cmd: go mod tidy
-      - cmd: go -C runner get -u=patch -x
+      - cmd: go -C runner get -u=patch -x ./...
       - cmd: go -C runner mod verify
       - cmd: go -C runner mod tidy
   pkg-update:
@@ -182,11 +182,11 @@ tasks:
     silent: false
     desc: Update the web server dependencies.
     cmds:
-      - cmd: go get -u -x
-      - cmd: go get go.uber.org/nilaway/cmd/nilaway@latest
+      - cmd: go get -u -x ./...
+      - cmd: go get -u -x tool
       - cmd: go mod verify
       - cmd: go mod tidy
-      - cmd: go -C runner get -u -x
+      - cmd: go -C runner get -u -x ./...
       - cmd: go -C runner mod verify
       - cmd: go -C runner mod tidy
   serve:
@@ -206,7 +206,7 @@ tasks:
       - 'fix'
     desc: 'Run the internal web server with the fix flag.'
     cmds:
-      - cmd: go run server.go fix
+      - cmd: go run . fix
   serve-prod:
     aliases:
       - 'prod'
@@ -237,6 +237,7 @@ tasks:
     platforms: [darwin, linux, freebsd]
     env:
       D2_PROD_MODE: true
+    deps: [assets]
     cmds:
       - go tool air -c init/.air.toml
   spell:
@@ -246,20 +247,18 @@ tasks:
     cmds:
       - cmd: clear
         platforms: [linux, darwin, freebsd]
-      - cmd: find public/md/tidbit/ -name "*.md" | xargs pnpm exec mdspell --report --ignore-numbers --ignore-acronyms --en-us
+      - cmd: find public/md/tidbit/ -name '*.md' -exec pnpm exec mdspell --report --ignore-numbers --ignore-acronyms --en-us {} +
   test:
     aliases:
       - 't'
     desc: 'Run the test suite.'
     cmds:
-      #- set -o pipefail && go test ./... -json | tparse -all
       - go test -count 1 ./...
   testr:
     aliases:
       - 'tr'
     desc: 'Run the test suite with the slower race detection.'
     cmds:
-      #- set -o pipefail && go test ./... -json | tparse -all
       - go test -count 1 -race ./...
   testc:
     aliases:
@@ -272,9 +271,9 @@ tasks:
       - 'tf'
     desc: 'Run each fuzz test for 1 minute.'
     cmds:
-      - go test -fuzz=FuzzSearch -fuzztime=1m
-      - go test -fuzz=FuzzSnippet -fuzztime=1m
-      - go test -fuzz=FuzzAdd -fuzztime=1m
+      - go test -run=^$ -fuzz=^FuzzSearch$ -fuzztime=1m
+      - go test -run=^$ -fuzz=^FuzzSnippet$ -fuzztime=1m
+      - go test -run=^$ -fuzz=^FuzzAdd$ -fuzztime=1m
   testb:
     aliases:
       - 'tb'
@@ -284,7 +283,7 @@ tasks:
   testp:
     aliases:
       - 'tm'
-    desc: 'Run the benchmark suite with both CPU and memory allocations.'
+    desc: 'Run the benchmark suite with memory allocation statistics.'
     cmds:
       - go test -run=^$ -bench=. -benchmem ./...
   testbf:

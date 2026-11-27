@@ -3,8 +3,8 @@
 # A config file for Air, the live reload server for Go apps.
 # https://github.com/air-verse/air
 #
-# $ go install github.com/air-verse/air@latest
-# $ air
+# $ go tool air -c init/.air.toml
+# $ task serve
 
 # Working directory
 # . or absolute path, please note that the directories following must be under root.
@@ -16,20 +16,22 @@ tmp_dir = "tmp"
 cmd = "go build -o ./tmp/main ."
 # Binary file yields from `cmd`.
 entrypoint = ["./tmp/main"]
-# Customize binary, can setup environment variables when run your app.
-full_bin = "REQUESTS=true ./tmp/main"
 
 # Watch these filename extensions.
 include_ext = ["go", "tpl", "tmpl", "html", "css", "js", "md", "svg"]
 # Ignore these filename extensions or directories.
 exclude_dir = [
-  ".git/",
-  "dist/",
-  "docs/",
-  "init/",
-  "node_modules/",
-  "tmp/",
-  "vendor/",
+  ".git",
+  ".github",
+  "assets",
+  "dist",
+  "docs",
+  "init",
+  "internal/testutil/testdata",
+  "node_modules",
+  "runner",
+  "tmp",
+  "vendor",
 ]
 # Watch these directories if you specified.
 include_dir = []
@@ -38,7 +40,7 @@ include_file = []
 # Exclude files.
 exclude_file = []
 # Exclude specific regular expressions.
-exclude_regex = ["_test\\.go$", "_bench\\.go$"]
+exclude_regex = ["_test\\.go$"]
 # Exclude unchanged files.
 exclude_unchanged = true
 # Follow symlink for directories
@@ -51,7 +53,7 @@ delay = 500 # ms
 # Stop running old binary when build errors occur.
 stop_on_error = true
 # Send Interrupt signal before killing process (windows does not support this feature)
-send_interrupt = false
+send_interrupt = true
 # Delay after sending Interrupt signal
 kill_delay = 500 # ms
 # Rerun binary or not

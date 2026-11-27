@@ -4,21 +4,23 @@
 #
 
 # compiled binary files
-defacto2-server
-df2-server
-server
+/defacto2-server
+/df2-server
+/server
 
 # debug and log files
 coverage.out
-profile*.*
+/profile*.*
+*.prof
+*.pprof
 defacto2_serve_*.log
 /logs/
 *.test
 
 # temp directories
-dist/
+/dist/
 node_modules/
-tmp/
+/tmp/
 
 # taskfile and docker compose
 .env.local
@@ -28,4 +30,4 @@ tmp/
 *.exe
 
 # macOS
-*.DS_Store
+.DS_Store

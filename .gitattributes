@@ -8,12 +8,16 @@
 
 # Binary file types found in the repository that should never be modified.
 
-# Images
+# Images & video
 *.avif binary
+*.bmp binary
 *.gif binary
+*.heif binary
 *.ico binary
 *.jpg binary
+*.pcx binary
 *.png binary
+*.webm binary
 *.webp binary
 
 # Fonts
@@ -24,7 +28,8 @@
 # JS bytecode files
 *.wasm binary
 
-# Testdata
+# Testdata (preserve exact bytes and DOS CRLF line endings regardless of casing)
+internal/testutil/testdata/** binary
 *.7z binary
 *.ASC binary
 *.ARJ binary
@@ -37,4 +42,5 @@
 *.tar.xz binary
 
 # Executables
+*.com binary
 hwzip binary
