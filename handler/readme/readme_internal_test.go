@@ -15,6 +15,8 @@ import (
 	"github.com/nalgeon/be"
 )
 
+var errReadFailed = errors.New("read failed")
+
 type errReader struct {
 	err error
 }
@@ -82,9 +84,8 @@ func TestHasANSI(t *testing.T) {
 	t.Run("read error", func(t *testing.T) {
 		t.Parallel()
 
-		sentinel := errors.New("read failed")
-		got, err := hasANSI(errReader{err: sentinel})
-		be.Err(t, err, sentinel)
+		got, err := hasANSI(errReader{err: errReadFailed})
+		be.Err(t, err, errReadFailed)
 		be.True(t, !got)
 	})
 }

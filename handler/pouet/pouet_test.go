@@ -1,7 +1,6 @@
 package pouet_test
 
 import (
-	"context"
 	"testing"
 
 	"github.com/Defacto2/server/handler/pouet"
@@ -9,38 +8,100 @@ import (
 	"github.com/nalgeon/be"
 )
 
-// checked in Sep 26, test coverage was fine at under 40%
-
 // Set to true to test against the remote servers.
 const testRemoteServers = false
 
 func TestPlatforms(t *testing.T) {
 	t.Parallel()
-	p := pouet.Platforms{
-		DosGus: pouet.Platform{
-			Name: "DOS/GUS",
-			Slug: "msdosgus",
+
+	tests := []struct {
+		name      string
+		platforms pouet.Platforms
+		wantStr   string
+		wantValid bool
+	}{
+		{
+			name:      "empty",
+			platforms: pouet.Platforms{},
+			wantStr:   "",
+			wantValid: false,
+		},
+		{
+			name: "dos gus",
+			platforms: pouet.Platforms{
+				DosGus: pouet.Platform{Name: "DOS/GUS", Slug: "msdosgus"},
+			},
+			wantStr:   "msdosgus",
+			wantValid: true,
+		},
+		{
+			name: "msdos",
+			platforms: pouet.Platforms{
+				MSDos: pouet.Platform{Name: "MS-Dos", Slug: "msdos"},
+			},
+			wantStr:   "msdos",
+			wantValid: true,
+		},
+		{
+			name: "windows",
+			platforms: pouet.Platforms{
+				Windows: pouet.Platform{Name: "Windows", Slug: "windows"},
+			},
+			wantStr:   "windows",
+			wantValid: true,
+		},
+		{
+			name: "all",
+			platforms: pouet.Platforms{
+				DosGus:  pouet.Platform{Name: "DOS/GUS", Slug: "msdosgus"},
+				MSDos:   pouet.Platform{Name: "MS-Dos", Slug: "msdos"},
+				Windows: pouet.Platform{Name: "Windows", Slug: "windows"},
+			},
+			wantStr:   "msdosgus, msdos, windows",
+			wantValid: true,
 		},
 	}
-	be.Equal(t, "msdosgus", p.String())
-	be.True(t, p.Valid())
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			be.Equal(t, tt.platforms.String(), tt.wantStr)
+			be.Equal(t, tt.platforms.Valid(), tt.wantValid)
+		})
+	}
 }
 
 func TestType(t *testing.T) {
 	t.Parallel()
-	var pt pouet.Type = "demo"
-	var fd pouet.Type = "fastdemo"
-	var prods pouet.Types = []pouet.Type{pt, fd}
-	be.True(t, prods.Valid())
-	be.Equal(t, "demo, fastdemo", prods.String())
+
+	tests := []struct {
+		name      string
+		types     pouet.Types
+		wantStr   string
+		wantValid bool
+	}{
+		{"empty", pouet.Types{}, "", false},
+		{"all invalid", pouet.Types{"fastdemo", "wild"}, "fastdemo, wild", false},
+		{"mixed", pouet.Types{"demo", "fastdemo"}, "demo, fastdemo", true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			be.Equal(t, tt.types.Valid(), tt.wantValid)
+			be.Equal(t, tt.types.String(), tt.wantStr)
+		})
+	}
 }
 
 func TestResponseGet(t *testing.T) {
 	t.Parallel()
 	r := pouet.Response{}
-	ctx := context.TODO()
+	ctx := t.Context()
 	_, err := r.Get(ctx, 0)
-	be.Err(t, err)
+	be.Err(t, err, pouet.ErrBadID)
 	// this pings a remote server, so it is disabled.
 	if testRemoteServers {
 		_, err = r.Get(ctx, 1)
@@ -50,10 +111,10 @@ func TestResponseGet(t *testing.T) {
 
 func TestPouet(t *testing.T) {
 	t.Parallel()
-	ctx := context.TODO()
+	ctx := t.Context()
 	p := pouet.Production{}
 	_, err := p.Get(ctx, 0)
-	be.Err(t, err)
+	be.Err(t, err, pouet.ErrBadID)
 	// this pings a remote server, so it is disabled.
 	if testRemoteServers {
 		_, err = p.Get(ctx, 1)
@@ -63,10 +124,10 @@ func TestPouet(t *testing.T) {
 
 func TestVotes(t *testing.T) {
 	t.Parallel()
-	ctx := context.TODO()
+	ctx := t.Context()
 	v := pouet.Votes{}
 	err := v.Votes(ctx, 0)
-	be.Err(t, err)
+	be.Err(t, err, pouet.ErrBadID)
 	// this pings a remote server, so it is disabled.
 	if testRemoteServers {
 		err = v.Votes(ctx, 1)
@@ -86,6 +147,7 @@ func TestStars(t *testing.T) {
 		args args
 		want float64
 	}{
+		{"0 votes", args{0, 0, 0}, 0},
 		{"1 up", args{1, 0, 0}, 5},
 		{"1 meh", args{0, 1, 0}, 3},
 		{"1 down", args{0, 0, 1}, 1},
@@ -100,7 +162,7 @@ func TestStars(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			f := pouet.Stars(tt.args.up, tt.args.meh, tt.args.down)
-			be.True(t, f == tt.want)
+			be.Equal(t, f, tt.want)
 		})
 	}
 }
@@ -116,20 +178,117 @@ func TestValids(t *testing.T) {
 
 func TestReleasers(t *testing.T) {
 	t.Parallel()
-	pp := pouet.Production{}
-	a, b := pp.Releasers()
-	be.True(t, a == "")
-	be.True(t, b == "")
-	x, y, z := pp.Released()
-	be.True(t, x == 0)
-	be.True(t, y == 0)
-	be.True(t, z == 0)
+
+	type group = struct {
+		ID   string `json:"id"`
+		Name string `json:"name"`
+	}
+
+	t.Run("empty", func(t *testing.T) {
+		t.Parallel()
+
+		pp := pouet.Production{}
+		a, b := pp.Releasers()
+		be.Equal(t, a, "")
+		be.Equal(t, b, "")
+		x, y, z := pp.Released()
+		be.Equal(t, x, int16(0))
+		be.Equal(t, y, int16(0))
+		be.Equal(t, z, int16(0))
+	})
+
+	t.Run("one group and release date", func(t *testing.T) {
+		t.Parallel()
+
+		pp := pouet.Production{
+			ReleaseDate: "1996-05-12",
+			Groups:      []group{{ID: "1", Name: "Razor 1911"}},
+		}
+		a, b := pp.Releasers()
+		be.Equal(t, a, "Razor 1911")
+		be.Equal(t, b, "")
+		x, y, z := pp.Released()
+		be.Equal(t, x, int16(1996))
+		be.Equal(t, y, int16(5))
+		be.Equal(t, z, int16(12))
+	})
+
+	t.Run("multiple groups", func(t *testing.T) {
+		t.Parallel()
+
+		pp := pouet.Production{
+			Groups: []group{
+				{ID: "1", Name: "Future Crew"},
+				{ID: "2", Name: "Triton"},
+				{ID: "3", Name: "Ignored"},
+			},
+		}
+		a, b := pp.Releasers()
+		be.Equal(t, a, "Future Crew")
+		be.Equal(t, b, "Triton")
+	})
 }
 
 func TestPlatformType(t *testing.T) {
 	t.Parallel()
-	pp := pouet.Production{}
-	a, b := pp.PlatformType()
-	be.Equal(t, tags.Tag(-1), a)
-	be.Equal(t, tags.Intro, b)
+
+	tests := []struct {
+		name     string
+		prod     pouet.Production
+		wantPlat tags.Tag
+		wantSect tags.Tag
+	}{
+		{
+			name:     "empty",
+			prod:     pouet.Production{},
+			wantPlat: tags.Tag(-1),
+			wantSect: tags.Intro,
+		},
+		{
+			name: "windows demo",
+			prod: pouet.Production{
+				Platforms: pouet.Platforms{Windows: pouet.Platform{Slug: "windows"}},
+				Types:     pouet.Types{"demo"},
+			},
+			wantPlat: tags.Windows,
+			wantSect: tags.Demo,
+		},
+		{
+			name: "msdos artpack",
+			prod: pouet.Production{
+				Platforms: pouet.Platforms{MSDos: pouet.Platform{Slug: "msdos"}},
+				Types:     pouet.Types{"artpack"},
+			},
+			wantPlat: tags.DOS,
+			wantSect: tags.Pack,
+		},
+		{
+			name: "dosgus bbstro",
+			prod: pouet.Production{
+				Platforms: pouet.Platforms{DosGus: pouet.Platform{Slug: "msdosgus"}},
+				Types:     pouet.Types{"bbstro"},
+			},
+			wantPlat: tags.DOS,
+			wantSect: tags.BBS,
+		},
+		{
+			name: "diskmag",
+			prod: pouet.Production{
+				Platforms: pouet.Platforms{MSDos: pouet.Platform{Slug: "msdos"}},
+				Types:     pouet.Types{"diskmag"},
+			},
+			wantPlat: tags.DOS,
+			wantSect: tags.Mag,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			plat, sect := tt.prod.PlatformType()
+			be.Equal(t, plat, tt.wantPlat)
+			be.Equal(t, sect, tt.wantSect)
+		})
+	}
 }

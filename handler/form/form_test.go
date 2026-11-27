@@ -1,31 +1,123 @@
 package form_test
 
 import (
+	"context"
+	"database/sql"
+	"html/template"
 	"strconv"
 	"strings"
 	"testing"
 	"time"
 
 	"github.com/Defacto2/server/handler/form"
+	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/nalgeon/be"
 )
 
-// checked in Sep 26, test coverage was great at 75%+
+func TestCheckname(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name    string
+		input   string
+		wantErr error
+	}{
+		{"local file", "archive.zip", nil},
+		{"nested local", "sub/archive.zip", nil},
+		{"empty", "", form.ErrFilename},
+		{"traversal", "../etc/passwd", form.ErrFilename},
+		{"absolute", "/etc/passwd", form.ErrFilename},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			be.Err(t, form.Checkname(tt.input), tt.wantErr)
+		})
+	}
+}
 
 func TestHumanizeCount(t *testing.T) {
 	t.Parallel()
 
-	ctx := t.Context()
-	html, err := form.HumanizeCount(ctx, nil, "", "")
-	be.Err(t, err)
+	t.Run("nil exec", func(t *testing.T) {
+		t.Parallel()
 
-	found := strings.Contains(string(html), `0 existing artifacts`)
-	be.True(t, !found)
+		html, err := form.HumanizeCount(t.Context(), nil, "", "")
+		be.Err(t, err)
+		be.Equal(t, html, template.HTML(""))
+	})
 
-	htm := form.HumanizeCountStr(ctx, nil, "", "")
-	be.Err(t, err)
-	found = strings.Contains(htm, `0 existing artifacts`)
-	be.True(t, found)
+	t.Run("missing classifications", func(t *testing.T) {
+		t.Parallel()
+
+		db := new(sql.DB)
+		tests := []struct {
+			name     string
+			section  string
+			platform string
+			wantText string
+		}{
+			{"both missing", "", "", "please choose both classifications, 0 existing artifacts"},
+			{"section missing", "", "dos", "please choose a tag as category, 0 existing artifacts"},
+			{"platform missing", "demo", "", "please choose an operating system, 0 existing artifacts"},
+		}
+
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				t.Parallel()
+
+				html, err := form.HumanizeCount(t.Context(), db, tt.section, tt.platform)
+				be.Err(t, err, nil)
+				wantHTML := template.HTML(`<span class="text-danger-emphasis">` + tt.wantText + `</span>`)
+				be.Equal(t, html, wantHTML)
+
+				str := form.HumanizeCountStr(t.Context(), nil, tt.section, tt.platform)
+				be.Equal(t, str, tt.wantText)
+			})
+		}
+	})
+
+	t.Run("db error", func(t *testing.T) {
+		t.Parallel()
+
+		db, err := sql.Open("pgx", "")
+		be.Err(t, err, nil)
+		defer db.Close()
+
+		ctx, cancel := context.WithCancel(t.Context())
+		cancel()
+
+		html, err := form.HumanizeCount(ctx, db, "demo", "dos")
+		be.Err(t, err)
+		be.Equal(t, html, template.HTML(""))
+
+		str := form.HumanizeCountStr(ctx, db, "demo", "dos")
+		be.True(t, strings.Contains(str, "form humanize and count classification"))
+	})
+}
+
+func TestSanitizeCredit(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name  string
+		input string
+		want  string
+	}{
+		{"empty", "", ""},
+		{"single", "  the x bbs  ", "X BBS"},
+		{"multiple", " the x bbs , razor 1911 ", "X BBS,Razor 1911"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			be.Equal(t, form.SanitizeCredit(tt.input), tt.want)
+		})
+	}
 }
 
 func TestSanitizeFilename(t *testing.T) {
@@ -34,8 +126,11 @@ func TestSanitizeFilename(t *testing.T) {
 	s := form.SanitizeFilename("")
 	be.Equal(t, s, "")
 
+	be.Equal(t, form.SanitizeFilename("."), "")
+	be.Equal(t, form.SanitizeFilename(".."), "")
+
 	s = form.SanitizeFilename(`c:\Windows\System32\cmd.exe`)
-	be.Equal(t, "c:-Windows-System32-cmd.exe", s)
+	be.Equal(t, s, "c:-Windows-System32-cmd.exe")
 
 	s = form.SanitizeFilename(`../tmp/somefile.txt`)
 	be.Equal(t, s, "tmp-somefile.txt")
@@ -48,7 +143,10 @@ func TestSanitizePath(t *testing.T) {
 	be.Equal(t, s, "")
 
 	s = form.SanitizeSeparators(`///some//messy/path////`)
-	be.Equal(t, "some/messy/path", s)
+	be.Equal(t, s, "some/messy/path")
+
+	s = form.SanitizeSeparators(`some///very////messy/path`)
+	be.Equal(t, s, "some/very/messy/path")
 
 	s = form.SanitizeSeparators("example.com/hello/")
 	be.Equal(t, s, "example.com/hello")
@@ -62,13 +160,13 @@ func TestSanitizeURLPath(t *testing.T) {
 	be.Equal(t, s, "")
 
 	s = form.SanitizeURLPath(`///some//messy/path////`)
-	be.Equal(t, "some/messy/path", s)
+	be.Equal(t, s, "some/messy/path")
 
 	s = form.SanitizeURLPath(`///some/!@#$#@%^@&(+/very_messy/path//*^&()//`)
-	be.Equal(t, "some/very_messy/path", s)
+	be.Equal(t, s, "some/very_messy/path")
 
 	s = form.SanitizeGitHub("//refs/heads/\\/<main>///")
-	be.Equal(t, "heads/main", s)
+	be.Equal(t, s, "heads/main")
 }
 
 func TestValidDate(t *testing.T) {
@@ -78,62 +176,58 @@ func TestValidDate(t *testing.T) {
 	year := strconv.Itoa(x)
 	next := strconv.Itoa(x + 1)
 
-	y, m, d := form.ValidDate("", "", "")
-	be.True(t, !y)
-	be.True(t, !m)
-	be.True(t, !d)
+	tests := []struct {
+		name                string
+		y, m, d             string
+		wantY, wantM, wantD bool
+	}{
+		{"all empty", "", "", "", false, false, false},
+		{"all zero", "0", "0", "0", true, true, true},
+		{"year only", year, "", "", true, false, false},
+		{"year zero rest", year, "0", "0", true, true, true},
+		{"pre-epoch year", "1979", "0", "0", false, true, true},
+		{"future year", next, "", "", false, false, false},
+		{"negative month", year, "-10", "", true, false, false},
+		{"year and month", year, "1", "", true, true, false},
+		{"month without year", "", "1", "", false, true, false},
+		{"invalid month", year, "30", "", true, false, false},
+		{"day without month", year, "", "1", true, false, true},
+		{"month and day without year", "", "1", "1", false, true, true},
+		{"all out of range", next, "13", "32", false, false, false},
+		{"non-numeric", "abc", "efg", "hij", false, false, false},
+	}
 
-	y, m, d = form.ValidDate(year, "", "")
-	be.True(t, y)
-	be.True(t, !m)
-	be.True(t, !d)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 
-	y, m, d = form.ValidDate(next, "", "")
-	be.True(t, !y)
-	be.True(t, !m)
-	be.True(t, !d)
-
-	y, m, d = form.ValidDate(year, "-10", "")
-	be.True(t, y)
-	be.True(t, !m)
-	be.True(t, !d)
-
-	y, m, d = form.ValidDate(year, "1", "")
-	be.True(t, y)
-	be.True(t, m)
-	be.True(t, !d)
-
-	y, m, d = form.ValidDate("", "1", "")
-	be.True(t, !y)
-	be.True(t, m)
-	be.True(t, !d)
-
-	y, m, d = form.ValidDate(year, "30", "")
-	be.True(t, y)
-	be.True(t, !m)
-	be.True(t, !d)
-
-	y, m, d = form.ValidDate("", "1", "1")
-	be.True(t, !y)
-	be.True(t, m)
-	be.True(t, d)
-
-	y, m, d = form.ValidDate(next, "13", "32")
-	be.True(t, !y)
-	be.True(t, !m)
-	be.True(t, !d)
-
-	y, m, d = form.ValidDate("abc", "efg", "hij")
-	be.True(t, !y)
-	be.True(t, !m)
-	be.True(t, !d)
+			y, m, d := form.ValidDate(tt.y, tt.m, tt.d)
+			be.Equal(t, y, tt.wantY)
+			be.Equal(t, m, tt.wantM)
+			be.Equal(t, d, tt.wantD)
+		})
+	}
 }
 
-func TestValidVT(t *testing.T) {
+func TestValidYouTube(t *testing.T) {
 	t.Parallel()
 
-	be.True(t, !form.ValidVT("https://example.com"))
-	be.True(t, !form.ValidVT("https://virustotal.com"))
-	be.True(t, form.ValidVT("https://www.virustotal.com/gui/file/"+
-		"50c69b4e65380a0ada587656225ef260ffb9f352e1c1adb3f2222588eadf836d"))
+	tests := []struct {
+		name  string
+		input string
+		want  bool
+	}{
+		{"empty", "", true},
+		{"valid 11 chars", "dQw4w9WgXcQ", true},
+		{"too short", "short", false},
+		{"too long", "123456789012", false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			be.Equal(t, form.ValidYouTube(tt.input), tt.want)
+		})
+	}
 }

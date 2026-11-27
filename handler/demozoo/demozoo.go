@@ -18,6 +18,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"maps"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -610,7 +611,6 @@ var groups = Groups{
 	"the-humble-review":                     46356,
 	"victoria-independent-piracy":           295638,
 	"dmz-review":                            123572,
-	"destined-masters-of-zines:":            123572,
 	"hype-magazine":                         47074,
 	"not-productions":                       131373,
 	"pirates-analyze-warez":                 118218,
@@ -749,7 +749,7 @@ func Find(uri string) GroupID {
 
 // Copy returns a copy of all groups with Demozoo IDs.
 func Copy() Groups {
-	return groups
+	return maps.Clone(groups)
 }
 
 func client() http.Client {
@@ -765,7 +765,7 @@ func client() http.Client {
 const (
 	ProdURL = "https://demozoo.org/api/v1/productions/" // ProdURL is the base URL for the Demozoo production API.
 	Sanity  = 450000                                    // Sanity is to check the maximum permitted production ID.
-	firstID = 1                                         // firstID is the first production ID on Pouet.
+	firstID = 1                                         // firstID is the first production ID on Demozoo.
 )
 
 const (
@@ -865,6 +865,10 @@ type Production struct {
 //
 // [Demozoo API]: https://demozoo.org/api/v1/productions/
 func (p *Production) Get(ctx context.Context, auth string, id int) (int, error) {
+	return p.get(ctx, client(), auth, id)
+}
+
+func (p *Production) get(ctx context.Context, c http.Client, auth string, id int) (int, error) {
 	const format = "get demozoo production id %d %s: %w"
 	if id < firstID {
 		return 0, fmt.Errorf(format, id, "", ErrID)
@@ -878,7 +882,6 @@ func (p *Production) Get(ctx context.Context, auth string, id int) (int, error) 
 	req.Header.Set("User-Agent", helper.UserAgent)
 	req.Header.Set("Authorization", "Api-Key "+auth)
 
-	c := client()
 	res, err := c.Do(req)
 	if err != nil {
 		return 0, fmt.Errorf(format, id, "client do", err)
@@ -893,18 +896,16 @@ func (p *Production) Get(ctx context.Context, auth string, id int) (int, error) 
 
 	if res.StatusCode != http.StatusOK {
 		_, _ = io.Copy(io.Discard, res.Body)
-		_ = res.Body.Close()
 		return res.StatusCode, fmt.Errorf(format, id, res.Status, ErrStatus)
 	}
 
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		_, _ = io.Copy(io.Discard, res.Body)
-		_ = res.Body.Close()
 		return 0, fmt.Errorf(format, id, "read all", err)
 	}
 
-	err = json.Unmarshal(body, &p)
+	err = json.Unmarshal(body, p)
 	clear(body)
 	if err != nil {
 		return 0, fmt.Errorf(format, id, "json unmarshal", err)
@@ -986,7 +987,7 @@ func (p *Production) Unmarshal(r io.Reader) error {
 	return nil
 }
 
-// SuperType and validates parses the Demozoo "production", "graphics" and "music"
+// SuperType validates and parses the Demozoo "production", "graphics" and "music"
 // supertypes and returns the corresponding platform and section tags.
 //
 // It returns -1 for an unknown platform or section, in which case the
@@ -1107,7 +1108,7 @@ func Site(title string) string {
 	return ""
 }
 
-// Releasers parses Demozoo authors and reclassifies them into Defacto2 people rolls.
+// Releasers parses Demozoo authors and reclassifies them into Defacto2 people roles.
 func (p *Production) Releasers() (tx, co, gx, mu []string) {
 	for _, c := range p.Credits {
 		if c.Nick.Releaser.IsGroup {
@@ -1314,7 +1315,11 @@ const (
 )
 
 func (c Category) String() string {
-	return [...]string{"text", "code", "graphics", "music", "magazine"}[c]
+	names := [...]string{"text", "code", "graphics", "music", "magazine"}
+	if c < 0 || int(c) >= len(names) {
+		return ""
+	}
+	return names[c]
 }
 
 func category(s string) Category {

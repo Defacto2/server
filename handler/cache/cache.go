@@ -2,6 +2,7 @@
 package cache
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -11,6 +12,9 @@ import (
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/rosedblabs/rosedb/v2"
 )
+
+// ErrInvalid is returned when an unknown Cache value is used.
+var ErrInvalid = errors.New("cache: invalid cache type")
 
 type Cache int // Cache is the type of storage engine.
 
@@ -23,12 +27,16 @@ const (
 
 // String returns the name of the cache.
 func (c Cache) String() string {
-	return [...]string{
+	names := [...]string{
 		"pouet",
 		"pouetproduction",
 		"demozooproduction",
 		"test",
-	}[c]
+	}
+	if c < 0 || int(c) >= len(names) {
+		return ""
+	}
+	return names[c]
 }
 
 const (
@@ -41,8 +49,13 @@ const (
 func (c Cache) Path() (string, error) {
 	const format = "cache path %s: %w"
 
+	name := c.String()
+	if name == "" {
+		return "", fmt.Errorf(format, "invalid cache", ErrInvalid)
+	}
+
 	subdir := SubDir + dir.Pattern // intentional swap, to avoid tmpdir cleanup
-	tmp := filepath.Join(os.TempDir(), subdir, c.String())
+	tmp := filepath.Join(os.TempDir(), subdir, name)
 	if _, err := os.Stat(tmp); err != nil && !os.IsNotExist(err) {
 		return "", fmt.Errorf(format, tmp, err)
 	} else if err == nil {
@@ -131,7 +144,7 @@ func (c Cache) Read(id string) (string, error) {
 	key := []byte(id)
 	value, err := cacheDB.Get(key)
 	if err != nil {
-		return "", fmt.Errorf("key %q "+format, "from rosedb", key, err)
+		return "", fmt.Errorf("key %q "+format, key, "from rosedb", err)
 	}
 
 	return string(value), nil
@@ -157,7 +170,7 @@ func (c Cache) Delete(id string) error {
 
 	key := []byte(id)
 	if err := cacheDB.Delete(key); err != nil {
-		return fmt.Errorf("key %q "+format, "from rosedb", key, err)
+		return fmt.Errorf("key %q "+format, key, "from rosedb", err)
 	}
 
 	return nil

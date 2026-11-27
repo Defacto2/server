@@ -10,8 +10,8 @@ type URI string
 // GroupID is the group id.
 type GroupID int
 
-// Groups is a map of releasers URIs mapped to their janeway author/group id.
-type Groups map[string]GroupID
+// Groups is a map of releaser URIs mapped to their janeway author/group id.
+type Groups map[URI]GroupID
 
 var groups = Groups{
 	"abandon":                          2327,
@@ -57,19 +57,19 @@ var groups = Groups{
 	"skillion":                         12175,
 	"stoopid":                          42190,
 	"subzero":                          20921,
-	"the-silents":                      39,
 	"the-fast-guys":                    67939,
 	"the-flame-arrows":                 11758,
 	"the-organized-crime":              5441,
+	"the-silents":                      39,
 	"therapy":                          8850,
+	"thunderloop":                      31805,
 	"triad":                            1545,
 	"tristar-ampersand-red-sector-inc": 968,
-	"thunderloop":                      31805,
 	"vision":                           308,
 }
 
 // Find returns the janeway author/group id for the given releaser uri.
-// If the releaser is not found, an empty value is returned.
+// If the releaser is not found, 0 is returned.
 func Find(uri string) GroupID {
-	return groups[uri]
+	return groups[URI(uri)]
 }

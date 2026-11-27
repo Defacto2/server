@@ -8,21 +8,19 @@ import (
 )
 
 func BenchmarkApiMarkup(b *testing.B) {
-	html := `<div class="content">
+	const html = `<div class="content">
 		<p class="lead">This is a <strong>test</strong> with <a href="https://example.com" class="link" id="test">links</a> and <span style="color: red;">formatting</span>.</p>
 		<p>Another paragraph with <a name="anchor">anchor</a> and <data-info="test">data attributes</data-info>.</p>
 	</div>`
 
-	b.Run("", func(b *testing.B) {
-		for range b.N {
-			api.Markup(html)
-		}
-	})
+	b.ReportAllocs()
+	for b.Loop() {
+		_ = api.Markup(html)
+	}
 }
 
 // BenchmarkCategoriesAPI benchmarks the CategoriesAPI with realistic stats calculation.
 func BenchmarkCategoriesAPI(b *testing.B) {
-	w, c := newRequest(b, apiv1+"/categories")
 	db, err := sql.Open(driverName, dataSourceName)
 	if err != nil {
 		b.Skipf("Could not create database connection: %v", err)
@@ -37,9 +35,9 @@ func BenchmarkCategoriesAPI(b *testing.B) {
 		b.Skipf("Could not ping database: %v", err)
 	}
 
-	b.ResetTimer()
+	b.ReportAllocs()
 	for b.Loop() {
+		_, c := newRequest(b, apiv1+"/categories")
 		_ = api.CategoriesAPI(c, db)
-		w.Body.Reset()
 	}
 }

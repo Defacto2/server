@@ -487,7 +487,7 @@ type AreaRegionEntry struct {
 // BuildAreaCodeEntries returns structured entries for all NANP area codes sorted ascending.
 func BuildAreaCodeEntries() []AreaCodeEntry {
 	codes := areacode.AreaCodes()
-	notes := areacode.Copy()
+	notes := areacode.All()
 	entries := make([]AreaCodeEntry, 0, len(codes))
 	for _, code := range codes {
 		regs := areacode.RegionByCode(code)

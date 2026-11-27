@@ -41,7 +41,7 @@ type Result struct {
 	ID    int     // ID of the matching file
 	Name  string  // Name of the matching file
 	Score float64 // Score is the match relevancy
-	Snip  string  // Snip is an snippet of text that was matched
+	Snip  string  // Snip is a snippet of text that was matched
 }
 
 // Tidbits are the index for the group biographies stored as markdown texts.
@@ -62,6 +62,9 @@ type Tidbits struct {
 //   - the body trimmed of white space is empty
 func (ts *Tidbits) Add(filename, body string) error {
 	const format = "tidbits search add: %w"
+	ts.mu.Lock()
+	defer ts.mu.Unlock()
+
 	if ts.engine == nil {
 		return fmt.Errorf(format, ErrNoIndex)
 	}
@@ -91,6 +94,8 @@ func (ts *Tidbits) Add(filename, body string) error {
 		Name: filename,
 		Body: s,
 	})
+	ts.TotalDocs = ts.engine.TotalDocs
+	ts.TotalTerms = ts.engine.TotalTerms
 
 	return nil
 }
@@ -110,7 +115,7 @@ func filter(r rune) rune {
 //
 // Note, it will overwrite any existing indexing.
 // The blaze library annoyingly slogs every index added,
-// so this func temporary mutes all slogs while indexing.
+// so this func temporarily mutes all slogs while indexing.
 func (ts *Tidbits) NewIndex(fsys fs.FS, root string) error {
 	const format = "tidbits new index: %w"
 	tmp := Tidbits{
@@ -178,6 +183,9 @@ func (ts *Tidbits) Search(query string, maxResults int) []Result {
 	}
 
 	queries := splitQuery(query)
+	if len(queries) == 0 {
+		return noresult
+	}
 	qb := blaze.NewQueryBuilder(ts.engine)
 	switch {
 	case qb == nil:
@@ -268,6 +276,9 @@ func (ts *Tidbits) New() {
 	ts.mu.Lock()
 	defer ts.mu.Unlock()
 	ts.engine = blaze.NewInvertedIndex()
+	ts.store = nil
+	ts.TotalDocs = 0
+	ts.TotalTerms = 0
 }
 
 // Stores returns the number of items in the index store.
@@ -287,7 +298,8 @@ func (ts *Tidbits) find(docID int) bool {
 // The wordWindow is the number of words to display either
 // side of the match.
 //
-// If no match is found, an empty string is returned.
+// If the query is empty, an empty string is returned.
+// If no match is found, the beginning of body is returned truncated to wordWindow*2 words.
 func Snippet(query, body string, wordWindow int) string { //nolint:cyclop
 	if query == "" {
 		return ""
@@ -295,7 +307,7 @@ func Snippet(query, body string, wordWindow int) string { //nolint:cyclop
 	if wordWindow < 0 {
 		wordWindow = 0
 	}
-	const eclipse = "..."
+	const ellipsis = "..."
 
 	maximum := len(body)
 	lowerQuery := strings.ToLower(query)
@@ -312,7 +324,7 @@ func Snippet(query, body string, wordWindow int) string { //nolint:cyclop
 
 	if matchStart == -1 {
 		const double = 2
-		return truncateByWords(body, wordWindow*double) + eclipse
+		return truncateByWords(body, wordWindow*double) + ellipsis
 	}
 
 	// this code is verbose because of the edge cases that came from the fuzzing tests
@@ -353,9 +365,10 @@ func Snippet(query, body string, wordWindow int) string { //nolint:cyclop
 	}
 
 	if start > 0 {
-		snippet = eclipse + snippet
-	} else if end < maximum {
-		snippet += eclipse
+		snippet = ellipsis + snippet
+	}
+	if end < maximum {
+		snippet += ellipsis
 	}
 
 	return snippet

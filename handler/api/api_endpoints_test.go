@@ -16,7 +16,7 @@ func decodeObjectOrArray(t *testing.T, body io.Reader) (map[string]any, []map[st
 	t.Helper()
 
 	raw, err := io.ReadAll(body)
-	be.Equal(t, err, nil)
+	be.Err(t, err, nil)
 
 	var obj map[string]any
 	if err := json.Unmarshal(raw, &obj); err == nil {
@@ -25,7 +25,7 @@ func decodeObjectOrArray(t *testing.T, body io.Reader) (map[string]any, []map[st
 
 	var arr []map[string]any
 	err = json.Unmarshal(raw, &arr)
-	be.Equal(t, err, nil)
+	be.Err(t, err, nil)
 	return nil, arr, true
 }
 
@@ -41,12 +41,12 @@ func TestAllAPIEndpoints(t *testing.T) {
 		expectArray bool
 	}{
 		// Basic endpoints
-		{"boards", "/boards", true, true},
+		{"boards", "/boards", true, false},
 		{"categories", "/categories", true, true},
 		{"websites", "/websites", true, false},
 		{"demozoo", "/demozoo", true, false},
 		{"groups", "/groups", true, false},
-		{"magazines", "/magazines", true, true},
+		{"magazines", "/magazines", true, false},
 		{"platforms", "/platforms", true, true},
 		{"sceners", "/sceners", true, false},
 		{"sceners/artist", "/sceners/artist", true, false},
@@ -85,7 +85,7 @@ func TestAllAPIEndpoints(t *testing.T) {
 
 			url := apiv1 + endpoint.path
 			resp, err := clientDo(t, url)
-			be.Equal(t, err, nil)
+			be.Err(t, err, nil)
 			defer func() {
 				if err := resp.Body.Close(); err != nil {
 					t.Log(err)
@@ -93,20 +93,13 @@ func TestAllAPIEndpoints(t *testing.T) {
 			}()
 
 			// Check HTTP status
-			be.Equal(t, http.StatusOK, resp.StatusCode)
+			be.Equal(t, resp.StatusCode, http.StatusOK)
 
 			// Try to parse as object first, fall back to array if that fails
 			result, arrayResult, isArray := decodeObjectOrArray(t, resp.Body)
+			be.Equal(t, isArray, endpoint.expectArray)
 			if isArray {
 				be.True(t, len(arrayResult) > 0)
-
-				// Check for expected fields based on endpoint type for array responses
-				switch endpoint.name {
-				case "categories", "platforms", "areacodes", "areacodes/regions", "milestones", "milestones/highlights", "magazines":
-					be.True(t, len(arrayResult) > 0)
-				case "milestones/year/1995", "milestones/years/1990-2000", "milestones/decade/1990s":
-					be.True(t, len(arrayResult) > 0)
-				}
 				return
 			}
 
@@ -191,7 +184,7 @@ func TestAPIEndpointExamples(t *testing.T) {
 			t.Parallel()
 
 			resp, err := clientDo(t, example.url)
-			be.Equal(t, err, nil)
+			be.Err(t, err, nil)
 			defer func() {
 				if err := resp.Body.Close(); err != nil {
 					t.Log(err)
@@ -199,17 +192,12 @@ func TestAPIEndpointExamples(t *testing.T) {
 			}()
 
 			// Check HTTP status
-			be.Equal(t, http.StatusOK, resp.StatusCode)
+			be.Equal(t, resp.StatusCode, http.StatusOK)
 
 			// Try to parse as object first, fall back to array if that fails
 			result, arrayResult, isArray := decodeObjectOrArray(t, resp.Body)
 			if isArray {
 				be.True(t, len(arrayResult) > 0)
-				// Verify content based on endpoint type for array responses
-				switch example.name {
-				case "categories", "magazines", "milestones/year/1971":
-					be.True(t, len(arrayResult) > 0)
-				}
 				return
 			}
 
@@ -217,8 +205,8 @@ func TestAPIEndpointExamples(t *testing.T) {
 
 			// Verify content based on endpoint type for object responses
 			switch example.name {
-			case "files", "files/new":
-				be.True(t, result["files"] != nil)
+			case "artifacts", "artifacts/new":
+				be.True(t, result["artifacts"] != nil)
 				be.True(t, result["page"] != nil)
 			case "category/announcements":
 				be.True(t, result["artifacts"] != nil)
@@ -253,13 +241,13 @@ func TestAPIResponseValidation(t *testing.T) {
 		t.Parallel()
 
 		resp, err := clientDo(t, apiv1+"/websites")
-		be.Equal(t, err, nil)
+		be.Err(t, err, nil)
 		defer func() {
 			if err := resp.Body.Close(); err != nil {
 				t.Log(err)
 			}
 		}()
-		be.Equal(t, http.StatusOK, resp.StatusCode)
+		be.Equal(t, resp.StatusCode, http.StatusOK)
 
 		var result struct {
 			Websites []struct {
@@ -273,10 +261,10 @@ func TestAPIResponseValidation(t *testing.T) {
 		}
 
 		body, err := io.ReadAll(resp.Body)
-		be.Equal(t, err, nil)
+		be.Err(t, err, nil)
 
 		err = json.Unmarshal(body, &result)
-		be.Equal(t, err, nil)
+		be.Err(t, err, nil)
 
 		be.True(t, result.Count > 0)
 		be.True(t, len(result.Websites) > 0)
@@ -296,14 +284,14 @@ func TestAPIResponseValidation(t *testing.T) {
 		t.Parallel()
 
 		resp, err := clientDo(t, apiv1+"/demozoo")
-		be.Equal(t, err, nil)
+		be.Err(t, err, nil)
 		defer func() {
 			if err := resp.Body.Close(); err != nil {
 				t.Log(err)
 			}
 		}()
 
-		be.Equal(t, http.StatusOK, resp.StatusCode)
+		be.Equal(t, resp.StatusCode, http.StatusOK)
 
 		var result struct {
 			Groups []struct {
@@ -315,10 +303,10 @@ func TestAPIResponseValidation(t *testing.T) {
 		}
 
 		body, err := io.ReadAll(resp.Body)
-		be.Equal(t, err, nil)
+		be.Err(t, err, nil)
 
 		err = json.Unmarshal(body, &result)
-		be.Equal(t, err, nil)
+		be.Err(t, err, nil)
 
 		be.True(t, result.Count > 0)
 		be.True(t, len(result.Groups) > 0)
@@ -337,14 +325,14 @@ func TestAPIResponseValidation(t *testing.T) {
 		t.Parallel()
 
 		resp, err := clientDo(t, apiv1+"/groups")
-		be.Equal(t, err, nil)
+		be.Err(t, err, nil)
 		defer func() {
 			if err := resp.Body.Close(); err != nil {
 				t.Log(err)
 			}
 		}()
 
-		be.Equal(t, http.StatusOK, resp.StatusCode)
+		be.Equal(t, resp.StatusCode, http.StatusOK)
 
 		var result struct {
 			Releasers []struct {
@@ -367,13 +355,13 @@ func TestAPIResponseValidation(t *testing.T) {
 		}
 
 		body, err := io.ReadAll(resp.Body)
-		be.Equal(t, err, nil)
+		be.Err(t, err, nil)
 
 		err = json.Unmarshal(body, &result)
-		be.Equal(t, err, nil)
+		be.Err(t, err, nil)
 
 		be.True(t, len(result.Releasers) > 0)
-		be.Equal(t, 1, result.Page)
+		be.Equal(t, result.Page, 1)
 		be.True(t, result.TotalPages >= 1)
 
 		// Validate first releaser
@@ -394,14 +382,14 @@ func TestAPIResponseValidation(t *testing.T) {
 		t.Parallel()
 
 		resp, err := clientDo(t, apiv1+"/areacodes")
-		be.Equal(t, err, nil)
+		be.Err(t, err, nil)
 		defer func() {
 			if err := resp.Body.Close(); err != nil {
 				t.Log(err)
 			}
 		}()
 
-		be.Equal(t, http.StatusOK, resp.StatusCode)
+		be.Equal(t, resp.StatusCode, http.StatusOK)
 
 		var result []struct {
 			Code    int      `json:"code"`
@@ -410,10 +398,10 @@ func TestAPIResponseValidation(t *testing.T) {
 		}
 
 		body, err := io.ReadAll(resp.Body)
-		be.Equal(t, err, nil)
+		be.Err(t, err, nil)
 
 		err = json.Unmarshal(body, &result)
-		be.Equal(t, err, nil)
+		be.Err(t, err, nil)
 
 		be.True(t, len(result) > 0)
 
@@ -428,17 +416,16 @@ func TestAPIResponseValidation(t *testing.T) {
 	// Test milestones endpoint
 	t.Run("milestones", func(t *testing.T) {
 		t.Parallel()
-		reqLocalHost(t)
 
 		resp, err := clientDo(t, apiv1+"/milestones")
-		be.Equal(t, err, nil)
+		be.Err(t, err, nil)
 		defer func() {
 			if err := resp.Body.Close(); err != nil {
 				t.Log(err)
 			}
 		}()
 
-		be.Equal(t, http.StatusOK, resp.StatusCode)
+		be.Equal(t, resp.StatusCode, http.StatusOK)
 
 		var result []struct {
 			Title     string `json:"Title"`
@@ -457,10 +444,10 @@ func TestAPIResponseValidation(t *testing.T) {
 		}
 
 		body, err := io.ReadAll(resp.Body)
-		be.Equal(t, err, nil)
+		be.Err(t, err, nil)
 
 		err = json.Unmarshal(body, &result)
-		be.Equal(t, err, nil)
+		be.Err(t, err, nil)
 
 		be.True(t, len(result) > 0)
 

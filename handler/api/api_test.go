@@ -4,13 +4,17 @@ package api_test
 // with some minor manual tweaks by myself.
 
 import (
+	"database/sql"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
 
 	"github.com/Defacto2/server/handler/api"
-	_ "github.com/jackc/pgx/v5"
+	"github.com/Defacto2/server/internal/logs"
+	"github.com/Defacto2/server/model"
+	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/labstack/echo/v5"
 	"github.com/nalgeon/be"
 )
@@ -49,6 +53,11 @@ func TestApiMarkup(t *testing.T) {
 		input    string
 		expected string
 	}{
+		{
+			name:     "Empty string",
+			input:    "",
+			expected: "",
+		},
 		{
 			name:     "Preserves anchor tags with href",
 			input:    `<p>Test <a href="https://example.com" class="link">link</a> here</p>`,
@@ -136,10 +145,10 @@ func TestGetAllAreacodes(t *testing.T) {
 
 	w, c := newRequest(t, "/")
 	err := api.AreacodesAPI(c)
-	be.Equal(t, err, nil)
-	be.Equal(t, http.StatusOK, w.Code)
+	be.Err(t, err, nil)
+	be.Equal(t, w.Code, http.StatusOK)
 	be.True(t, len(w.Body.String()) > 0)
-	be.True(t, w.Header().Get("Content-Type") == contentTypeJSON)
+	be.Equal(t, w.Header().Get("Content-Type"), contentTypeJSON)
 }
 
 func TestGetAreacodeByCode(t *testing.T) {
@@ -181,17 +190,15 @@ func TestGetAreacodeByCode(t *testing.T) {
 			t.Parallel()
 
 			w, c := newRequest(t, "/")
-			c.PathValues()
 			c.SetPathValues(echo.PathValues{
 				{Name: "code", Value: tt.code},
 			})
 			err := api.AreaCodeAPI(c)
-			be.Equal(t, err, nil)
+			be.Err(t, err, nil)
 
 			be.Equal(t, w.Code, tt.expectStatus)
 			be.True(t, len(w.Body.String()) > 0)
-			be.True(t, w.Header().Get("Content-Type") == contentTypeJSON)
-			be.True(t, len(w.Body.String()) > 0)
+			be.Equal(t, w.Header().Get("Content-Type"), contentTypeJSON)
 			be.True(t, strings.Contains(w.Body.String(), tt.expectContain))
 		})
 	}
@@ -202,11 +209,11 @@ func TestGetTerritories(t *testing.T) {
 
 	w, c := newRequest(t, "/")
 	err := api.RegionsAPI(c)
-	be.Equal(t, err, nil)
+	be.Err(t, err, nil)
 
-	be.Equal(t, http.StatusOK, w.Code)
+	be.Equal(t, w.Code, http.StatusOK)
 	be.True(t, len(w.Body.String()) > 0)
-	be.True(t, w.Header().Get("Content-Type") == contentTypeJSON)
+	be.Equal(t, w.Header().Get("Content-Type"), contentTypeJSON)
 }
 
 func TestGetTerritoryByAbbr(t *testing.T) {
@@ -253,11 +260,11 @@ func TestGetTerritoryByAbbr(t *testing.T) {
 				{Name: "abbr", Value: tt.abbr},
 			})
 			err := api.RegionAPI(c)
-			be.Equal(t, err, nil)
+			be.Err(t, err, nil)
 
-			be.Equal(t, tt.expectStatus, w.Code)
+			be.Equal(t, w.Code, tt.expectStatus)
 			be.True(t, len(w.Body.String()) > 0)
-			be.True(t, w.Header().Get("Content-Type") == contentTypeJSON)
+			be.Equal(t, w.Header().Get("Content-Type"), contentTypeJSON)
 			be.True(t, strings.Contains(w.Body.String(), tt.expectContain))
 		})
 	}
@@ -313,12 +320,288 @@ func TestSearchAreacodes(t *testing.T) {
 				{Name: "query", Value: tt.query},
 			})
 			err := api.AreacodeSearchAPI(c)
-			be.Equal(t, err, nil)
+			be.Err(t, err, nil)
 
-			be.Equal(t, tt.expectStatus, w.Code)
+			be.Equal(t, w.Code, tt.expectStatus)
 			be.True(t, len(w.Body.String()) > 0)
-			be.True(t, w.Header().Get("Content-Type") == contentTypeJSON)
+			be.Equal(t, w.Header().Get("Content-Type"), contentTypeJSON)
 			be.True(t, strings.Contains(w.Body.String(), tt.expectContain))
 		})
 	}
+}
+
+func TestWebsitesAPI(t *testing.T) {
+	t.Parallel()
+
+	be.Err(t, api.WebsitesAPI(nil))
+
+	w, c := newRequest(t, api.APIBase+"/websites")
+	be.Err(t, api.WebsitesAPI(c), nil)
+	be.Equal(t, w.Code, http.StatusOK)
+	be.Equal(t, w.Header().Get("Content-Type"), contentTypeJSON)
+
+	var resp struct {
+		Websites []struct {
+			Title    string `json:"title"`
+			URL      string `json:"url"`
+			Info     string `json:"info"`
+			Category string `json:"category"`
+		} `json:"websites"`
+		Count int `json:"count"`
+	}
+	be.Err(t, json.Unmarshal(w.Body.Bytes(), &resp), nil)
+	be.True(t, resp.Count > 0)
+	be.Equal(t, len(resp.Websites), resp.Count)
+	for i := 1; i < len(resp.Websites); i++ {
+		be.True(t, strings.ToLower(resp.Websites[i-1].URL) <= strings.ToLower(resp.Websites[i].URL))
+	}
+}
+
+func TestDemozooAPI(t *testing.T) {
+	t.Parallel()
+
+	be.Err(t, api.DemozooAPI(nil))
+
+	w, c := newRequest(t, api.APIBase+"/demozoo")
+	be.Err(t, api.DemozooAPI(c), nil)
+	be.Equal(t, w.Code, http.StatusOK)
+	be.Equal(t, w.Header().Get("Content-Type"), contentTypeJSON)
+
+	var resp struct {
+		Groups []struct {
+			URI string `json:"uri"`
+			ID  int    `json:"id"`
+			URL string `json:"url"`
+		} `json:"groups"`
+		Count int `json:"count"`
+	}
+	be.Err(t, json.Unmarshal(w.Body.Bytes(), &resp), nil)
+	be.True(t, resp.Count > 500)
+	be.Equal(t, len(resp.Groups), resp.Count)
+	for i, g := range resp.Groups {
+		be.True(t, g.URI != "")
+		be.True(t, g.ID > 0)
+		be.True(t, strings.HasPrefix(g.URL, "https://demozoo.org/groups/"))
+		if i > 0 {
+			be.True(t, strings.ToLower(resp.Groups[i-1].URI) <= strings.ToLower(g.URI))
+		}
+	}
+}
+
+func TestMilestonesAPI(t *testing.T) {
+	t.Parallel()
+
+	be.Err(t, api.MilestonesAPI(nil))
+	be.Err(t, api.MilestoneHighlightsAPI(nil))
+	be.Err(t, api.MilestoneYearAPI(nil))
+	be.Err(t, api.MilestoneYearsAPI(nil))
+	be.Err(t, api.MilestoneDecadeAPI(nil))
+
+	t.Run("year", func(t *testing.T) {
+		t.Parallel()
+
+		tests := []struct {
+			name string
+			year string
+			want int
+		}{
+			{"valid", "1995", http.StatusOK},
+			{"invalid", "abc", http.StatusBadRequest},
+			{"not found", "1800", http.StatusNotFound},
+		}
+		for _, tt := range tests {
+			w, c := newRequest(t, "/")
+			c.SetPathValues(echo.PathValues{{Name: "year", Value: tt.year}})
+			be.Err(t, api.MilestoneYearAPI(c), nil)
+			be.Equal(t, w.Code, tt.want)
+		}
+	})
+
+	t.Run("years range", func(t *testing.T) {
+		t.Parallel()
+
+		tests := []struct {
+			name  string
+			param string
+			want  int
+		}{
+			{"valid", "1990-1995", http.StatusOK},
+			{"bad format", "1990", http.StatusBadRequest},
+			{"bad start", "abc-1995", http.StatusBadRequest},
+			{"bad end", "1990-xyz", http.StatusBadRequest},
+			{"start > end", "2000-1990", http.StatusBadRequest},
+			{"not found", "1800-1810", http.StatusNotFound},
+		}
+		for _, tt := range tests {
+			w, c := newRequest(t, "/")
+			c.SetPathValues(echo.PathValues{{Name: "range", Value: tt.param}})
+			be.Err(t, api.MilestoneYearsAPI(c), nil)
+			be.Equal(t, w.Code, tt.want)
+		}
+	})
+
+	t.Run("decade", func(t *testing.T) {
+		t.Parallel()
+
+		tests := []struct {
+			name   string
+			decade string
+			want   int
+		}{
+			{"valid", "1990s", http.StatusOK},
+			{"invalid", "abc", http.StatusBadRequest},
+			{"not found", "1800s", http.StatusNotFound},
+		}
+		for _, tt := range tests {
+			w, c := newRequest(t, "/")
+			c.SetPathValues(echo.PathValues{{Name: "decade", Value: tt.decade}})
+			be.Err(t, api.MilestoneDecadeAPI(c), nil)
+			be.Equal(t, w.Code, tt.want)
+		}
+	})
+}
+
+func TestNilGuards(t *testing.T) {
+	t.Parallel()
+
+	be.Err(t, api.AreacodesAPI(nil))
+	be.Err(t, api.AreaCodeAPI(nil))
+	be.Err(t, api.AreacodeSearchAPI(nil))
+	be.Err(t, api.RegionsAPI(nil))
+	be.Err(t, api.RegionAPI(nil))
+	be.Err(t, api.TagsAPI(nil, nil, true, false))
+	be.Err(t, api.CategoriesAPI(nil, nil))
+	be.Err(t, api.PlatformsAPI(nil, nil))
+	be.Err(t, api.ArtifactsAPI(nil, nil, nil))
+	be.Err(t, api.ArtifactsNewAPI(nil, nil, nil))
+	be.Err(t, api.ArtifactAPIs(nil, nil, nil, "oldest"))
+	be.Err(t, api.FileAPI(nil, nil, nil))
+	be.Err(t, api.GroupsAPI(nil, nil, nil))
+	be.Err(t, api.MagazinesAPI(nil, nil, nil))
+	be.Err(t, api.BoardsAPI(nil, nil, nil))
+	be.Err(t, api.SitesAPI(nil, nil, nil))
+	be.Err(t, api.ReleaserAPI(nil, nil, nil))
+	be.Err(t, api.ScenerAPI(nil, nil, nil))
+	be.Err(t, api.ScenersAPI(nil, nil, nil))
+	be.Err(t, api.ArtistsAPI(nil, nil, nil))
+	be.Err(t, api.CodersAPI(nil, nil, nil))
+	be.Err(t, api.MusiciansAPI(nil, nil, nil))
+	be.Err(t, api.WritersAPI(nil, nil, nil))
+	be.Err(t, api.CategoryAPI(nil, nil, nil))
+	be.Err(t, api.PlatformAPI(nil, nil, nil))
+	be.Err(t, api.TagAPI(nil, nil, nil, "demo"))
+}
+
+func TestParamValidation(t *testing.T) {
+	t.Parallel()
+
+	sl := logs.Discard()
+	db := new(sql.DB)
+
+	t.Run("ArtifactAPIs invalid page", func(t *testing.T) {
+		t.Parallel()
+
+		for _, q := range []string{"?page=0", "?page=abc"} {
+			w, c := newRequest(t, api.APIBase+"/artifacts"+q)
+			be.Err(t, api.ArtifactAPIs(sl, c, db, "oldest"), nil)
+			be.Equal(t, w.Code, http.StatusBadRequest)
+		}
+	})
+
+	t.Run("FileAPI invalid id", func(t *testing.T) {
+		t.Parallel()
+
+		for _, id := range []string{"", "not-a-hash"} {
+			w, c := newRequest(t, "/")
+			c.SetPathValues(echo.PathValues{{Name: "id", Value: id}})
+			be.Err(t, api.FileAPI(sl, c, db), nil)
+			be.Equal(t, w.Code, http.StatusBadRequest)
+		}
+	})
+
+	t.Run("GroupsAPI invalid page", func(t *testing.T) {
+		t.Parallel()
+
+		for _, q := range []string{"?page=0", "?page=abc"} {
+			w, c := newRequest(t, api.APIBase+"/groups"+q)
+			be.Err(t, api.GroupsAPI(sl, c, db), nil)
+			be.Equal(t, w.Code, http.StatusBadRequest)
+		}
+	})
+
+	t.Run("ReleaserAPI missing name", func(t *testing.T) {
+		t.Parallel()
+
+		w, c := newRequest(t, "/")
+		be.Err(t, api.ReleaserAPI(sl, c, db), nil)
+		be.Equal(t, w.Code, http.StatusBadRequest)
+	})
+
+	t.Run("ScenerAPI missing name", func(t *testing.T) {
+		t.Parallel()
+
+		w, c := newRequest(t, "/")
+		be.Err(t, api.ScenerAPI(sl, c, db), nil)
+		be.Equal(t, w.Code, http.StatusBadRequest)
+	})
+
+	t.Run("CategoryAPI invalid", func(t *testing.T) {
+		t.Parallel()
+
+		for _, cat := range []string{"", "unknown-cat"} {
+			w, c := newRequest(t, "/")
+			c.SetPathValues(echo.PathValues{{Name: "category", Value: cat}})
+			be.Err(t, api.CategoryAPI(sl, c, db), nil)
+			be.Equal(t, w.Code, http.StatusBadRequest)
+		}
+	})
+
+	t.Run("PlatformAPI invalid", func(t *testing.T) {
+		t.Parallel()
+
+		for _, plat := range []string{"", "unknown-plat"} {
+			w, c := newRequest(t, "/")
+			c.SetPathValues(echo.PathValues{{Name: "platform", Value: plat}})
+			be.Err(t, api.PlatformAPI(sl, c, db), nil)
+			be.Equal(t, w.Code, http.StatusBadRequest)
+		}
+	})
+
+	t.Run("TagAPI invalid", func(t *testing.T) {
+		t.Parallel()
+
+		for _, tag := range []string{"", "unknown-tag"} {
+			w, c := newRequest(t, "/")
+			be.Err(t, api.TagAPI(sl, c, db, tag), nil)
+			be.Equal(t, w.Code, http.StatusBadRequest)
+		}
+	})
+}
+
+func TestReleasersAPI(t *testing.T) {
+	t.Parallel()
+
+	empty := api.ReleasersAPI(nil)
+	be.Equal(t, len(empty), 0)
+
+	rels := model.Releasers{
+		{
+			Unique: model.Releaser{
+				Name:  "Razor 1911",
+				Count: 42,
+				Bytes: 2048,
+			},
+		},
+	}
+	got := api.ReleasersAPI(rels)
+	be.Equal(t, len(got), 1)
+	be.Equal(t, got[0].Name, "razor-1911")
+	be.Equal(t, got[0].URLs.API, api.APIBase+"/releaser/razor-1911")
+	be.Equal(t, got[0].URLs.HTML, "/g/razor-1911")
+	be.Equal(t, got[0].Stats.TotalFiles, int64(42))
+	be.Equal(t, got[0].Stats.TotalSizeBytes, int64(2048))
+	be.True(t, strings.HasPrefix(got[0].Sixteen, "https://16colo.rs/"))
+	be.True(t, strings.HasPrefix(got[0].Janeway, "https://janeway.exotica.org.uk/"))
+	be.True(t, strings.HasPrefix(got[0].Csdb, "https://csdb.dk/"))
+	be.True(t, strings.HasPrefix(got[0].Demozoo, "https://demozoo.org/groups/"))
 }

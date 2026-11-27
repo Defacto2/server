@@ -7,64 +7,89 @@ import (
 	"github.com/nalgeon/be"
 )
 
-// checked in Sep 26, test coverage was 100%
-
 func TestDirName(t *testing.T) {
 	t.Parallel()
-	s := msdos.DirName("")
-	be.Equal(t, s, "")
-	s = msdos.DirName("dirname.xyz")
-	be.Equal(t, "DIRNAME.XYZ", s)
-	s = msdos.DirName("résumés-99")
-	be.Equal(t, "RESUMES-", s)
-	s = msdos.DirName("résumé99.doc")
-	be.Equal(t, "RESUME99.DOC", s)
+
+	tests := []struct {
+		name  string
+		input string
+		want  string
+	}{
+		{"empty", "", ""},
+		{"valid", "dirname.xyz", "DIRNAME.XYZ"},
+		{"long accented", "résumés-99", "RESUMES-"},
+		{"accented with ext", "résumé99.doc", "RESUME99.DOC"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			got := msdos.DirName(tt.input)
+			be.Equal(t, got, tt.want)
+		})
+	}
 }
 
 func TestRename(t *testing.T) {
 	t.Parallel()
-	s := msdos.Rename("")
-	be.Equal(t, s, "")
-	s = msdos.Rename("filename.xyz")
-	be.Equal(t, "FILENAME.XYZ", s)
-	s = msdos.Rename("résumé-01.zip")
-	be.Equal(t, "RESUME-01.ZIP", s)
-	s = msdos.Rename("résumé 01.zip")
-	be.Equal(t, "RESUME_01.ZIP", s)
-	s = msdos.Rename("A@cd#F$H!.D0C")
-	be.Equal(t, "A@CD#F$H!.D0C", s)
-	s = msdos.Rename("Γεåd.më")
-	be.Equal(t, "XXAD.ME", s)
-	s = msdos.Rename("Γεåd.më.")
-	be.Equal(t, "XXAD.MEX", s)
-	s = msdos.Rename("Γεåd.më.7zip")
-	be.Equal(t, "XXADXMEX7ZIP", s)
-	s = msdos.Rename(".HIDDEN")
-	be.Equal(t, "XHIDDEN", s)
-	s = msdos.Rename(".TXT")
-	be.Equal(t, "XTXT", s)
+
+	tests := []struct {
+		name  string
+		input string
+		want  string
+	}{
+		{"empty", "", ""},
+		{"basic", "filename.xyz", "FILENAME.XYZ"},
+		{"accented hyphen", "résumé-01.zip", "RESUME-01.ZIP"},
+		{"accented space", "résumé 01.zip", "RESUME_01.ZIP"},
+		{"allowed specials", "A@cd#F$H!.D0C", "A@CD#F$H!.D0C"},
+		{"greek and accents", "Γεåd.më", "XXAD.ME"},
+		{"trailing dot", "Γεåd.më.", "XXAD.MEX"},
+		{"long ext", "Γεåd.më.7zip", "XXADXMEX7ZIP"},
+		{"dotfile hidden", ".HIDDEN", "XHIDDEN"},
+		{"dotfile ext", ".TXT", "XTXT"},
+		{"multiple dots", "a.b.c", "AXB.C"},
+		{"adjacent dots", "a..b", "AX.B"},
+		{"non-ascii latin", "ØÆ².txt", "XXX.TXT"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			got := msdos.Rename(tt.input)
+			be.Equal(t, got, tt.want)
+		})
+	}
 }
 
 func TestTruncate(t *testing.T) {
 	t.Parallel()
-	s := msdos.Truncate("")
-	be.Equal(t, s, "")
-	s = msdos.Truncate("filename")
-	be.Equal(t, "filename", s)
-	s = msdos.Truncate("filename1")
-	be.Equal(t, "filena~1", s)
-	s = msdos.Truncate("filename12")
-	be.Equal(t, "filena~1", s)
-	s = msdos.Truncate("filename123")
-	be.Equal(t, "filena~1", s)
-	s = msdos.Truncate("filename.exe")
-	be.Equal(t, "filename.exe", s)
-	s = msdos.Truncate("filename.binary")
-	be.Equal(t, "filename.bin", s)
-	s = msdos.Truncate("file_name.exe")
-	be.Equal(t, "file_n~1.exe", s)
-	s = msdos.Truncate("my backup collection.7zip")
-	be.Equal(t, "my bac~1.7zi", s)
-	s = msdos.Truncate("filename.zip.exe")
-	be.Equal(t, "filena~1.exe", s)
+
+	tests := []struct {
+		name  string
+		input string
+		want  string
+	}{
+		{"empty", "", ""},
+		{"exact 8", "filename", "filename"},
+		{"9 chars", "filename1", "filena~1"},
+		{"10 chars", "filename12", "filena~1"},
+		{"11 chars", "filename123", "filena~1"},
+		{"8.3", "filename.exe", "filename.exe"},
+		{"long ext", "filename.binary", "filename.bin"},
+		{"long base with ext", "file_name.exe", "file_n~1.exe"},
+		{"long base and ext", "my backup collection.7zip", "my bac~1.7zi"},
+		{"double ext", "filename.zip.exe", "filena~1.exe"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			got := msdos.Truncate(tt.input)
+			be.Equal(t, got, tt.want)
+		})
+	}
 }

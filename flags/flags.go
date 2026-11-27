@@ -6,7 +6,6 @@
 package flags
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -32,7 +31,7 @@ const (
 	Program    = "defacto2-server"                    // Program is the command line name of this program.
 	Author     = "Ben Garrett"                        // Author is the primary programmer of this program.
 	Email      = "contact@defacto2.net"               // Email contact for public display.
-	RecentYear = 2026                                 // Most recent year of compilation for this program.
+	RecentYear = 2027                                 // Most recent year of compilation for this program.
 
 	catView = "Inspection"
 	catFix  = "Maintenance"
@@ -140,6 +139,9 @@ func Config(w io.Writer, c *config.Config) *cli.Command {
 			},
 		},
 		Action: func(ctx *cli.Context) error {
+			if c == nil {
+				return ErrNoConfig
+			}
 			c.Print(w, ctx.Bool("detail"))
 			return nil
 		},
@@ -154,8 +156,11 @@ func Check(w io.Writer, c *config.Config) *cli.Command {
 		Category:    catView,
 		Usage:       "check the server configuration",
 		Description: "Check the server configuration options and the settings against common problems.",
-		Action: func(_ *cli.Context) error {
-			return c.Checks(context.Background(), w)
+		Action: func(ctx *cli.Context) error {
+			if c == nil {
+				return ErrNoConfig
+			}
+			return c.Checks(ctx.Context, w)
 		},
 	}
 }
@@ -169,6 +174,9 @@ func Address(w io.Writer, c *config.Config) *cli.Command {
 		Usage:       "list the server addresses",
 		Description: "List the IP, hostname and port addresses the server is most probably listening on.",
 		Action: func(_ *cli.Context) error {
+			if c == nil {
+				return ErrNoConfig
+			}
 			return c.AddressGrouped(w)
 		},
 	}
@@ -203,7 +211,7 @@ func TempDir(w io.Writer, c *config.Config) *cli.Command {
 	return &cli.Command{
 		Name:        "temp",
 		Aliases:     []string{"t"},
-		Category:    catView,
+		Category:    catFix,
 		Usage:       "purge temporary directories",
 		Description: "Purge all the subdirectories likely created by this application in " + os.TempDir() + ".",
 		Flags: []cli.Flag{
@@ -214,6 +222,9 @@ func TempDir(w io.Writer, c *config.Config) *cli.Command {
 			},
 		},
 		Action: func(ctx *cli.Context) error {
+			if c == nil {
+				return ErrNoConfig
+			}
 			return c.PurgeTemp(w, ctx.Bool(dryrun))
 		},
 	}
@@ -235,6 +246,9 @@ func Fix(w io.Writer, c *config.Config) *cli.Command {
 			},
 		},
 		Action: func(ctx *cli.Context) error {
+			if c == nil {
+				return ErrNoConfig
+			}
 			if w == nil {
 				w = os.Stdout
 			}
@@ -249,7 +263,7 @@ func Fix(w io.Writer, c *config.Config) *cli.Command {
 
 			sl := logs.NoFiles().New(logs.LevelInfo, logs.Defaults)
 			slog.SetDefault(sl)
-			if err := c.Fixer(context.Background(), sl, d, dryRun); err != nil {
+			if err := c.Fixer(ctx.Context, sl, d, dryRun); err != nil {
 				const format = "fix command: %w"
 				return fmt.Errorf(format, err)
 			}
@@ -275,6 +289,9 @@ func Index(w io.Writer, c *config.Config) *cli.Command {
 			},
 		},
 		Action: func(ctx *cli.Context) error {
+			if c == nil {
+				return ErrNoConfig
+			}
 			if w == nil {
 				w = os.Stdout
 			}
@@ -288,7 +305,7 @@ func Index(w io.Writer, c *config.Config) *cli.Command {
 			d := time.Now()
 			sl := logs.NoFiles().New(logs.LevelInfo, logs.Defaults)
 			slog.SetDefault(sl)
-			if err := c.Indexer(context.Background(), sl, d, dryRun); err != nil {
+			if err := c.Indexer(ctx.Context, sl, d, dryRun); err != nil {
 				const format = "index command: %w"
 				return fmt.Errorf(format, err)
 			}
@@ -335,13 +352,8 @@ func Copyright() string {
 // OS returns the host operating system.
 func OS() string {
 	titlize := cases.Title(language.English)
-	system := strings.Split(runtime.GOOS, "/")
-	if len(system) == 0 {
-		return titlize.String(runtime.GOOS)
-	}
-
-	os := system[0]
-	switch os {
+	name, _, _ := strings.Cut(runtime.GOOS, "/")
+	switch name {
 	case "darwin":
 		return "macOS"
 	case "freebsd":
@@ -354,7 +366,7 @@ func OS() string {
 		return "OpenBSD"
 	}
 
-	return titlize.String(os)
+	return titlize.String(name)
 }
 
 // VersionRelease returns a formatted release version.
@@ -403,8 +415,8 @@ type ExitCode int // ExitCode is the exit code for this program.
 const (
 	Continue   ExitCode = iota - 1 // Continue is a special case to indicate the program should not exit.
 	ExitOK                         // ExitOK is the exit code for a successful run.
-	GenericErr                     // GenericError represents a generic error.
-	UsageErr                       // UsageError is used for incorrect arguments or usage.
+	GenericErr                     // GenericErr represents a generic error.
+	UsageErr                       // UsageErr is used for incorrect arguments or usage.
 )
 
 // Run parses optional command line arguments for this program.

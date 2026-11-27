@@ -50,7 +50,7 @@ func BenchmarkLookupStr(b *testing.B) {
 	b.ReportAllocs()
 
 	for b.Loop() {
-		for _, s := range lookup {
+		for _, s := range regions {
 			_ = areacode.Lookup(s)
 		}
 	}
@@ -110,7 +110,7 @@ func BenchmarkRegionContains(b *testing.B) {
 	b.ReportAllocs()
 
 	for b.Loop() {
-		for _, s := range lookup {
+		for _, s := range regions {
 			_ = areacode.RegionContains(s)
 		}
 	}
@@ -131,6 +131,6 @@ func BenchmarkLookups(b *testing.B) {
 	b.ReportAllocs()
 
 	for b.Loop() {
-		_ = areacode.Lookups(inputs)
+		_ = areacode.Lookups(inputs[:]...)
 	}
 }

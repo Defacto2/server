@@ -148,7 +148,7 @@ const (
 	Fix16Mhz   Cycles = "fixed 2150"  // Fix16Mhz attempts to run at a fixed 16MHz 80386DX, 2.15 MIPS.
 	Fix33Mhz   Cycles = "fixed 4300"  // Fix33Mhz attempts to run at a fixed 33MHz 80386DX, 4.3 MIPS.
 	Fix25Mhz   Cycles = "fixed 8700"  // Fix25Mhz attempts to run at a fixed 25MHz 80486DX, 8.7 MIPS.
-	Fix66Mhz   Cycles = "fixed 25600" // Fix25Mhz attempts to run at a fixed 66MHz 80486DX2, 25.6 MIPS.
+	Fix66Mhz   Cycles = "fixed 25600" // Fix66Mhz attempts to run at a fixed 66MHz 80486DX2, 25.6 MIPS.
 )
 
 // CPU sets the CPU model, core and speed used in the emulation.
@@ -288,7 +288,7 @@ func (j *Jsdos) Covox() {
 
 // FM enables FM synthesis music aka the AdLib range of cards.
 func (j *Jsdos) FM() {
-	j.OplMode = "auto"
+	j.OplMode = auto
 	j.OplRate = AudioRate
 	j.OplEmu = "default"
 }

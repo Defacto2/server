@@ -72,53 +72,16 @@ type Production struct {
 //
 // [Pouet API]: https://api.pouet.net/v1/prod/?id=
 func (p *Production) Get(ctx context.Context, id int) (int, error) {
+	return p.get(ctx, client(), id)
+}
+
+func (p *Production) get(ctx context.Context, c http.Client, id int) (int, error) {
 	const format = "get pouet production id %d %s: %w"
 	if id < firstID {
 		return 0, fmt.Errorf(format, id, "", ErrBadID)
 	}
-	resp := Response{
-		Prod: struct {
-			ID          string `json:"id"`
-			Title       string `json:"name"`
-			ReleaseDate string `json:"releaseDate"`
-			Voteup      string `json:"voteup"`
-			Votepig     string `json:"votepig"`
-			Votedown    string `json:"votedown"`
-			Voteavg     string `json:"voteavg"`
-			Download    string `json:"download"`
-			Demozoo     string `json:"demozoo"`
-			Groups      []struct {
-				ID   string `json:"id"`
-				Name string `json:"name"`
-			} `json:"groups"`
-			Platforms     Platforms `json:"platforms"`
-			Types         Types     `json:"types"`
-			DownloadLinks []struct {
-				Type string `json:"type"`
-				Link string `json:"link"`
-			} `json:"downloadLinks"`
-		}{
-			ID:          "",
-			Title:       "",
-			ReleaseDate: "",
-			Voteup:      "",
-			Votepig:     "",
-			Votedown:    "",
-			Voteavg:     "",
-			Download:    "",
-			Demozoo:     "",
-			Groups:      nil,
-			Platforms: Platforms{
-				DosGus:  Platform{Name: "", Slug: ""},
-				Windows: Platform{Name: "", Slug: ""},
-				MSDos:   Platform{Name: "", Slug: ""},
-			},
-			Types:         nil,
-			DownloadLinks: nil,
-		},
-		Success: false,
-	}
-	if code, err := resp.Get(ctx, id); err != nil {
+	resp := empty()
+	if code, err := resp.get(ctx, c, id); err != nil {
 		return code, fmt.Errorf(format, id, "resp get", err)
 	}
 	parsedID, err := strconv.Atoi(resp.Prod.ID)
@@ -162,14 +125,9 @@ func TypesValid(s string) bool {
 	return false
 }
 
-// Releasers returns the first two names in the production that have is_group as true.
-// The one exception is if the production title contains a reference to a BBS or FTP site name.
-// Then that title will be used as the first group returned.
+// Releasers returns the first two group names listed on the production.
 func (p *Production) Releasers() (string, string) {
-	// find any reference to BBS or FTP in the production title to
-	// obtain a possible site name.
 	var a, b string
-	// range through author nicks for any group matches
 	for _, group := range p.Groups {
 		if a == "" {
 			a = group.Name
@@ -351,6 +309,10 @@ func (t Types) String() string {
 // Get retrieves the production voting data from the Pouet API.
 // The id value is the Pouet production ID and must be greater than 0.
 func (r *Response) Get(ctx context.Context, id int) (int, error) {
+	return r.get(ctx, client(), id)
+}
+
+func (r *Response) get(ctx context.Context, c http.Client, id int) (int, error) {
 	const format = "get pouet response id %d %s: %w"
 	if id < firstID {
 		return 0, fmt.Errorf(format, id, "", ErrBadID)
@@ -361,7 +323,6 @@ func (r *Response) Get(ctx context.Context, id int) (int, error) {
 		return 0, fmt.Errorf(format, id, "new request", err)
 	}
 	req.Header.Set("User-Agent", helper.UserAgent)
-	c := client()
 	res, err := c.Do(req)
 	if err != nil {
 		return 0, fmt.Errorf(format, id, "client do", err)
@@ -372,16 +333,14 @@ func (r *Response) Get(ctx context.Context, id int) (int, error) {
 	defer func() { _ = res.Body.Close() }()
 	if res.StatusCode != http.StatusOK {
 		_, _ = io.Copy(io.Discard, res.Body)
-		_ = res.Body.Close()
 		return res.StatusCode, fmt.Errorf(format, id, "status "+res.Status, ErrStatusCode)
 	}
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		_, _ = io.Copy(io.Discard, res.Body)
-		_ = res.Body.Close()
 		return 0, fmt.Errorf(format, id, "read all", err)
 	}
-	err = json.Unmarshal(body, &r)
+	err = json.Unmarshal(body, r)
 	clear(body)
 	if err != nil {
 		return 0, fmt.Errorf(format, id, "json unmarshal", err)
@@ -396,12 +355,16 @@ func (r *Response) Get(ctx context.Context, id int) (int, error) {
 // The id value is the Pouet production ID and must be greater than 0.
 // The data is intended for the Artifact page, Pouët reviews section.
 func (v *Votes) Votes(ctx context.Context, id int) error {
+	return v.votes(ctx, client(), id)
+}
+
+func (v *Votes) votes(ctx context.Context, c http.Client, id int) error {
 	const format = "pouet votes id %d: %s: %w"
 	if id < firstID {
 		return fmt.Errorf("%w: %d", ErrBadID, id)
 	}
 	r := empty()
-	_, err := r.Get(ctx, id)
+	_, err := r.get(ctx, c, id)
 	if err != nil {
 		return fmt.Errorf(format, id, "get", err)
 	}
@@ -475,8 +438,7 @@ func empty() Response {
 	}
 }
 
-// Stars returns the number of stars for the average votes.
-// The value of votesAvg must be a valid float64 value and not greater than 1.0.
+// Stars calculates a 0–5 star rating (rounded to [StarRounder]) from up, ok, and down vote counts.
 func Stars(up, ok, down uint64) float64 {
 	if up+ok+down == 0 {
 		return 0

@@ -10,8 +10,6 @@ import (
 	"github.com/subpop/go-ini"
 )
 
-// checked in Sep 26, test coverage was great at 85+%
-
 const mockZipContent = "filename.zip\nreadme.txt\nrunme.bat\napp.com\ndata.dat"
 
 func TestIni(t *testing.T) {
@@ -20,14 +18,14 @@ func TestIni(t *testing.T) {
 	cfg.CPU("8086")
 	b, err := ini.Marshal(cfg)
 	be.Err(t, err, nil)
-	wants := []string{"core=simple", "cputype=386_slow", "core=simple", "cycles=fixed 330"}
+	wants := []string{"core=simple", "cputype=386_slow", "cycles=fixed 330"}
 	for v := range slices.Values(wants) {
 		be.True(t, bytes.Contains(b, []byte(v)))
 	}
 	cfg.Machine("vga")
 	b, err = ini.Marshal(cfg)
 	be.Err(t, err, nil)
-	be.True(t, bytes.Contains(b, []byte("machine=vga")))
+	be.True(t, bytes.Contains(b, []byte("machine=vgaonly")))
 	be.True(t, bytes.Contains(b, []byte("memsize=16")))
 	cfg.Sound("pcspeaker")
 	b, err = ini.Marshal(cfg)
@@ -118,142 +116,179 @@ func TestSound(t *testing.T) {
 	be.True(t, bytes.Contains(b, []byte("disney=true")))
 }
 
-func TestPlatform(t *testing.T) {
-	t.Parallel()
-	be.Equal(t, "hercules", jsdos.Hercules)
-	be.Equal(t, "cga", jsdos.CGA)
-	be.Equal(t, "tandy", jsdos.Tandy)
-	be.Equal(t, "pcjr", jsdos.PCjr)
-	be.Equal(t, "ega", jsdos.EGA)
-	be.Equal(t, "vgaonly", jsdos.VGAOnly)
-	be.Equal(t, "svga_s3", jsdos.SuperVgaS3)
-	be.Equal(t, "svga_et3000", jsdos.SuperVgaET3000)
-	be.Equal(t, "svga_et4000", jsdos.SuperVgaET4000)
-	be.Equal(t, "svga_paradise", jsdos.SuperVgaParadise)
-	be.Equal(t, "vesa_nolfb", jsdos.VesaNoFrameBuff)
-	be.Equal(t, "vesa_oldvbe", jsdos.VesaV1)
-}
-
-func TestCore(t *testing.T) {
-	t.Parallel()
-	be.Equal(t, "auto", jsdos.AutoCore)
-	be.Equal(t, "normal", jsdos.Normal)
-	be.Equal(t, "simple", jsdos.Simple)
-}
-
-func TestCPUType(t *testing.T) {
-	t.Parallel()
-	be.Equal(t, "auto", jsdos.IAuto)
-	be.Equal(t, "386", jsdos.I386)
-	be.Equal(t, "386_prefetch", jsdos.I386Pre)
-	be.Equal(t, "386_slow", jsdos.I386Slow)
-	be.Equal(t, "486_slow", jsdos.I486Slow)
-	be.Equal(t, "pentium_slow", jsdos.I586Slow)
-}
-
-func TestCycles(t *testing.T) {
-	t.Parallel()
-	be.Equal(t, "auto", jsdos.AutoCycles)
-	be.Equal(t, "max", jsdos.Max)
-	be.Equal(t, "fixed 330", jsdos.Fix5Mhz)
-}
-
-func TestRAM(t *testing.T) {
-	t.Parallel()
-	be.Equal(t, "1", jsdos.Mem286)
-	be.Equal(t, "4", jsdos.Mem386)
-	be.Equal(t, "16", jsdos.Mem486)
-}
-
 func TestDosPaths(t *testing.T) {
 	t.Parallel()
-	s := jsdos.Paths("")
-	be.True(t, len(s) == 0)
-	s = jsdos.Paths(mockZipContent)
-	be.True(t, len(s) == 5)
+
+	be.Equal(t, jsdos.Paths(""), []string{})
+	be.Equal(t, jsdos.Paths(mockZipContent), []string{"filename.zip", "readme.txt", "runme.bat", "app.com", "data.dat"})
 
 	x := "filename.zip\rreadme.txt\nrunme.bat\r\nAPP.COM\ndata.dat"
-	s = jsdos.Paths(x)
-	be.True(t, len(s) == 5)
+	be.Equal(t, jsdos.Paths(x), []string{"filename.zip", "readme.txt", "runme.bat", "APP.COM", "data.dat"})
 }
 
 func TestDosBins(t *testing.T) {
 	t.Parallel()
-	bins := jsdos.Binaries()
-	be.True(t, len(bins) == 0)
 
-	// p := jsdos.Paths(mockZipContent)
-	// bins = jsdos.Binaries(p...)
-	// assert.Empty(t, bins)
+	be.Equal(t, jsdos.Binaries(), []string{})
 
 	x := "filename.zip\rreadme.txt\nrunme.bat\r\nAPP.COM\ndata.dat"
 	p := jsdos.Paths(x)
-	bins = jsdos.Binaries(p...)
-	be.True(t, len(bins) == 2)
+	be.Equal(t, jsdos.Binaries(p...), []string{"runme.bat", "APP.COM"})
 }
 
 func TestFinds(t *testing.T) {
 	t.Parallel()
-	s := jsdos.Finds("", "")
-	be.True(t, len(s) == 0)
+
+	be.Equal(t, jsdos.Finds("", ""), "")
 
 	p := jsdos.Paths(mockZipContent)
-	s = jsdos.Finds("filename.zip", p...)
-	be.True(t, len(s) == 0)
+	be.Equal(t, jsdos.Finds("filename.zip", p...), "")
 
-	x := mockZipContent
-	x += "\nFILENAME.EXE\nfilename.xxx"
+	x := mockZipContent + "\nFILENAME.EXE\nfilename.xxx"
 	p = jsdos.Paths(x)
-	s = jsdos.Finds("filename.zip", p...)
-	be.Equal(t, "FILENAME.EXE", s)
+	be.Equal(t, jsdos.Finds("filename.zip", p...), "FILENAME.EXE")
 
 	x = "FILENAME.COM\n" + x
 	p = jsdos.Paths(x)
-	s = jsdos.Finds("filename.zip", p...)
-	be.Equal(t, "FILENAME.EXE", s)
+	be.Equal(t, jsdos.Finds("filename.zip", p...), "FILENAME.EXE")
 
 	p = jsdos.Paths("sub/filename.exe\napp.exe")
-	s = jsdos.Finds("filename.zip", p...)
-	be.Equal(t, "", s)
+	be.Equal(t, jsdos.Finds("filename.zip", p...), "")
 
 	p = jsdos.Paths(`sub\filename.exe` + "\nFILENAME.BAT")
-	s = jsdos.Finds("filename.zip", p...)
-	be.Equal(t, "FILENAME.BAT", s)
+	be.Equal(t, jsdos.Finds("filename.zip", p...), "FILENAME.BAT")
+
+	p = jsdos.Paths("sub/filename.exe\ndeep/dir/app.com")
+	be.Equal(t, jsdos.Finds("filename.zip", p...), "")
+}
+
+func TestBinary(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name  string
+		paths []string
+		want  string
+	}{
+		{"empty", nil, ""},
+		{"no executables", []string{"readme.txt", "data.dat"}, ""},
+		{"bat over exe and com", []string{"app.com", "run.exe", "start.bat"}, "start.bat"},
+		{"exe over com", []string{"app.com", "run.exe"}, "run.exe"},
+		{"com only", []string{"readme.txt", "app.com"}, "app.com"},
+		{"root over subdir", []string{"sub/start.bat", "root.bat"}, "root.bat"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			got := jsdos.Binary(tt.paths...)
+			be.Equal(t, got, tt.want)
+		})
+	}
 }
 
 func TestFindBinary(t *testing.T) {
-	example := "readme.txt\nRUN.BAT\napp.com\ndata.dat"
-
 	t.Parallel()
-	s := jsdos.FindBinary("", "")
-	be.True(t, len(s) == 0)
+	const example = "readme.txt\nRUN.BAT\napp.com\ndata.dat"
 
-	s = jsdos.FindBinary("filename", "")
-	be.Equal(t, "filename", s)
+	be.Equal(t, jsdos.FindBinary("", ""), "")
+	be.Equal(t, jsdos.FindBinary("filename", ""), "filename")
+	be.Equal(t, jsdos.FindBinary("filename.xyz", ""), "filename.xyz")
+	be.Equal(t, jsdos.FindBinary("filename.zip", "zipcontent"), "")
+	be.Equal(t, jsdos.FindBinary("filename.zip", "readme.txt"), "")
+	be.Equal(t, jsdos.FindBinary("filename.zip", example), "RUN.BAT")
+	be.Equal(t, jsdos.FindBinary("filename.zip", example+"\n"+"filename.exe"), "filename.exe")
+	be.Equal(t, jsdos.FindBinary("filename.zip", "sub/dir/setup.bat\nrun.bat"), "run.bat")
+	be.Equal(t, jsdos.FindBinary("filename.zip", "sub/dir/setup.exe\napp.exe"), "app.exe")
+	be.Equal(t, jsdos.FindBinary("filename.zip", `sub\dir\setup.com`+"\napp.com"), "app.com")
+	be.Equal(t, jsdos.FindBinary("app.exe", "readme.txt\nother.exe"), "app.exe")
+	be.Equal(t, jsdos.FindBinary("filename.zip", "readme.txt\nonly.exe"), "only.exe")
+}
 
-	s = jsdos.FindBinary("filename.xyz", "")
-	be.Equal(t, "filename.xyz", s)
+func TestCPU(t *testing.T) {
+	t.Parallel()
 
-	s = jsdos.FindBinary("filename.zip", "zipcontent")
-	be.True(t, len(s) == 0)
+	tests := []struct {
+		name       string
+		value      string
+		wantModel  jsdos.CPU
+		wantCore   jsdos.Core
+		wantCycles jsdos.Cycles
+	}{
+		{"8086", "8086", jsdos.I386Slow, jsdos.Simple, jsdos.Fix5Mhz},
+		{"386", "386", jsdos.I386Slow, jsdos.Normal, ""},
+		{"486", "486", jsdos.IAuto, jsdos.Normal, jsdos.Max},
+		{"auto", "AUTO", jsdos.IAuto, jsdos.AutoCore, jsdos.AutoCycles},
+		{"unknown", "pentium", "", "", ""},
+	}
 
-	s = jsdos.FindBinary("filename.zip", "readme.txt")
-	be.True(t, len(s) == 0)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 
-	s = jsdos.FindBinary("filename.zip", example)
-	be.Equal(t, "RUN.BAT", s)
+			cfg := jsdos.Jsdos{}
+			cfg.CPU(tt.value)
+			be.Equal(t, cfg.Model, tt.wantModel)
+			be.Equal(t, cfg.Core, tt.wantCore)
+			be.Equal(t, cfg.Cycles, tt.wantCycles)
+		})
+	}
+}
 
-	s = jsdos.FindBinary("filename.zip", example+"\n"+"filename.exe")
-	be.Equal(t, "filename.exe", s)
+func TestMachine(t *testing.T) {
+	t.Parallel()
 
-	s = jsdos.FindBinary("filename.zip", "sub/dir/setup.bat\nrun.bat")
-	be.Equal(t, "run.bat", s)
+	tests := []struct {
+		name        string
+		value       string
+		wantMachine jsdos.Platform
+		wantMem     jsdos.RAM
+		wantTandy   string
+	}{
+		{"vga", "vga", jsdos.VGAOnly, jsdos.Mem486, ""},
+		{"tandy", "tandy", jsdos.Tandy, jsdos.Mem286, "true"},
+		{"svga", "svga", jsdos.SuperVgaS3, jsdos.Mem486, ""},
+		{"paradise", "paradise", jsdos.SuperVgaParadise, jsdos.Mem486, ""},
+		{"oldvbe", "oldvbe", jsdos.VesaV1, jsdos.Mem486, ""},
+		{"nolfb", "nolfb", jsdos.VesaNoFrameBuff, jsdos.Mem486, ""},
+		{"et4000", "et4000", jsdos.SuperVgaET4000, jsdos.Mem486, ""},
+		{"et3000", "et3000", jsdos.SuperVgaET3000, jsdos.Mem486, ""},
+		{"ega", "ega", jsdos.EGA, jsdos.Mem386, ""},
+		{"cga", "CGA", jsdos.CGA, jsdos.Mem286, ""},
+		{"unknown", "other", "", "", ""},
+	}
 
-	s = jsdos.FindBinary("filename.zip", "sub/dir/setup.exe\napp.exe")
-	be.Equal(t, "app.exe", s)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 
-	s = jsdos.FindBinary("filename.zip", `sub\dir\setup.com`+"\napp.com")
-	be.Equal(t, "app.com", s)
+			cfg := jsdos.Jsdos{}
+			cfg.Machine(tt.value)
+			be.Equal(t, cfg.Dosbox.Machine, tt.wantMachine)
+			be.Equal(t, cfg.MemSize, tt.wantMem)
+			be.Equal(t, cfg.Speaker.Tandy, tt.wantTandy)
+		})
+	}
+}
+
+func TestNoMemory(t *testing.T) {
+	t.Parallel()
+
+	cfg := jsdos.Jsdos{}
+	cfg.NoEMS(false)
+	cfg.NoXMS(false)
+	cfg.NoUMB(false)
+	be.Equal(t, cfg.EMS, "")
+	be.Equal(t, cfg.XMS, "")
+	be.Equal(t, cfg.UMB, "")
+
+	cfg.NoEMS(true)
+	cfg.NoXMS(true)
+	cfg.NoUMB(true)
+	be.Equal(t, cfg.EMS, "false")
+	be.Equal(t, cfg.XMS, "false")
+	be.Equal(t, cfg.UMB, "false")
 }
 
 func TestValid(t *testing.T) {
@@ -272,4 +307,5 @@ func TestValid(t *testing.T) {
 	be.True(t, !jsdos.Valid(`\MYGAME\RUNME.BAT`))
 	be.True(t, !jsdos.Valid(`MYGAME\\RUNME.BAT`))
 	be.True(t, !jsdos.Valid(`MYSUPERLONGDIR\RUNME.BAT`))
+	be.True(t, jsdos.Valid("dir /p && app.exe -v"))
 }

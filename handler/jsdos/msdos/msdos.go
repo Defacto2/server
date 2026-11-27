@@ -18,7 +18,7 @@ const (
 	BaseLen = 8
 )
 
-// Special returns true if the rune is a non alphanumeric character that is allowed in a
+// special returns true if the rune is a non alphanumeric character that is allowed in a
 // MS-DOS FAT 12/16 format file system.
 func special(r rune) bool {
 	const (
@@ -65,11 +65,11 @@ func DirName(name string) string {
 // Rename returns a FAT 16 compatible string based on the provided filename. It replaces
 // accented characters with their closest Latin equivalent and all other unsupported characters
 // with an 'X'. The resulting filename has all spaces replaced with underscores and letters
-// returned as uppercase. Any provided filename extension can up to 3 characters long.
+// returned as uppercase. Any provided filename extension can be up to 3 characters long.
 //
 // Many legacy archive formats such as ZIP and LHA were usable on multiple operating systems and
 // file systems. These archives can contain filenames that can be listed by PKZIP or LHA on an
-// MS-DOS system but are not viewable on the platform or in a emulator. Fat16Rename can be used to
+// MS-DOS system but are not viewable on the platform or in an emulator. Rename can be used to
 // rename these filenames into a format that is compatible with the MS-DOS FAT 12/16 file system.
 //
 // This function does not impose the maximum length limit of 8 characters for the base filename.
@@ -82,9 +82,9 @@ func Rename(filename string) string {
 	x, _, _ := transform.String(t, s)
 
 	name := []rune(x)
-	l := len(name)
+	extDot := extensionDot(name)
 	for i, r := range name {
-		if unicode.Is(unicode.Latin, r) || unicode.Is(unicode.Number, r) {
+		if (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') {
 			continue
 		}
 		if special(r) {
@@ -94,14 +94,23 @@ func Rename(filename string) string {
 			name[i] = '_'
 			continue
 		}
-		if r == '.' && !linuxHideMarker(i) {
-			if validExtension(i, l) {
-				continue
-			}
+		if i == extDot {
+			continue
 		}
 		name[i] = 'X'
 	}
 	return string(name)
+}
+
+// extensionDot returns the index of the single rightmost valid extension dot, or -1 if none.
+func extensionDot(name []rune) int {
+	l := len(name)
+	for i := l - 1; i >= 0; i-- {
+		if name[i] == '.' && !linuxHideMarker(i) && validExtension(i, l) {
+			return i
+		}
+	}
+	return -1
 }
 
 // On many systems, files starting with a dot are marked as hidden.
@@ -112,7 +121,7 @@ func linuxHideMarker(i int) bool {
 
 // validExtension returns true if the index is within the last 4 characters of the filename and
 // the index is not the last character.
-// MS-DOS only allow a single dot as the extension separator and the extension must be 1-3 characters long.
+// MS-DOS only allows a single dot as the extension separator and the extension must be 1-3 characters long.
 func validExtension(i, l int) bool {
 	return i >= l-ExtensionLen && i < l-1
 }

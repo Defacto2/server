@@ -18,8 +18,9 @@ const limit = 999
 type NAN int
 
 var areaCodes = sync.OnceValue(func() []NAN {
-	codes := make([]NAN, 0, len(Regions()))
-	for val := range slices.Values(Regions()) {
+	all := regions()
+	codes := make([]NAN, 0, len(all))
+	for val := range slices.Values(all) {
 		codes = append(codes, val.AreaCodes...)
 	}
 	slices.Sort(codes)
@@ -168,7 +169,7 @@ func (c NAN) HTML() template.HTML {
 		}
 	}
 
-	if note, ok := Copy()[c]; ok {
+	if note, ok := notes[c]; ok {
 		html.WriteString(" ") // intentional space
 		html.WriteString("<small><em>")
 		html.WriteString(note)
@@ -252,9 +253,10 @@ const (
 	bronx   = "On July 1992, the Bronx moved from 212 to 718."
 )
 
-// Copy returns a copy of the North American Numbering Plan area codes map that provide additional information,
+// All returns a read-only map of the North American Numbering Plan area codes that provide additional information,
 // such as when an area code was split or created and the regions it serves.
-func Copy() map[NAN]string {
+// Callers must not modify the returned map.
+func All() map[NAN]string {
 	return notes
 }
 
@@ -336,9 +338,9 @@ var notes = map[NAN]string{
 	317: "Central Indiana, including Indianapolis.",
 	812: "Southern Indiana, including Evansville.",
 	// 301, 410
-	301: "Maryland. However in November 1991, Balimore and " +
+	301: "Maryland. However in November 1991, Baltimore and " +
 		"the Eastern Shore of Maryland were split to create the 410 area code.",
-	410: "Balimore and the Eastern Shore of Maryland, however it came online in November 1991.",
+	410: "Baltimore and the Eastern Shore of Maryland, however it came online in November 1991.",
 	// 303, 719
 	303: "Central Colorado, including Denver.",
 	719: "Southern Colorado, including Colorado Springs, however it came online in March 1988.",
@@ -609,17 +611,16 @@ func Query(a any) Result {
 			return Result{Region: Lookup(val), AreaCode: 0}
 		}
 		return Result{AreaCode: NAN(c), Region: nil}
-	case int, uint:
-		if c, ok := a.(int); ok {
-			return Result{AreaCode: NAN(c), Region: nil}
+	case int:
+		if val < 0 || val > limit {
+			return Result{Region: nil, AreaCode: 0}
 		}
-		if c, ok := a.(uint); ok {
-			if c > limit {
-				return Result{Region: nil, AreaCode: 0}
-			}
-			return Result{Region: nil, AreaCode: NAN(int(c))}
+		return Result{AreaCode: NAN(val), Region: nil}
+	case uint:
+		if val > limit {
+			return Result{Region: nil, AreaCode: 0}
 		}
-		return Result{Region: nil, AreaCode: 0}
+		return Result{Region: nil, AreaCode: NAN(int(val))}
 	case NAN:
 		return Result{AreaCode: val, Region: nil}
 	default:
@@ -719,7 +720,7 @@ func RegionByCode(code NAN) []Region {
 // RegionByName returns the region with the given name.
 // The name can be a US state, Canadian province, or other territory.
 func RegionByName(name string) Region {
-	for region := range slices.Values(Regions()) {
+	for region := range slices.Values(regions()) {
 		if strings.EqualFold(region.Name, name) {
 			return region
 		}
@@ -730,7 +731,7 @@ func RegionByName(name string) Region {
 // RegionContains returns a list of regions with names that contain the given string.
 func RegionContains(s string) []Region {
 	if s == "" {
-		return []Region{}
+		return nil
 	}
 
 	substr := strings.ToLower(s)

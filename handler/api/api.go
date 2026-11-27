@@ -44,7 +44,7 @@ import (
 
 const (
 	APIBase = "/api/v1" // API Base URI (any changes need to be reflected in apiinfo.tmpl)
-	APIVer  = "1.0.1"   // API Version gets shown in the HTTP header replies
+	APIVer  = "1.0.2"   // API Version gets shown in the HTTP header replies
 
 	apiLimit = 1000
 )
@@ -136,16 +136,16 @@ type releaserAPI struct {
 
 // EntityAPI represents a group, scener, or releaser for API responses.
 type EntityAPI struct {
-	ID       string    `json:"id"`
-	Name     string    `json:"name"`
-	Title    string    `json:"title"`
-	URLs     enityURLs `json:"urls"`
-	Stats    totalsAPI `json:"statistics"`
-	Websites any       `json:"websites,omitempty"`
-	Sixteen  string    `json:"sixteen,omitempty"`
-	Janeway  string    `json:"janeway,omitempty"`
-	Demozoo  string    `json:"demozoo,omitempty"`
-	Csdb     string    `json:"csdb,omitempty"`
+	ID       string     `json:"id"`
+	Name     string     `json:"name"`
+	Title    string     `json:"title"`
+	URLs     entityURLs `json:"urls"`
+	Stats    totalsAPI  `json:"statistics"`
+	Websites any        `json:"websites,omitempty"`
+	Sixteen  string     `json:"sixteen,omitempty"`
+	Janeway  string     `json:"janeway,omitempty"`
+	Demozoo  string     `json:"demozoo,omitempty"`
+	Csdb     string     `json:"csdb,omitempty"`
 }
 
 type artifactsAPI struct {
@@ -160,8 +160,8 @@ type areacodeAPI struct {
 	Notes   string   `json:"notes,omitempty"`
 }
 
-// enityURLs represents a collection releaser or group URLs.
-type enityURLs struct {
+// entityURLs represents a collection of releaser or group URLs.
+type entityURLs struct {
 	API   string `json:"api"`
 	HTML3 string `json:"html3"`
 	HTML  string `json:"html"`
@@ -186,12 +186,12 @@ type scenerAPI struct {
 
 // tagAPI represents a tag category or tag platform for API responses.
 type tagAPI struct {
-	ID          int       `json:"id"`
-	Name        string    `json:"name"`
-	Title       string    `json:"title,omitempty"`
-	Description string    `json:"description,omitempty"`
-	URLs        enityURLs `json:"urls"`
-	Stats       totalsAPI `json:"statistics"`
+	ID          int        `json:"id"`
+	Name        string     `json:"name"`
+	Title       string     `json:"title,omitempty"`
+	Description string     `json:"description,omitempty"`
+	URLs        entityURLs `json:"urls"`
+	Stats       totalsAPI  `json:"statistics"`
 }
 
 // regionAPI represents an North American region for area code API responses.
@@ -327,13 +327,25 @@ func FileAPI(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 }
 
 var (
-	reMarkup1 = regexp.MustCompile(`<a\b[^>]*>([^<]*)<\/a>`)
-	reMarkup2 = regexp.MustCompile(`<a\s+([^>]*href="([^"]*)"[^>]*)>([^<]*)<\/a>`)
-	reMarkup3 = regexp.MustCompile(`(class|style|id|title|data-[a-z-]*)="[^"]*"`)
-	reMarkup4 = regexp.MustCompile(`<\s*([a-z0-9]+)\s+>`)
-	reMarkup5 = regexp.MustCompile(`>\s+<`)
-	reMarkup6 = regexp.MustCompile(`[\t\r\n]+`)
-	reMarkup7 = regexp.MustCompile(`\s{2,}`)
+	reMarkup1   = regexp.MustCompile(`<a\b[^>]*>([^<]*)<\/a>`)
+	reMarkup2   = regexp.MustCompile(`<a\s+([^>]*href="([^"]*)"[^>]*)>([^<]*)<\/a>`)
+	reMarkup3   = regexp.MustCompile(`(class|style|id|title|data-[a-z-]*)="[^"]*"`)
+	reMarkup4   = regexp.MustCompile(`<\s*([a-z0-9]+)\s+>`)
+	reMarkup5   = regexp.MustCompile(`>\s+<`)
+	reMarkup6   = regexp.MustCompile(`[\t\r\n]+`)
+	reMarkup7   = regexp.MustCompile(`\s{2,}`)
+	reEmptyTags = []*regexp.Regexp{
+		regexp.MustCompile(`<span[^>]*>\s*<\/span>`),
+		regexp.MustCompile(`<div[^>]*>\s*<\/div>`),
+		regexp.MustCompile(`<p[^>]*>\s*<\/p>`),
+		regexp.MustCompile(`<i[^>]*>\s*<\/i>`),
+		regexp.MustCompile(`<b[^>]*>\s*<\/b>`),
+		regexp.MustCompile(`<strong[^>]*>\s*<\/strong>`),
+		regexp.MustCompile(`<em[^>]*>\s*<\/em>`),
+		regexp.MustCompile(`<a[^>]*>\s*<\/a>`),
+		regexp.MustCompile(`<q[^>]*>\s*<\/q>`),
+		regexp.MustCompile(`<code[^>]*>\s*<\/code>`),
+	}
 )
 
 // Markup removes CSS classes and attributes from HTML for API responses.
@@ -368,10 +380,7 @@ func Markup(src string) string {
 	src = reMarkup4.ReplaceAllString(src, "<$1>")
 
 	// Remove empty element pairs (e.g., "<span></span>" or "<span> </span>" -> "")
-	// We'll handle common empty tags specifically, including those with only whitespace
-	emptyTags := []string{"span", "div", "p", "i", "b", "strong", "em", "a", "q", "code"}
-	for _, tag := range emptyTags {
-		re := regexp.MustCompile(`<` + tag + `[^>]*>\s*<\/` + tag + `>`)
+	for _, re := range reEmptyTags {
 		src = re.ReplaceAllString(src, "")
 	}
 
@@ -408,7 +417,7 @@ func AreacodesAPI(c *echo.Context) error {
 			Regions: names,
 			Notes:   "",
 		}
-		if note, ok := areacode.Copy()[code]; ok {
+		if note, ok := areacode.All()[code]; ok {
 			apiCode.Notes = note
 		}
 		result = append(result, apiCode)
@@ -449,7 +458,7 @@ func AreaCodeAPI(c *echo.Context) error {
 		Regions: names,
 		Notes:   "",
 	}
-	if note, ok := areacode.Copy()[nancode]; ok {
+	if note, ok := areacode.All()[nancode]; ok {
 		result.Notes = note
 	}
 
@@ -481,7 +490,7 @@ func AreacodeSearchAPI(c *echo.Context) error {
 				Regions: names,
 				Notes:   "",
 			}
-			if note, ok := areacode.Copy()[nancode]; ok {
+			if note, ok := areacode.All()[nancode]; ok {
 				result.Notes = note
 			}
 			return c.JSON(http.StatusOK, map[string]any{
@@ -674,6 +683,7 @@ func milestoneFmt(m app.Milestone) app.Milestone {
 	m.Content = simple.CleanHTML(m.Content)
 	m.Lead = Markup(m.Lead)
 	if len(m.List) > 0 {
+		m.List = slices.Clone(m.List)
 		for i := range m.List {
 			m.List[i].LinkTitle = Markup(m.List[i].LinkTitle)
 			m.List[i].SubTitle = Markup(m.List[i].SubTitle)
@@ -846,7 +856,7 @@ func ReleasersAPI(rels model.Releasers) []EntityAPI {
 			ID:    id,
 			Name:  name,
 			Title: title,
-			URLs: enityURLs{
+			URLs: entityURLs{
 				API:   APIBase + "/releaser/" + name,
 				HTML3: "/html3/group/" + name,
 				HTML:  "/g/" + name,
@@ -979,7 +989,7 @@ func ReleaserAPI(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 			ID:    simple.Hash(name),
 			Name:  name,
 			Title: releaser.Link(name),
-			URLs: enityURLs{
+			URLs: entityURLs{
 				API:   APIBase + "/releaser/" + name,
 				HTML3: "/html3/group/" + name,
 				HTML:  "/g/" + name,
@@ -1045,7 +1055,7 @@ func ScenerAPI(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	ctx := c.Request().Context()
 	fs, err := srs.Where(ctx, db, name)
 	if err != nil {
-		return c.JSON(http.StatusNotFound, map[string]string{
+		return c.JSON(http.StatusInternalServerError, map[string]string{
 			er: "Failed to fetch scener",
 		})
 	}
@@ -1099,36 +1109,32 @@ func ScenerAPI(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 // ScenersAPI returns a list of Sceners
 // ScenersAPI builds the ReleaserAPI list from model data.
 func ScenersAPI(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
-	ctx := c.Request().Context()
-	return roleAPI(ctx, sl, c, db, postgres.Roles())
+	return roleAPI(sl, c, db, postgres.Roles())
 }
 
 func ArtistsAPI(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
-	ctx := c.Request().Context()
-	return roleAPI(ctx, sl, c, db, postgres.Artist)
+	return roleAPI(sl, c, db, postgres.Artist)
 }
 
 func CodersAPI(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
-	ctx := c.Request().Context()
-	return roleAPI(ctx, sl, c, db, postgres.Coder)
+	return roleAPI(sl, c, db, postgres.Coder)
 }
 
 func MusiciansAPI(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
-	ctx := c.Request().Context()
-	return roleAPI(ctx, sl, c, db, postgres.Musician)
+	return roleAPI(sl, c, db, postgres.Musician)
 }
 
 func WritersAPI(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
-	ctx := c.Request().Context()
-	return roleAPI(ctx, sl, c, db, postgres.Writer)
+	return roleAPI(sl, c, db, postgres.Writer)
 }
 
 // roleAPI returns a list of all releasers/groups with pagination.
-func roleAPI(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, r postgres.Role) error {
+func roleAPI(sl *slog.Logger, c *echo.Context, db *sql.DB, r postgres.Role) error {
 	const format = "sceners api: %w"
-	if err := nils.Check(ctx, sl, c, db); err != nil {
+	if err := nils.Check(sl, c, db); err != nil {
 		return fmt.Errorf(format, err)
 	}
+	ctx := c.Request().Context()
 
 	srs := model.Sceners{}
 	var err error
@@ -1338,7 +1344,7 @@ func buildTags(
 				TotalSize:      helper.ByteCount(byteSum),
 				TotalSizeBytes: byteSum,
 			},
-			URLs: enityURLs{
+			URLs: entityURLs{
 				API:   APIBase + "/artifacts/" + slug,
 				HTML3: "/html3/" + slug,
 				HTML:  "/files/" + slug,
@@ -1370,7 +1376,7 @@ func CategoryAPI(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	return TagAPI(sl, c, db, name)
 }
 
-// PlatformAPI returns a list of files from any category tag.
+// PlatformAPI returns a list of files from any platform tag.
 func PlatformAPI(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	if err := nils.Check(sl, c, db); err != nil {
 		return fmt.Errorf("platform api: %w", err)
@@ -1436,7 +1442,7 @@ func TagAPI(sl *slog.Logger, c *echo.Context, db *sql.DB, name string) error { /
 		byteSum, err = model.SumSection(ctx, db, tag)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, map[string]string{
-				er: "Failed to calculate platform file sizes",
+				er: "Failed to calculate category file sizes",
 			})
 		}
 	}
@@ -1533,21 +1539,22 @@ func releasersAPI(art *models.File) []releaserAPI {
 	n1, n2 := filerecord.ReleaserPair(art)
 	u1, u2 := helper.Slug(n1), helper.Slug(n2)
 	const size = 2
-	pair := make([]releaserAPI, size)
-	pair[0] = releaserAPI{
-		ID:   u1,
-		Name: releaser.Link(u1),
-		API:  APIBase + "/releaser/" + u1,
-		HTML: "/g/" + u1,
+	pair := make([]releaserAPI, 0, size)
+	if u1 != "" {
+		pair = append(pair, releaserAPI{
+			ID:   u1,
+			Name: releaser.Link(u1),
+			API:  APIBase + "/releaser/" + u1,
+			HTML: "/g/" + u1,
+		})
 	}
-
 	if u2 != "" {
-		pair[1] = releaserAPI{
+		pair = append(pair, releaserAPI{
 			ID:   u2,
 			Name: releaser.Link(u2),
 			API:  APIBase + "/releaser/" + u2,
-			HTML: u2,
-		}
+			HTML: "/g/" + u2,
+		})
 	}
 
 	return pair
@@ -1577,7 +1584,7 @@ func relationshipsAPI(art *models.File) []relationAPI {
 
 	if s := filerecord.IdenficationPouet(art); s != "" {
 		r := relationAPI{
-			Link: "https://www.pouet.net/prod.php?which=" + s + "/",
+			Link: "https://www.pouet.net/prod.php?which=" + s,
 			Desc: "Pouet production",
 		}
 		results = append(results, r)
@@ -1593,7 +1600,7 @@ func relationshipsAPI(art *models.File) []relationAPI {
 
 	if s := filerecord.IdenficationYT(art); s != "" {
 		r := relationAPI{
-			Link: "https://www.youtube.com/watch?v=" + s + "/",
+			Link: "https://www.youtube.com/watch?v=" + s,
 			Desc: "YouTube video",
 		}
 		results = append(results, r)

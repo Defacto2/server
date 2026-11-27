@@ -10,13 +10,14 @@ type URI string
 // GroupID is the group id.
 type GroupID int
 
-// Groups is a map of releasers URIs mapped to their csdb group id.
-type Groups map[string]GroupID
+// Groups is a map of releaser URIs mapped to their csdb group id.
+type Groups map[URI]GroupID
 
 var groups = Groups{
 	"2000ad":                           261,
 	"alpha-flight":                     215,
 	"censor-design":                    2310,
+	"desire":                           6614,
 	"dynamix":                          751,
 	"dytec":                            257,
 	"fairlight":                        20,
@@ -29,18 +30,17 @@ var groups = Groups{
 	"razor-1911":                       431,
 	"rebels":                           10411,
 	"red-sector-inc":                   602,
+	"shining-8":                        761,
 	"skid-row":                         2784,
 	"the-silents":                      1099,
 	"triad":                            132,
 	"tristar-ampersand-red-sector-inc": 915,
-	"vision":                           510,
 	"unitrax":                          3084,
-	"shining-8":                        761,
-	"desire":                           6614,
+	"vision":                           510,
 }
 
 // Find returns the csdb group id for the given releaser uri.
-// If the releaser is not found, an empty value is returned.
+// If the releaser is not found, 0 is returned.
 func Find(uri string) GroupID {
-	return groups[uri]
+	return groups[URI(uri)]
 }

@@ -1,7 +1,6 @@
 package api_test
 
 import (
-	"context"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -16,7 +15,7 @@ import (
 func reqLocalHost(t *testing.T) {
 	t.Helper()
 
-	req, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, lh+"/health-check", nil)
+	req, _ := http.NewRequestWithContext(t.Context(), http.MethodGet, lh+"/health-check", nil)
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		t.Skip("api tests skipped: server not running at localhost")
@@ -31,14 +30,14 @@ func TestAnnouncementsContract(t *testing.T) {
 	reqLocalHost(t)
 
 	resp, err := clientDo(t, apiv1+"/category/announcements")
-	be.Equal(t, err, nil)
+	be.Err(t, err, nil)
 	defer func() {
 		if err := resp.Body.Close(); err != nil {
 			t.Log(err)
 		}
 	}()
 
-	be.Equal(t, http.StatusOK, resp.StatusCode)
+	be.Equal(t, resp.StatusCode, http.StatusOK)
 
 	var result struct {
 		Files []struct {
@@ -55,10 +54,10 @@ func TestAnnouncementsContract(t *testing.T) {
 	}
 
 	body, err := io.ReadAll(resp.Body)
-	be.Equal(t, err, nil)
+	be.Err(t, err, nil)
 
 	err = json.Unmarshal(body, &result)
-	be.Equal(t, err, nil)
+	be.Err(t, err, nil)
 
 	be.True(t, len(result.Files) > 0)
 
@@ -76,13 +75,13 @@ func TestCategoriesContract(t *testing.T) {
 	reqLocalHost(t)
 
 	resp, err := clientDo(t, apiv1+"/categories")
-	be.Equal(t, err, nil)
+	be.Err(t, err, nil)
 	defer func() {
 		if err := resp.Body.Close(); err != nil {
 			t.Log(err)
 		}
 	}()
-	be.Equal(t, http.StatusOK, resp.StatusCode)
+	be.Equal(t, resp.StatusCode, http.StatusOK)
 
 	var result []struct {
 		ID          int    `json:"id"`
@@ -97,10 +96,10 @@ func TestCategoriesContract(t *testing.T) {
 	}
 
 	body, err := io.ReadAll(resp.Body)
-	be.Equal(t, err, nil)
+	be.Err(t, err, nil)
 
 	err = json.Unmarshal(body, &result)
-	be.Equal(t, err, nil)
+	be.Err(t, err, nil)
 
 	be.True(t, len(result) > 0)
 	if len(result) == 0 {
@@ -120,14 +119,14 @@ func TestPlatformsContract(t *testing.T) {
 	reqLocalHost(t)
 
 	resp, err := clientDo(t, apiv1+"/platforms")
-	be.Equal(t, err, nil)
+	be.Err(t, err, nil)
 	defer func() {
 		if err := resp.Body.Close(); err != nil {
 			t.Log(err)
 		}
 	}()
 
-	be.Equal(t, http.StatusOK, resp.StatusCode)
+	be.Equal(t, resp.StatusCode, http.StatusOK)
 
 	var result []struct {
 		ID          int    `json:"id"`
@@ -142,10 +141,10 @@ func TestPlatformsContract(t *testing.T) {
 	}
 
 	body, err := io.ReadAll(resp.Body)
-	be.Equal(t, err, nil)
+	be.Err(t, err, nil)
 
 	err = json.Unmarshal(body, &result)
-	be.Equal(t, err, nil)
+	be.Err(t, err, nil)
 
 	be.True(t, len(result) > 0)
 	if len(result) == 0 {
@@ -172,13 +171,13 @@ func TestGenericCategoryContract(t *testing.T) {
 
 			url := apiv1 + "/category/" + category
 			resp, err := clientDo(t, url)
-			be.Equal(t, err, nil)
+			be.Err(t, err, nil)
 			defer func() {
 				if err := resp.Body.Close(); err != nil {
 					t.Log(err)
 				}
 			}()
-			be.Equal(t, http.StatusOK, resp.StatusCode)
+			be.Equal(t, resp.StatusCode, http.StatusOK)
 
 			var result struct {
 				Files []struct {
@@ -194,10 +193,10 @@ func TestGenericCategoryContract(t *testing.T) {
 			}
 
 			body, err := io.ReadAll(resp.Body)
-			be.Equal(t, err, nil)
+			be.Err(t, err, nil)
 
 			err = json.Unmarshal(body, &result)
-			be.Equal(t, err, nil)
+			be.Err(t, err, nil)
 
 			// Verify structure (may be empty but should be valid JSON)
 			for _, file := range result.Files {
@@ -222,14 +221,14 @@ func TestPlatformQueries(t *testing.T) {
 
 			url := apiv1 + "/platform/" + platform
 			resp, err := clientDo(t, url)
-			be.Equal(t, err, nil)
+			be.Err(t, err, nil)
 			defer func() {
 				if err := resp.Body.Close(); err != nil {
 					t.Log(err)
 				}
 			}()
 
-			be.Equal(t, http.StatusOK, resp.StatusCode)
+			be.Equal(t, resp.StatusCode, http.StatusOK)
 
 			var result struct {
 				Files []struct {
@@ -245,10 +244,10 @@ func TestPlatformQueries(t *testing.T) {
 			}
 
 			body, err := io.ReadAll(resp.Body)
-			be.Equal(t, err, nil)
+			be.Err(t, err, nil)
 
 			err = json.Unmarshal(body, &result)
-			be.Equal(t, err, nil)
+			be.Err(t, err, nil)
 
 			// Verify URL patterns for platform files
 			for _, file := range result.Files {
@@ -276,17 +275,17 @@ func TestURLPatterns(t *testing.T) {
 			t.Parallel()
 			url := apiv1 + "/category/" + endpoint
 			resp, err := clientDo(t, url)
-			be.Equal(t, err, nil)
+			be.Err(t, err, nil)
 			defer func() {
 				if err := resp.Body.Close(); err != nil {
 					t.Log(err)
 				}
 			}()
-			be.Equal(t, http.StatusOK, resp.StatusCode)
+			be.Equal(t, resp.StatusCode, http.StatusOK)
 			// Just verify it returns valid JSON with expected structure
 			var result map[string]any
 			err = json.NewDecoder(resp.Body).Decode(&result)
-			be.Equal(t, err, nil)
+			be.Err(t, err, nil)
 			be.True(t, len(result) > 0)
 		})
 	}
@@ -298,14 +297,14 @@ func TestScenersContract(t *testing.T) {
 	reqLocalHost(t)
 
 	resp, err := clientDo(t, apiv1+"/sceners")
-	be.Equal(t, err, nil)
+	be.Err(t, err, nil)
 	defer func() {
 		if err := resp.Body.Close(); err != nil {
 			t.Log(err)
 		}
 	}()
 
-	be.Equal(t, http.StatusOK, resp.StatusCode)
+	be.Equal(t, resp.StatusCode, http.StatusOK)
 
 	var result struct {
 		Sceners []struct {
@@ -323,13 +322,13 @@ func TestScenersContract(t *testing.T) {
 	}
 
 	body, err := io.ReadAll(resp.Body)
-	be.Equal(t, err, nil)
+	be.Err(t, err, nil)
 
 	err = json.Unmarshal(body, &result)
-	be.Equal(t, err, nil)
+	be.Err(t, err, nil)
 
 	be.True(t, len(result.Sceners) > 0)
-	be.Equal(t, 1, result.Page)
+	be.Equal(t, result.Page, 1)
 	be.True(t, result.Totals > 0)
 	be.True(t, result.TotalPages >= 1)
 
@@ -356,14 +355,14 @@ func TestScenerRolesContract(t *testing.T) {
 
 			url := apiv1 + "/sceners/" + role
 			resp, err := clientDo(t, url)
-			be.Equal(t, err, nil)
+			be.Err(t, err, nil)
 			defer func() {
 				if err := resp.Body.Close(); err != nil {
 					t.Log(err)
 				}
 			}()
 
-			be.Equal(t, http.StatusOK, resp.StatusCode)
+			be.Equal(t, resp.StatusCode, http.StatusOK)
 
 			var result struct {
 				Sceners []struct {
@@ -381,13 +380,13 @@ func TestScenerRolesContract(t *testing.T) {
 			}
 
 			body, err := io.ReadAll(resp.Body)
-			be.Equal(t, err, nil)
+			be.Err(t, err, nil)
 
 			err = json.Unmarshal(body, &result)
-			be.Equal(t, err, nil)
+			be.Err(t, err, nil)
 
 			be.True(t, len(result.Sceners) > 0)
-			be.Equal(t, 1, result.Page)
+			be.Equal(t, result.Page, 1)
 			be.True(t, result.Totals > 0)
 			be.True(t, result.TotalPages >= 1)
 
@@ -409,22 +408,22 @@ func TestScenerDetailsContract(t *testing.T) {
 	reqLocalHost(t)
 
 	resp, err := clientDo(t, apiv1+"/scener/006")
-	be.Equal(t, err, nil)
+	be.Err(t, err, nil)
 	defer func() {
 		if err := resp.Body.Close(); err != nil {
 			t.Log(err)
 		}
 	}()
 
-	be.Equal(t, http.StatusOK, resp.StatusCode)
+	be.Equal(t, resp.StatusCode, http.StatusOK)
 
 	var result map[string]any
 
 	body, err := io.ReadAll(resp.Body)
-	be.Equal(t, err, nil)
+	be.Err(t, err, nil)
 
 	err = json.Unmarshal(body, &result)
-	be.Equal(t, err, nil)
+	be.Err(t, err, nil)
 
 	// Verify basic structure
 	be.True(t, len(result) > 0)
@@ -433,7 +432,7 @@ func TestScenerDetailsContract(t *testing.T) {
 
 	scener, ok := result["scener"].(map[string]any)
 	be.True(t, ok)
-	be.Equal(t, "006", scener["name"])
+	be.Equal(t, scener["name"], "006")
 
 	id, ok := scener["id"].(string)
 	be.True(t, ok && len(id) > 0)
@@ -495,20 +494,20 @@ func TestScenerNotFound(t *testing.T) {
 
 	url := apiv1 + "/scener/nonexistent-scener-12345"
 	resp, err := clientDo(t, url)
-	be.Equal(t, err, nil)
+	be.Err(t, err, nil)
 	defer func() {
 		if err := resp.Body.Close(); err != nil {
 			t.Log(err)
 		}
 	}()
 
-	be.Equal(t, http.StatusNotFound, resp.StatusCode)
+	be.Equal(t, resp.StatusCode, http.StatusNotFound)
 
 	var result map[string]string
 	err = json.NewDecoder(resp.Body).Decode(&result)
-	be.Equal(t, err, nil)
+	be.Err(t, err, nil)
 
-	be.Equal(t, "Scener not found", result["error"])
+	be.Equal(t, result["error"], "Scener not found")
 }
 
 // TestFileContract verifies the file endpoint contract.
@@ -520,18 +519,18 @@ func TestFileContract(t *testing.T) {
 	// First, get a file from the files endpoint to use as a test case
 	url := apiv1 + "/artifacts?page=1"
 	artifactsResp, err := clientDo(t, url)
-	be.Equal(t, err, nil)
+	be.Err(t, err, nil)
 	defer func() {
 		if err := artifactsResp.Body.Close(); err != nil {
 			t.Log(err)
 		}
 	}()
 
-	be.Equal(t, http.StatusOK, artifactsResp.StatusCode)
+	be.Equal(t, artifactsResp.StatusCode, http.StatusOK)
 
 	var artifactsResult map[string]any
 	err = json.NewDecoder(artifactsResp.Body).Decode(&artifactsResult)
-	be.Equal(t, err, nil)
+	be.Err(t, err, nil)
 
 	artifactsArray, ok := artifactsResult["artifacts"].([]any)
 	be.True(t, ok)
@@ -561,18 +560,18 @@ func TestFileContract(t *testing.T) {
 	// Now test the artifact endpoint with this hash
 	url = apiv1 + "/artifact/" + fileHash
 	resp, err := clientDo(t, url)
-	be.Equal(t, err, nil)
+	be.Err(t, err, nil)
 	defer func() {
 		if err := resp.Body.Close(); err != nil {
 			t.Log(err)
 		}
 	}()
 
-	be.Equal(t, http.StatusOK, resp.StatusCode)
+	be.Equal(t, resp.StatusCode, http.StatusOK)
 
 	var result map[string]any
 	err = json.NewDecoder(resp.Body).Decode(&result)
-	be.Equal(t, err, nil)
+	be.Err(t, err, nil)
 
 	// Verify the response structure
 	artifactData, ok := result["artifact"].(map[string]any)
@@ -593,18 +592,18 @@ func TestArtifactNotFound(t *testing.T) {
 
 	url := apiv1 + "/artifact/nonexistent"
 	resp, err := clientDo(t, url)
-	be.Equal(t, err, nil)
+	be.Err(t, err, nil)
 	defer func() {
 		if err := resp.Body.Close(); err != nil {
 			t.Log(err)
 		}
 	}()
 
-	be.Equal(t, http.StatusBadRequest, resp.StatusCode)
+	be.Equal(t, resp.StatusCode, http.StatusBadRequest)
 
 	var result map[string]string
 	err = json.NewDecoder(resp.Body).Decode(&result)
-	be.Equal(t, err, nil)
+	be.Err(t, err, nil)
 
-	be.Equal(t, "Invalid file hash", result["error"])
+	be.Equal(t, result["error"], "Invalid file hash")
 }

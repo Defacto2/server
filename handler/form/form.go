@@ -140,10 +140,15 @@ func mapper(r rune) rune {
 // The path is trimmed of any URL scheme, host or query parameters, as well
 // as any invalid path separators.
 func SanitizeSeparators(rawPath string) string {
-	const separator = "/"
+	const (
+		separator = "/"
+		double    = separator + separator
+	)
 
 	s := strings.TrimSpace(rawPath)
-	s = strings.ReplaceAll(s, separator+separator, separator)
+	for strings.Contains(s, double) {
+		s = strings.ReplaceAll(s, double, separator)
+	}
 	s = strings.Trim(s, separator)
 
 	u, err := url.Parse(s)
@@ -158,7 +163,7 @@ const sanitizePath = "[^a-zA-Z0-9-._/]+" // Regular expression to sanitize the U
 var reSanitizePath = regexp.MustCompile(sanitizePath)
 
 // SanitizeURLPath returns a sanitized version of the URL path.
-// Invalid characters are removed as are as incorrect path separators.
+// Invalid characters are removed as well as incorrect path separators.
 func SanitizeURLPath(rawPath string) string {
 	if strings.Contains(rawPath, "://") {
 		return ""
@@ -229,15 +234,6 @@ func ValidDate(y, m, d string) (bool, bool, bool) { //nolint:cyclop
 	}
 
 	return yok, mok, dok
-}
-
-// ValidVT returns true if the link is a valid VirusTotal URL
-// or if it is an empty string.
-func ValidVT(link string) bool {
-	const prefix = "https://www.virustotal.com/"
-
-	link = strings.TrimSpace(link)
-	return len(link) > 0 && strings.HasPrefix(link, prefix)
 }
 
 // ValidYouTube returns true when the string is either

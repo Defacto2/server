@@ -3,13 +3,10 @@ package api_test
 import (
 	"database/sql"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 	"time"
 
 	"github.com/Defacto2/server/handler/api"
-	_ "github.com/jackc/pgx/v5"
-	"github.com/labstack/echo/v5"
 	"github.com/nalgeon/be"
 )
 
@@ -17,10 +14,9 @@ import (
 func TestTagsCaching(t *testing.T) {
 	t.Parallel()
 
-	// This test requires a configured test, database connection
-	const dataSourceName = "postgres://root:example@localhost:5432/defacto2_ps?sslmode=disable" //nolint:gosec
-	db, err := sql.Open("pgx", dataSourceName)
-	be.Equal(t, err, nil)
+	// This test requires a configured test database connection.
+	db, err := sql.Open(driverName, dataSourceName)
+	be.Err(t, err, nil)
 	defer func() {
 		if err := db.Close(); err != nil {
 			t.Fatal(err)
@@ -31,32 +27,27 @@ func TestTagsCaching(t *testing.T) {
 		t.Skip("Database not available, skipping cache test")
 	}
 
-	const target = "/api/v0/categories"
-	e := echo.New()
-	r := httptest.NewRequestWithContext(t.Context(), http.MethodGet, target, nil)
-	w := httptest.NewRecorder()
-	c := e.NewContext(r, w)
+	const target = api.APIBase + "/categories"
+	w, c := newRequest(t, target)
 
 	// should not be cached
 	err = api.CategoriesAPI(c, db)
-	be.Equal(t, err, nil)
+	be.Err(t, err, nil)
 	be.Equal(t, w.Code, http.StatusOK)
 	firstResponse := w.Body.String()
 
 	// should be cached and quicker
-	r2 := httptest.NewRequestWithContext(t.Context(), http.MethodGet, target, nil)
-	w2 := httptest.NewRecorder()
-	c2 := e.NewContext(r2, w2)
+	w2, c2 := newRequest(t, target)
 
 	start := time.Now()
 	err = api.CategoriesAPI(c2, db)
 	elapsed := time.Since(start)
-	be.Equal(t, err, nil)
+	be.Err(t, err, nil)
 	be.Equal(t, w2.Code, http.StatusOK)
 	secondResponse := w2.Body.String()
 
 	// Responses should be identical
-	be.Equal(t, firstResponse, secondResponse)
+	be.Equal(t, secondResponse, firstResponse)
 	// Second call should be faster (though this is a rough check)
 	be.True(t, elapsed < 10*time.Millisecond)
 }

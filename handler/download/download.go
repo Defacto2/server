@@ -8,12 +8,11 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"net/http"
 	"os"
 	"path/filepath"
 	"slices"
-	"strconv"
 	"strings"
-	"time"
 
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/handler/sess"
@@ -69,7 +68,11 @@ func Checksum(ctx context.Context, c *echo.Context, db *sql.DB, obfsKey string) 
 	defer os.Remove(file)
 
 	if _, err := f.Write(body); err != nil {
-		return fmt.Errorf(format, "write", err)
+		_ = f.Close()
+		return fmt.Errorf(fmtinf, "write", obfsKey, err)
+	}
+	if err := f.Close(); err != nil {
+		return fmt.Errorf(fmtinf, "close", obfsKey, err)
 	}
 
 	file = strings.TrimPrefix(file, "/")
@@ -90,21 +93,15 @@ func Checksum(ctx context.Context, c *echo.Context, db *sql.DB, obfsKey string) 
 // [header]:https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Last-Modified
 func LastModified(art *models.File) string {
 	const none = ""
-	if art == nil {
+	if art == nil || !art.FileLastModified.Valid {
 		return none
 	}
 
-	if !art.FileLastModified.Valid {
+	if art.FileLastModified.Time.Year() <= model.EpochYear {
 		return none
 	}
 
-	year, _ := strconv.Atoi(art.FileLastModified.Time.Format("2006"))
-	if year <= model.EpochYear {
-		return none
-	}
-
-	t := art.FileLastModified.Time.UTC()
-	return t.Format(time.RFC1123)
+	return art.FileLastModified.Time.UTC().Format(http.TimeFormat)
 }
 
 // Download configuration.
@@ -184,6 +181,7 @@ func inline(c *echo.Context, text bool, file, name, ext string) error {
 		return fmt.Errorf(format, "check", err)
 	}
 
+	ext = strings.ToLower(ext)
 	if text && slices.Contains(extensions.Image(), ext) {
 		text = false
 	}
