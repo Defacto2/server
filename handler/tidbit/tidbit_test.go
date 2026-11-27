@@ -1,7 +1,12 @@
 package tidbit_test
 
 import (
-	"path/filepath"
+	"bytes"
+	"html/template"
+	"io/fs"
+	"log/slog"
+	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/Defacto2/server/handler/tidbit"
@@ -10,76 +15,133 @@ import (
 	"github.com/nalgeon/be"
 )
 
-// checked in Sep 26, test coverage was fine at around 55%+
+var testLog = logs.Discard()
 
 func TestID(t *testing.T) {
 	t.Parallel()
 
-	// Test a few known IDs that have URIs defined
-	testIDs := []tidbit.ID{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
-	for _, id := range testIDs {
-		if u := id.URI(); u == nil {
-			t.Errorf("tidbit: %d URI is empty", id)
-		}
+	for _, id := range []tidbit.ID{1, 2, 3, 4, 5, 6, 7, 8, 9, 10} {
+		be.True(t, len(id.URI()) > 0)
 	}
+	be.True(t, tidbit.ID(-1).URI() == nil)
+	be.True(t, tidbit.ID(999999).URI() == nil)
 }
 
 func TestMarkdown(t *testing.T) {
 	t.Parallel()
 
 	fsys := testutil.EmbedFS(t)
-	dir := filepath.Join("testdata", "tidbit")
-	b := tidbit.ID(1).Markdown(logs.Discard(), fsys, dir)
-	if b == nil {
-		t.Error("tidbit: 1 markdown is nil")
-	}
+	const dir = "testdata/tidbit"
 
-	const want = "<p>This is a test tidbit.</p>\n"
-	if got := string(b); got != want {
-		t.Errorf("tidbit: 1 markdown got %q, want %q", got, want)
-	}
+	t.Run("valid", func(t *testing.T) {
+		t.Parallel()
+
+		b := tidbit.ID(1).Markdown(testLog, fsys, dir)
+		be.Equal(t, string(b), "<p>This is a test tidbit.</p>\n")
+	})
+
+	t.Run("missing", func(t *testing.T) {
+		t.Parallel()
+
+		var buf bytes.Buffer
+		sl := slog.New(slog.NewTextHandler(&buf, nil))
+		b := tidbit.ID(999999).Markdown(sl, fsys, dir)
+		be.True(t, b == nil)
+		be.True(t, buf.Len() > 0)
+	})
 }
 
-func TestID_URL(t *testing.T) {
+func TestURL(t *testing.T) {
 	t.Parallel()
-	const (
-		test1 = "untouchables"
-		test2 = "the-untouchables"
-		test3 = ""
-		want1 = "<a href=\"/g/the-untouchables\">The Untouchables</a>"
-		want2 = "<a href=\"/g/untouchables\">Untouchables</a>"
-		want3 = "<a href=\"/g/the-untouchables\">The Untouchables</a> &nbsp; <a href=\"/g/untouchables\">Untouchables</a>"
-	)
-	if got := tidbit.ID(1).URL(test1); got != want1 {
-		t.Errorf("tidbit: 1 markdown got %q, want %q", got, want1)
+
+	tests := []struct {
+		name string
+		id   tidbit.ID
+		uri  string
+		want template.HTML
+	}{
+		{"exclude untouchables", 1, "untouchables", `<a href="/g/the-untouchables">The Untouchables</a>`},
+		{"exclude the-untouchables", 1, "the-untouchables", `<a href="/g/untouchables">Untouchables</a>`},
+		{"exclude none", 1, "", `<a href="/g/the-untouchables">The Untouchables</a> &nbsp; <a href="/g/untouchables">Untouchables</a>`},
+		{"negative id", -1, "", ""},
+		{"unknown id", 999999, "", ""},
 	}
-	if got := tidbit.ID(1).URL(test2); got != want2 {
-		t.Errorf("tidbit: 1 markdown got %q, want %q", got, want2)
-	}
-	if got := tidbit.ID(1).URL(test3); got != want3 {
-		t.Errorf("tidbit: 1 markdown got %q, want %q", got, want3)
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			be.Equal(t, tt.id.URL(tt.uri), tt.want)
+		})
 	}
 }
 
 func TestFind(t *testing.T) {
 	t.Parallel()
-	const want = 3
-	if got := tidbit.Find("untouchables"); len(got) != want {
-		t.Errorf("tidbit: wanted %d untouchables matches, but got %d", want, len(got))
-	}
+
+	be.Equal(t, len(tidbit.Find("untouchables")), 3)
+	be.Equal(t, len(tidbit.Find("no-such-group")), 0)
 }
 
 func TestMatch(t *testing.T) {
 	t.Parallel()
 
+	be.True(t, tidbit.Missing("no-such-group"))
+
 	for _, uris := range tidbit.Copy() {
 		for _, uri := range uris {
 			key := string(uri)
-			got := tidbit.Missing(key)
-			be.True(t, !got)
-
-			finds := tidbit.Find(key)
-			be.True(t, len(finds) > 0)
+			be.True(t, !tidbit.Missing(key))
+			be.True(t, len(tidbit.Find(key)) > 0)
 		}
 	}
+}
+
+func TestString(t *testing.T) {
+	t.Parallel()
+
+	fsys := testutil.ProjectFS(t)
+	got := tidbit.ID(1).String(testLog, fsys)
+	be.True(t, strings.Contains(got, "<p>"))
+
+	be.Equal(t, tidbit.ID(999999).String(testLog, fsys), "")
+}
+
+func TestFiles(t *testing.T) {
+	t.Parallel()
+
+	fsys := testutil.ProjectFS(t)
+	entries, err := fs.ReadDir(fsys, tidbit.Dir)
+	be.Err(t, err, nil)
+
+	files := make(map[tidbit.ID]bool, len(entries))
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+		stem, ok := strings.CutSuffix(entry.Name(), ".md")
+		if !ok {
+			continue
+		}
+		n, err := strconv.Atoi(stem)
+		be.Err(t, err, nil)
+		files[tidbit.ID(n)] = true
+	}
+
+	index := tidbit.Copy()
+	for id := range index {
+		if !files[id] {
+			t.Errorf("tidbit ID %d has no markdown file in %s", id, tidbit.Dir)
+		}
+	}
+	for id := range files {
+		if _, ok := index[id]; !ok {
+			t.Errorf("markdown file %s/%d.md is not registered in tidbit index", tidbit.Dir, id)
+		}
+	}
+}
+
+func TestStartup(t *testing.T) {
+	t.Parallel()
+
+	tidbit.Startup(t.Context(), testLog, nil)
 }

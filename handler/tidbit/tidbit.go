@@ -10,7 +10,7 @@ import (
 	"html/template"
 	"io/fs"
 	"log/slog"
-	"path/filepath"
+	"path"
 	"slices"
 	"strings"
 
@@ -58,13 +58,13 @@ type ID int
 // URI is the URL slug of the releaser.
 type URI string
 
-// Tibits is a map of tidbits mapped to their URIs.
-type Tibits map[ID][]URI
+// Tidbits is a map of tidbits mapped to their URIs.
+type Tidbits map[ID][]URI
 
 // Tidbit is a map of tidbits mapped to their descriptions.
 type Tidbit map[ID]string
 
-var groups = Tibits{
+var groups = Tidbits{
 	1:    []URI{untouchables, "the-untouchables"},
 	1111: []URI{"the-racketeers", "digital-gang", "strata_crackers", "usalliance", "byt"},
 	111:  []URI{theFirm},
@@ -561,11 +561,11 @@ var groups = Tibits{
 // of this Markdown method.
 func (id ID) Markdown(sl *slog.Logger, fsys fs.FS, dir string) []byte {
 	const msg = "tidbit markdown"
-	if err := nils.Check(sl); err != nil {
+	if err := nils.Check(sl, fsys); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 
-	name := filepath.Join(dir, fmt.Sprintf("%d.md", id))
+	name := path.Join(dir, fmt.Sprintf("%d.md", id))
 
 	b, err := fs.ReadFile(fsys, name)
 	if err != nil {
@@ -594,12 +594,7 @@ func (id ID) String(sl *slog.Logger, fsys fs.FS) string {
 
 // URI returns the URIs of the tidbit.
 func (id ID) URI() []URI {
-	x := groups[id]
-	if x == nil {
-		return nil
-	}
-
-	return x
+	return slices.Clone(groups[id])
 }
 
 // URL returns the HTML links of the tidbit but the provided URI is excluded.
@@ -630,8 +625,12 @@ func (id ID) URL(uri string) template.HTML {
 }
 
 // Copy returns a copy of the tidbits index.
-func Copy() Tibits {
-	return groups
+func Copy() Tidbits {
+	out := make(Tidbits, len(groups))
+	for id, uris := range groups {
+		out[id] = slices.Clone(uris)
+	}
+	return out
 }
 
 // Find returns the tidbit IDs for the given URI.

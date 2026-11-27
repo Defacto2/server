@@ -1,237 +1,86 @@
 package name_test
 
 import (
-	"regexp"
-	"strings"
+	"slices"
 	"testing"
 
 	"github.com/Defacto2/server/handler/releaser/name"
 )
 
-// These are benchmarks for various search and replace patterns.
-// Benchmarks ending with 00 were the original implementations,
-// while newer onces were either generated using Gemini or suggested
-// using the Go standard docs and linters.
+func benchPaths() []name.Path {
+	all := name.All()
+	paths := make([]name.Path, 0, len(all)+2)
+	for k := range all {
+		paths = append(paths, k)
+	}
+	slices.Sort(paths)
+	return append(paths, "unlisted-group", "invalid/path")
+}
 
-func BenchmarkHumanize00(b *testing.B) {
-	b.ReportAllocs()
+func benchNames() []string {
+	all := name.All()
+	vals := make([]string, 0, len(all)+1)
+	for _, v := range all {
+		vals = append(vals, v)
+	}
+	slices.Sort(vals)
+	return append(vals, "Razor 1911 Demo & Skillion")
+}
+
+func BenchmarkClean(b *testing.B) {
+	names := benchNames()
+	keep := func(c byte) bool {
+		return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
+			(c >= '0' && c <= '9') || c == ' '
+	}
 	for b.Loop() {
-		for _, p := range testHumans {
-			_, _ = Humanize00(p)
+		for _, s := range names {
+			_ = name.Clean(s, keep)
 		}
 	}
 }
 
-func BenchmarkHumanize01(b *testing.B) {
-	b.ReportAllocs()
+func BenchmarkFind(b *testing.B) {
+	names := benchNames()
 	for b.Loop() {
-		for _, p := range testHumans {
-			_, _ = Humanize01(p)
+		for _, s := range names {
+			_ = name.Find(s)
 		}
 	}
 }
 
-func BenchmarkHumanize02(b *testing.B) {
-	b.ReportAllocs()
+func BenchmarkHumanize(b *testing.B) {
+	paths := benchPaths()
 	for b.Loop() {
-		for _, p := range testHumans {
-			_, _ = Humanize02(p)
+		for _, p := range paths {
+			_, _ = name.Humanize(p)
 		}
 	}
 }
 
-func BenchmarkObf00(b *testing.B) {
-	b.ReportAllocs()
+func BenchmarkObfuscate(b *testing.B) {
+	names := benchNames()
 	for b.Loop() {
-		for _, s := range testObfs {
-			_ = Obf00(s)
+		for _, s := range names {
+			_ = name.Obfuscate(s)
 		}
 	}
 }
 
-func BenchmarkObf01(b *testing.B) {
-	b.ReportAllocs()
+func BenchmarkString(b *testing.B) {
+	paths := benchPaths()
 	for b.Loop() {
-		for _, s := range testObfs {
-			_ = Obf01(s)
+		for _, p := range paths {
+			_ = name.String(p)
 		}
 	}
 }
 
-func BenchmarkObf02(b *testing.B) {
-	b.ReportAllocs()
+func BenchmarkValid(b *testing.B) {
+	paths := benchPaths()
 	for b.Loop() {
-		for _, s := range testObfs {
-			_ = Obf02(s)
+		for _, p := range paths {
+			_ = name.Valid(p)
 		}
 	}
-}
-
-func BenchmarkObf03(b *testing.B) {
-	b.ReportAllocs()
-	for b.Loop() {
-		for _, s := range testObfs {
-			_ = Obf03(s)
-		}
-	}
-}
-
-var (
-	testHumans = [...]name.Path{"defacto2", "elitendo", "tristar-red-sector", "INC_dox", "t&r"}
-	testObfs   = [...]string{"Defacto2", "Defacto", "Elitendo", "ACiD Productions", "TDU-Jam!", "Razor 1911 Demo & Skillion"}
-)
-
-const (
-	spacedAmpersand = " & " // " & " is a special case
-	spacedComma     = ", "  // ", " is a special case
-)
-
-func Humanize00(p name.Path) (string, error) {
-	if !name.Valid(p) {
-		return "", name.ErrPath
-	}
-	s := strings.ToLower(string(p))
-	s = strings.ReplaceAll(s, "-ampersand-", spacedAmpersand)
-	s = strings.ReplaceAll(s, "-", " ")
-	s = strings.ReplaceAll(s, "_", "-")
-	s = strings.ReplaceAll(s, "*", spacedComma)
-	return s, nil
-}
-
-func Humanize01(p name.Path) (string, error) {
-	if !name.Valid(p) {
-		return "", name.ErrPath
-	}
-	var builder strings.Builder
-	builder.Grow(len(p) + 8)
-
-	s := string(p)
-	for i := 0; i < len(s); {
-		if strings.HasPrefix(s[i:], "-ampersand-") {
-			builder.WriteString(spacedAmpersand)
-			i += 11 // len("-ampersand-")
-			continue
-		}
-
-		b := s[i]
-
-		switch b {
-		case '-':
-			builder.WriteByte(' ')
-		case '_':
-			builder.WriteByte('-')
-		case '*':
-			builder.WriteString(spacedComma)
-		default:
-			if b >= 'A' && b <= 'Z' {
-				b += 'a' - 'A'
-			}
-			builder.WriteByte(b)
-		}
-		i++
-	}
-
-	return builder.String(), nil
-}
-
-var pathReplacer = strings.NewReplacer(
-	"-ampersand-", spacedAmpersand,
-	"-", " ",
-	"_", "-",
-	"*", spacedComma,
-)
-
-func Humanize02(p name.Path) (string, error) {
-	if !name.Valid(p) {
-		return "", name.ErrPath
-	}
-
-	s := strings.ToLower(string(p))
-	return pathReplacer.Replace(s), nil
-}
-
-func Obf00(s string) name.Path {
-	s = strings.TrimSpace(strings.ToLower(s))
-	re := regexp.MustCompile(`[^a-z0-9\&\-\,\ ]`)
-	s = re.ReplaceAllString(s, "")
-	s = strings.ReplaceAll(s, "-", "_")
-	s = strings.ReplaceAll(s, spacedAmpersand, "-ampersand-")
-	s = strings.ReplaceAll(s, spacedComma, "*")
-	s = strings.ReplaceAll(s, " ", "-")
-	return name.Path(s)
-}
-
-var obfre = regexp.MustCompile(`[^a-z0-9\&\-\,\ ]`)
-
-func Obf01(s string) name.Path {
-	s = strings.TrimSpace(strings.ToLower(s))
-	s = obfre.ReplaceAllString(s, "")
-	s = strings.ReplaceAll(s, "-", "_")
-	s = strings.ReplaceAll(s, spacedAmpersand, "-ampersand-")
-	s = strings.ReplaceAll(s, spacedComma, "*")
-	s = strings.ReplaceAll(s, " ", "-")
-	return name.Path(s)
-}
-
-func Obf02(s string) name.Path {
-	idx := -1
-OuterLoop:
-	for i := range len(s) {
-		b := s[i]
-		switch {
-		case b >= 'a' && b <= 'z',
-			b >= '0' && b <= '9',
-			b == '&', b == '-', b == ',', b == ' ':
-			idx = i
-			break OuterLoop
-		default:
-		}
-	}
-
-	if idx == -1 {
-		return name.Path(s)
-	}
-
-	buf := make([]byte, idx, len(s))
-	copy(buf, s[:idx])
-
-	for i := idx; i < len(s); i++ {
-		b := s[i]
-		if (b >= 'a' && b <= 'z') || (b >= '0' && b <= '9') || b == '&' || b == '-' || b == ',' || b == ' ' {
-			buf = append(buf, b)
-		}
-	}
-	return name.Path(buf)
-}
-
-func allowed(b byte) bool {
-	return (b >= 'a' && b <= 'z') ||
-		(b >= '0' && b <= '9') ||
-		b == '&' || b == '-' || b == ',' || b == ' '
-}
-
-func Obf03(s string) string {
-	idx := -1
-	for i := range len(s) {
-		if !allowed(s[i]) {
-			idx = i
-			break
-		}
-	}
-
-	if idx == -1 {
-		return s
-	}
-
-	buf := make([]byte, idx, len(s))
-	copy(buf, s[:idx])
-
-	for i := idx; i < len(s); i++ {
-		b := s[i]
-		if allowed(b) {
-			buf = append(buf, b)
-		}
-	}
-
-	return string(buf)
 }

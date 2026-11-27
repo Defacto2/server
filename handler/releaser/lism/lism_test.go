@@ -1,7 +1,7 @@
 package lism_test
 
 import (
-	"sort"
+	"slices"
 	"strings"
 	"testing"
 	"unicode"
@@ -10,104 +10,33 @@ import (
 	"github.com/nalgeon/be"
 )
 
-// checked in Sep 26, test coverage was great at around 90%+
-
-func TestFind(t *testing.T) {
+func TestAll(t *testing.T) {
 	t.Parallel()
 
-	tests := []struct {
-		name  string
-		input string
-		want  []string
-	}{
-		{"empty", "", []string{}},
-		{"no match", "some-unknown-random-bbs", []string{}},
-		{"df2", "df2", []string{"defacto2", "defacto2net"}},
-		{"razor", "RzR", []string{"razor-1911", "razor-1911-demo", "razordox"}},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
+	l := lism.All()
+	be.True(t, len(l) >= 100)
 
-			got := lism.Find(tt.input)
-			c := make([]string, len(got))
-			for i, v := range got {
-				c[i] = string(v)
-			}
-			sort.Strings(c)
-			be.Equal(t, c, tt.want)
-		})
-	}
-}
-
-func TestInitialism(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		name string
-		path lism.Path
-		want []string
-	}{
-		{"empty path", "", nil},
-		{"unknown path", "some-random-bbs", nil},
-		{"known", "union", []string{"UNi"}},
-		{"multiple", "wave", []string{"The Wave", "CNC"}},
-		{"df2", "defacto2", []string{"DF2", "DF"}},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
-			got := lism.Initialism(tt.path)
-			be.True(t, matchSlice(t, got, tt.want))
-		})
-	}
-
-	// Confirm all keys are valid URL paths.
-	for key := range lism.Copy() {
-		// keys must be lowercase and start with only letters or numbers
-		k := string(key)
-		chr := rune(k[0])
-		be.Equal(t, k, strings.ToLower(k))
-		be.Equal(t, k, strings.TrimSpace(k))
-		valid := unicode.IsLetter(chr) || unicode.IsNumber(chr)
-		be.True(t, valid)
-	}
-}
-
-func TestCopy(t *testing.T) {
-	t.Parallel()
-
-	l := lism.Copy()
-	if len(l) == 0 {
-		t.Errorf("Initialisms() = %v, want %v", l, "non-empty")
-	}
-	if len(l) < 100 {
-		t.Errorf("Initialisms() = %v, want %v", l, "more than 100")
-	}
-
-	s := "inc"
-	m := ""
-	for _, v := range l {
-		for _, x := range v {
-			if strings.ToLower(x) == s {
-				m = x
-			}
+	found := false
+	for _, vals := range l {
+		if slices.ContainsFunc(vals, func(v string) bool {
+			return strings.EqualFold(v, "inc")
+		}) {
+			found = true
+			break
 		}
 	}
-	if m == "" {
-		t.Errorf("Initialisms() could not find %v", s)
-	}
+	be.True(t, found)
 }
 
-func TestIsInitialism(t *testing.T) {
+func TestExist(t *testing.T) {
 	t.Parallel()
+
 	tests := []struct {
 		name string
 		path lism.Path
 		want bool
 	}{
-		{"empty path", "", false},
+		{"empty", "", false},
 		{"unknown", "some-random-bbs", false},
 		{"known", "tristar", true},
 		{"multiple", "tristar-ampersand-red-sector-inc", true},
@@ -122,20 +51,136 @@ func TestIsInitialism(t *testing.T) {
 	}
 }
 
-func matchSlice(t *testing.T, got, want []string) bool {
-	t.Helper()
+func TestFind(t *testing.T) {
+	t.Parallel()
 
-	if len(got) != len(want) {
-		t.Log(len(got), len(want))
-		return false
+	tests := []struct {
+		name  string
+		input string
+		want  []lism.Path
+	}{
+		{"empty", "", nil},
+		{"no match", "some-unknown-random-bbs", nil},
+		{"df2", "df2", []lism.Path{"defacto2", "defacto2net"}},
+		{"razor", "RzR", []lism.Path{"razor-1911", "razor-1911-demo", "razordox"}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			got := slices.Clone(lism.Find(tt.input))
+			slices.Sort(got)
+			be.Equal(t, got, tt.want)
+		})
+	}
+}
+
+func TestFindOne(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name  string
+		input string
+		want  lism.Path
+	}{
+		{"empty", "", ""},
+		{"no match", "some-unknown-random-bbs", ""},
+		{"unique", "FiRM", "the-firm"},
+		{"case insensitive", "nappa", "north-american-pirate_phreak-association"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			got := lism.FindOne(tt.input)
+			be.Equal(t, got, tt.want)
+		})
 	}
 
-	for i, v := range got {
-		if v != want[i] {
-			t.Log(v, want)
-			return false
+	t.Run("collision", func(t *testing.T) {
+		t.Parallel()
+
+		got := lism.FindOne("df2")
+		be.True(t, slices.Contains([]lism.Path{"defacto2", "defacto2net"}, got))
+	})
+}
+
+func TestInitialism(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name string
+		path lism.Path
+		want []string
+	}{
+		{"empty", "", nil},
+		{"unknown", "some-random-bbs", nil},
+		{"known", "union", []string{"UNi"}},
+		{"multiple", "wave", []string{"The Wave", "CNC"}},
+		{"df2", "defacto2", []string{"DF2", "DF"}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			got := lism.Initialism(tt.path)
+			be.Equal(t, got, tt.want)
+		})
+	}
+}
+
+func TestList(t *testing.T) {
+	t.Parallel()
+
+	for key, vals := range lism.All() {
+		k := string(key)
+		if k == "" {
+			t.Error("empty key in initialisms")
+			continue
+		}
+		chr := rune(k[0])
+		if k != strings.ToLower(k) {
+			t.Errorf("%q: key must be lowercase", k)
+		}
+		if k != strings.TrimSpace(k) {
+			t.Errorf("%q: key has leading or trailing whitespace", k)
+		}
+		if !unicode.IsLetter(chr) && !unicode.IsNumber(chr) {
+			t.Errorf("%q: key must start with a letter or number", k)
+		}
+		if len(vals) == 0 {
+			t.Errorf("%q: empty initialisms slice", k)
+		}
+		for _, v := range vals {
+			if v == "" {
+				t.Errorf("%q: empty initialism value", k)
+			}
+			if v != strings.TrimSpace(v) {
+				t.Errorf("%q: initialism %q has leading or trailing whitespace", k, v)
+			}
 		}
 	}
+}
 
-	return true
+func TestString(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name string
+		path lism.Path
+		want string
+	}{
+		{"empty", "", ""},
+		{"unknown", "some-random-bbs", ""},
+		{"single", "union", "UNi"},
+		{"multiple", "defacto2", "DF2, DF"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			got := lism.String(tt.path)
+			be.Equal(t, got, tt.want)
+		})
+	}
 }

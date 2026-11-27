@@ -1608,7 +1608,7 @@ var initialisms = List{
 	"lifeless":                               {"LL"},
 	"original-gun-clappers":                  {"OGC"},
 	"bribe":                                  {"BBE"},
-	"lords-of-deception":                     {"l0D, lOD"},
+	"lords-of-deception":                     {"l0D", "lOD"},
 	"orgasm":                                 {"OGM"},
 	"the-age-of-creation":                    {"tac"},
 	"new-vision-couriers":                    {"NVC"},
@@ -1673,14 +1673,14 @@ func Find(s string) []Path {
 }
 
 // FindOne returns the uri Path of the given acronym/initialism.
-// However, there are siutations where two or more releasers shared the same
+// However, there are situations where two or more releasers shared the same
 // initialism, so returned Path may not be accurate.
 func FindOne(s string) Path {
 	return pathIndex[strings.ToLower(s)]
 }
 
-// Copy returns a copy of the [initialisms].
-func Copy() List {
+// All returns a list of the [initialisms].
+func All() List {
 	return initialisms
 }
 
@@ -1701,7 +1701,7 @@ func Exist(p Path) bool {
 //
 // Example:
 //
-//	Initialism("the-firm") = []string{"FiRM, FRM"}
+//	Initialism("the-firm") = []string{"FiRM", "FRM"}
 //	Initialism("defacto2") = []string{"DF2"}
 func Initialism(p Path) []string {
 	return initialisms[p]

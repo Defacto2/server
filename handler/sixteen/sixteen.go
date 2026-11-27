@@ -15,9 +15,9 @@ type Groups map[string]GroupTag
 var groups = Groups{
 	"hype":                               "pack/hype/",
 	"international-network-of-crackers":  "tags/content/inc",
-	"razor-1911":                         "tags/content/razor 1911",
+	"razor-1911":                         "tags/content/razor%201911",
 	"acid-productions":                   "group/acid",
-	"defacto2":                           "group/defacto 2",
+	"defacto2":                           "group/defacto%202",
 	"insane-creators-enterprise":         "group/ice",
 	"superior-art-creations":             "group/sac",
 	"aces-of-ansi-art":                   "group/aaa",

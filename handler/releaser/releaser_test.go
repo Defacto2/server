@@ -1,67 +1,59 @@
 package releaser_test
 
 import (
-	"strconv"
-	"strings"
 	"testing"
 
 	"github.com/Defacto2/server/handler/releaser"
 	"github.com/nalgeon/be"
 )
 
-// checked in Sep 26, test coverage was great at around 90%+
-
 func TestCell(t *testing.T) {
 	t.Parallel()
 
-	type args struct {
-		s string
-	}
 	tests := []struct {
 		name string
-		args args
+		arg  string
 		want string
 	}{
-		{"empty string", args{""}, ""},
-		{"single word", args{"defacto2.net"}, "defacto2net"},
-		{"leading the", args{"the blah"}, "The Blah"},
-		{"common the", args{"in the blah"}, "In the Blah"},
-		{"no spaces", args{"TheBlah"}, "Theblah"},
-		{"elite fmt", args{"MiRROR now"}, "Mirror Now"},
-		{"roman numbers", args{"In the row now ii"}, "In the Row Now II"},
-		{"BBS", args{"MiRROR now bbS"}, "Mirror Now BBS"},
-		{"slug", args{"this-is-a-slug-string"}, "This-is-a-Slug-String"},
+		{"empty string", "", ""},
+		{"single word", "defacto2.net", "DEFACTO2NET"},
+		{"leading the", "the blah", "THE BLAH"},
+		{"common the", "in the blah", "IN THE BLAH"},
+		{"no spaces", "TheBlah", "THEBLAH"},
+		{"elite fmt", "MiRROR now", "MIRROR NOW"},
+		{"roman numbers", "In the row now ii", "IN THE ROW NOW II"},
+		{"BBS", "MiRROR now bbS", "MIRROR NOW BBS"},
+		{"slug", "this-is-a-slug-string", "THIS-IS-A-SLUG-STRING"},
 		{
 			"pair of groups",
-			args{"Group inc.,RAZOR TO 1911"},
-			"Group Inc, Razor to 1911",
+			"Group inc.,RAZOR TO 1911",
+			"GROUP INC, RAZOR TO 1911",
 		},
 		{
 			"2nd group with a leading the",
-			args{"this is the group,the group is this"},
-			"This is the Group, The Group is This",
+			"this is the group,the group is this",
+			"THIS IS THE GROUP, THE GROUP IS THIS",
 		},
-		{"ordinal", args{"4TH dimension"}, "4th Dimension"},
-		{"ordinals", args{"4TH dimension, 5Th Dynasty"}, "4th Dimension, 5th Dynasty"},
-		{"abbreviation", args{"2000 ad"}, "2000 AD"},
+		{"ordinal", "4TH dimension", "4TH DIMENSION"},
+		{"ordinals", "4TH dimension, 5Th Dynasty", "4TH DIMENSION, 5TH DYNASTY"},
+		{"abbreviation", "2000 ad", "2000 AD"},
 		{
 			"mega-group",
-			args{"Lightforce,Pact,TRSi,Venom,Razor 1911,the System"},
-			"Lightforce, Pact, Trsi, Venom, Razor 1911, The System",
+			"Lightforce,Pact,TRSi,Venom,Razor 1911,the System",
+			"LIGHTFORCE, PACT, TRSI, VENOM, RAZOR 1911, THE SYSTEM",
 		},
-		{"coop", args{"coop"}, "COOP"},
-		{"example 1", args{"the  Defacto2  demo  group"}, "The Defacto2 Demo Group"},
-		{"example 2", args{"  the x bbs  "}, "X BBS"},
-		{"example 3", args{"TDT / TRSi"}, "TDT TRSI"},
-		{"example 4", args{"TDT,TRSi"}, "TDT, TRSI"},
+		{"coop", "coop", "COOP"},
+		{"example 1", "the  Defacto2  demo  group", "THE DEFACTO2 DEMO GROUP"},
+		{"example 2", "  the x bbs  ", "X BBS"},
+		{"example 3", "TDT / TRSi", "TDT TRSI"},
+		{"example 4", "TDT,TRSi", "TDT, TRSI"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			want := strings.ToUpper(tt.want)
-			got := releaser.Cell(tt.args.s)
-			be.Equal(t, got, want)
+			got := releaser.Cell(tt.arg)
+			be.Equal(t, got, tt.want)
 		})
 	}
 }
@@ -69,52 +61,49 @@ func TestCell(t *testing.T) {
 func TestClean(t *testing.T) {
 	t.Parallel()
 
-	type args struct {
-		s string
-	}
 	tests := []struct {
 		name string
-		args args
+		arg  string
 		want string
 	}{
-		{"empty string", args{""}, ""},
-		{"leading the", args{"the blah"}, "The Blah"},
-		{"common the", args{"in the blah"}, "In the Blah"},
-		{"no spaces", args{"TheBlah"}, "Theblah"},
-		{"elite fmt", args{"MiRROR now"}, "Mirror Now"},
-		{"roman numbers", args{"In the row now ii"}, "In the Row Now II"},
-		{"BBS", args{"MiRROR now bbS"}, "Mirror Now BBS"},
-		{"slug", args{"this-is-a-slug-string"}, "This-is-a-Slug-String"},
+		{"empty string", "", ""},
+		{"leading the", "the blah", "The Blah"},
+		{"common the", "in the blah", "In the Blah"},
+		{"no spaces", "TheBlah", "Theblah"},
+		{"elite fmt", "MiRROR now", "Mirror Now"},
+		{"roman numbers", "In the row now ii", "In the Row Now II"},
+		{"BBS", "MiRROR now bbS", "Mirror Now BBS"},
+		{"slug", "this-is-a-slug-string", "This-is-a-Slug-String"},
 		{
 			"pair of groups",
-			args{"Group inc.,RAZOR TO 1911"},
+			"Group inc.,RAZOR TO 1911",
 			"Group Inc, Razor to 1911",
 		},
 		{
 			"2nd group with a leading the",
-			args{"this is the group,the group is this"},
+			"this is the group,the group is this",
 			"This is the Group, The Group is This",
 		},
-		{"ordinal", args{"4TH dimension"}, "4th Dimension"},
-		{"ordinals", args{"4TH dimension, 5Th Dynasty"}, "4th Dimension, 5th Dynasty"},
-		{"abbreviation", args{"2000 ad"}, "2000AD"},
-		{"abbreviations", args{"2000ad, 500bc"}, "2000AD, 500BC"},
+		{"ordinal", "4TH dimension", "4th Dimension"},
+		{"ordinals", "4TH dimension, 5Th Dynasty", "4th Dimension, 5th Dynasty"},
+		{"abbreviation", "2000 ad", "2000AD"},
+		{"abbreviations", "2000ad, 500bc", "2000AD, 500BC"},
 		{
 			"mega-group",
-			args{"Lightforce,Pact,TRSi,Venom,Razor 1911,the System"},
+			"Lightforce,Pact,TRSi,Venom,Razor 1911,the System",
 			"Lightforce, Pact, TRSi, Venom, Razor 1911, The System",
 		},
-		{"example 1", args{"the  Defacto2  demo  group"}, "The Defacto2 Demo Group"},
-		{"example 2", args{"  the x bbs  "}, "X BBS"},
-		{"example 3", args{"The X Ftp"}, "X FTP"},
-		{"example 4", args{"tdt / trsi"}, "Tdt Trsi"},
-		{"example 5", args{"tdt,trsi"}, "Tdt, TRSi"},
+		{"example 1", "the  Defacto2  demo  group", "The Defacto2 Demo Group"},
+		{"example 2", "  the x bbs  ", "X BBS"},
+		{"example 3", "The X Ftp", "X FTP"},
+		{"example 4", "tdt / trsi", "Tdt Trsi"},
+		{"example 5", "tdt,trsi", "Tdt, TRSi"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			got := releaser.Clean(tt.args.s)
+			got := releaser.Clean(tt.arg)
 			be.Equal(t, got, tt.want)
 		})
 	}
@@ -124,44 +113,59 @@ func TestHumanize(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		input string
-		want  string
+		name string
+		arg  string
+		want string
 	}{
-		{
-			input: "defacto2",
-			want:  "Defacto2",
-		},
-		{
-			input: "/razor-1911//",
-			want:  "",
-		},
-		{
-			input: "razor-1911-ampersand-skillion",
-			want:  "Razor 1911 & Skillion",
-		},
-		{
-			input: "razor-1911*trsi",
-			want:  "Razor 1911, TRSi",
-		},
-		{
-			input: "north-american-pirate_phreak-association",
-			want:  "North American Pirate-Phreak Association",
-		},
-		{"2-minutes-to-midnight-bbs", "2 Minutes to Midnight BBS"},
-		{"2000ad", "2000AD"},
-		{"2tally-unrubbed", "2Tally Unrubbed"},
-		{"2nd2none-bbs", "2ND2NONE BBS"},
-		{"class*paradigm*razor-1911", "Class, Paradigm, Razor 1911"},
-		{"down-town-bbs*bizare-bbs", "Down Town BBS, Bizare BBS"},
-		{"united-software-association*fairlight", "United Software Association + Fairlight PC Division"},
-		{"coop", "TDT / TRSi"},
+		{"empty", "", ""},
+		{"single", "defacto2", "Defacto2"},
+		{"invalid", "/razor-1911//", ""},
+		{"ampersand", "razor-1911-ampersand-skillion", "Razor 1911 & Skillion"},
+		{"pair", "razor-1911*trsi", "Razor 1911, TRSi"},
+		{"underscore", "north-american-pirate_phreak-association", "North American Pirate-Phreak Association"},
+		{"bbs", "2-minutes-to-midnight-bbs", "2 Minutes to Midnight BBS"},
+		{"abbreviation", "2000ad", "2000AD"},
+		{"leading digit", "2tally-unrubbed", "2Tally Unrubbed"},
+		{"alphanumeric bbs", "2nd2none-bbs", "2ND2NONE BBS"},
+		{"multi", "class*paradigm*razor-1911", "Class, Paradigm, Razor 1911"},
+		{"multi bbs", "down-town-bbs*bizare-bbs", "Down Town BBS, Bizare BBS"},
+		{"special collab", "united-software-association*fairlight", "United Software Association + Fairlight PC Division"},
+		{"special coop", "coop", "TDT / TRSi"},
 	}
 
-	for n, tt := range tests {
-		t.Run("test humanize #"+strconv.Itoa(n), func(t *testing.T) {
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			got := releaser.Humanize(tt.input)
+			got := releaser.Humanize(tt.arg)
+			be.Equal(t, got, tt.want)
+		})
+	}
+}
+
+func TestIndex(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name string
+		arg  string
+		want string
+	}{
+		{"empty", "", ""},
+		{"invalid", "/razor-1911//", ""},
+		{"single", "defacto2", "DEFACTO2"},
+		{"uppercase", "Razor-1911", "RAZOR 1911"},
+		{"ampersand", "razor-1911-ampersand-skillion", "RAZOR 1911 & SKILLION"},
+		{"underscore", "north-american-pirate_phreak-association", "NORTH AMERICAN PIRATE-PHREAK ASSOCIATION"},
+		{"multi", "class*paradigm*razor-1911", "CLASS, PARADIGM, RAZOR 1911"},
+		{"special", "coop", "COOP"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			got := releaser.Index(tt.arg)
 			be.Equal(t, got, tt.want)
 		})
 	}
@@ -171,40 +175,24 @@ func TestLink(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		input string
-		want  string
+		name string
+		arg  string
+		want string
 	}{
-		{
-			input: "/home/ben/github/releaser",
-			want:  "",
-		},
-		{
-			input: "class",
-			want:  "Class",
-		},
-		{
-			input: "class*paradigm*razor-1911",
-			want:  "Class + Paradigm + Razor 1911",
-		},
-		{
-			input: "united-software-association*fairlight",
-			want:  "United Software Association + Fairlight PC Division",
-		},
-		{
-			input: "coop",
-			want:  "TDT / TRSi",
-		},
-		{
-			input: "razor-1911-demo*trsi",
-			want:  "Razor 1911 Demo + TRSi",
-		},
+		{"empty", "", ""},
+		{"invalid", "/invalid/path", ""},
+		{"single", "class", "Class"},
+		{"multi", "class*paradigm*razor-1911", "Class + Paradigm + Razor 1911"},
+		{"special collab", "united-software-association*fairlight", "United Software Association + Fairlight PC Division"},
+		{"special coop", "coop", "TDT / TRSi"},
+		{"pair", "razor-1911-demo*trsi", "Razor 1911 Demo + TRSi"},
 	}
 
-	for n, tt := range tests {
-		t.Run("test humanize #"+strconv.Itoa(n), func(t *testing.T) {
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			got := releaser.Link(tt.input)
+			got := releaser.Link(tt.arg)
 			be.Equal(t, got, tt.want)
 		})
 	}
@@ -224,7 +212,7 @@ func TestObfuscate(t *testing.T) {
 		{"tdt/trsi", "tdt / trsi", "coop"},
 		{"multiple words", "the quick brown fox", "the-quick-brown-fox"},
 		{"special characters", "h3ll0 w0rld!", "h3ll0-w0rld"},
-		{"numbers only", "hello & world, foxes", "hello-ampersand-world*foxes"},
+		{"ampersand and comma", "hello & world, foxes", "hello-ampersand-world*foxes"},
 		{"initialism", "nappa", "north-american-pirate_phreak-association"},
 		{"readme example 1", "The 12AM BBS.", "12am-bbs"},
 		{"readme example 2", "ACiD Productions", "acid-productions"},
@@ -259,7 +247,7 @@ func TestTitle(t *testing.T) {
 		{"empty string", "", ""},
 		{"standard", "razor 1911", "Razor 1911"},
 		{"casing", " _.=[   RaZoR 1911   ]=._ ", "Razor 1911"},
-		{"special name", "coop", "TDT / TRSi"},
+		{"special slug", "coop", "TDT / TRSi"},
 		{"special name", "tdt / trsi", "TDT / TRSi"},
 		{"initialism", "nappa", "North American Pirate-Phreak Association"},
 	}

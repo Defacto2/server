@@ -1,8 +1,6 @@
 package releaser_test
 
 import (
-	"fmt"
-	"io"
 	"slices"
 	"testing"
 
@@ -10,92 +8,93 @@ import (
 	"github.com/Defacto2/server/handler/releaser/lism"
 )
 
-var ins = lism.Copy()
-
-func listNames(b *testing.B) []string {
-	b.Helper()
-
-	l := len(ins)
-	n := make([]string, l)
-	i := 0
+func benchPaths() []string {
+	ins := lism.All()
+	paths := make([]string, 0, len(ins))
 	for k := range ins {
-		n[i] = releaser.Humanize(string(k))
-		i++
+		paths = append(paths, string(k))
 	}
+	slices.Sort(paths)
+	return paths
+}
 
-	return n
+func benchNames() []string {
+	paths := benchPaths()
+	names := make([]string, len(paths))
+	for i, p := range paths {
+		names[i] = releaser.Humanize(p)
+	}
+	return names
+}
+
+func benchIndexed() []string {
+	paths := benchPaths()
+	indexed := make([]string, len(paths))
+	for i, p := range paths {
+		indexed[i] = releaser.Index(p)
+	}
+	return indexed
 }
 
 func BenchmarkCell(b *testing.B) {
-	names := listNames(b)
+	names := benchNames()
 	for b.Loop() {
-		for n := range slices.Values(names) {
-			if s := releaser.Cell(n); s != "" {
-				_, _ = fmt.Fprintln(io.Discard, s)
-			}
+		for _, n := range names {
+			_ = releaser.Cell(n)
 		}
 	}
 }
 
 func BenchmarkClean(b *testing.B) {
-	names := listNames(b)
+	names := benchNames()
 	for b.Loop() {
-		for n := range slices.Values(names) {
-			if s := releaser.Clean(n); s != "" {
-				_, _ = fmt.Fprintln(io.Discard, s)
-			}
+		for _, n := range names {
+			_ = releaser.Clean(n)
 		}
 	}
 }
 
 func BenchmarkHumanize(b *testing.B) {
+	paths := benchPaths()
 	for b.Loop() {
-		for n := range ins {
-			if s := releaser.Humanize(string(n)); s != "" {
-				_, _ = fmt.Fprintln(io.Discard, s)
-			}
+		for _, p := range paths {
+			_ = releaser.Humanize(p)
 		}
 	}
 }
 
 func BenchmarkIndex(b *testing.B) {
+	paths := benchPaths()
 	for b.Loop() {
-		for n := range ins {
-			if s := releaser.Index(string(n)); s != "" {
-				_, _ = fmt.Fprintln(io.Discard, s)
-			}
+		for _, p := range paths {
+			_ = releaser.Index(p)
 		}
 	}
 }
 
 func BenchmarkLink(b *testing.B) {
+	paths := benchPaths()
 	for b.Loop() {
-		for uri := range ins {
-			path := releaser.Index(string(uri))
-			if s := releaser.Link(path); s != "" {
-				_, _ = fmt.Fprintln(io.Discard, s)
-			}
+		for _, p := range paths {
+			_ = releaser.Link(p)
 		}
 	}
 }
 
 func BenchmarkObfuscate(b *testing.B) {
+	names := benchNames()
 	for b.Loop() {
-		for n := range ins {
-			if s := releaser.Obfuscate(string(n)); s != "" {
-				_, _ = fmt.Fprintln(io.Discard, s)
-			}
+		for _, n := range names {
+			_ = releaser.Obfuscate(n)
 		}
 	}
 }
 
 func BenchmarkTitle(b *testing.B) {
+	indexed := benchIndexed()
 	for b.Loop() {
-		for uri := range ins {
-			s := releaser.Index(string(uri))
-			if title := releaser.Title(s); title != "" {
-				_, _ = fmt.Fprintln(io.Discard, title)
-			}
+		for _, s := range indexed {
+			_ = releaser.Title(s)
 		}
 	}
 }

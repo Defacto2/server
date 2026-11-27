@@ -17,9 +17,9 @@ func ExampleInitialism() {
 	// Output: [DF2 DF]
 }
 
-func ExampleCopy() {
+func ExampleAll() {
 	const want = "USA"
-	for path, names := range lism.Copy() {
+	for path, names := range lism.All() {
 		if slices.Contains(names, want) {
 			fmt.Printf("The uri for %v: %v\n", want, path)
 		}

@@ -468,7 +468,7 @@ func Alternatives(s string) []string {
 	// examples of key and values:
 	// "tristar-ampersand-red-sector-inc": {"TRSi", "TRS", "Tristar"},
 	key := ""
-	for path, initialisms := range lism.Copy() {
+	for path, initialisms := range lism.All() {
 		key = releaser.Index(string(path))
 		if key == "" {
 			continue

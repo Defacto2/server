@@ -6,6 +6,38 @@ import (
 	"github.com/Defacto2/server/handler/releaser/name"
 )
 
+func ExampleAll() {
+	all := name.All()
+	fmt.Println(all["pump"])
+	fmt.Println(all["intel"])
+	fmt.Println(all["beer"])
+	// Output:
+	// Pump!
+	// intel
+	// BEER
+}
+
+func ExampleClean() {
+	s := name.Clean("Defacto2! 1996", func(b byte) bool {
+		return (b >= 'a' && b <= 'z') || (b >= 'A' && b <= 'Z')
+	})
+	fmt.Println(s)
+	// Output: Defacto
+}
+
+func ExampleCopy() {
+	fmt.Println(name.Copy()["surprise-productions"])
+	// Output: Surprise! Productions
+}
+
+func ExampleFind() {
+	fmt.Println(name.Find("OldSkool"))
+	fmt.Println(name.Find("Defacto2"))
+	// Output:
+	// oldskool
+	//
+}
+
 func ExampleHumanize() {
 	s, _ := name.Humanize("defacto2")
 	fmt.Println(s)
@@ -30,14 +62,17 @@ func ExampleHumanize_error() {
 	// releaser name: path has invalid characters
 }
 
-func ExampleCopy() {
-	find := name.Path("surprise-productions")
-	for key, val := range name.Copy() {
-		if key == find {
-			fmt.Println(val)
-		}
+func ExampleList() {
+	list := name.List{
+		"defacto2net": "Defacto2 website",
 	}
-	// Output: Surprise! Productions
+	fmt.Println(list["defacto2net"])
+	// Output: Defacto2 website
+}
+
+func ExampleLower() {
+	fmt.Println(name.Lower()["intel"])
+	// Output: intel
 }
 
 func ExampleObfuscate() {
@@ -48,26 +83,6 @@ func ExampleObfuscate() {
 		fmt.Println(string(obf))
 	}
 	// Output: acid-productions
-}
-
-func ExampleList() {
-	uri := "defacto2net"
-	for key, val := range name.Copy() {
-		if key == name.Path(uri) {
-			fmt.Println(val)
-		}
-	}
-	// Output: Defacto2 website
-}
-
-func ExampleUpper() {
-	uri := "beer"
-	for key, val := range name.Upper() {
-		if key == name.Path(uri) {
-			fmt.Println(val)
-		}
-	}
-	// Output: BEER
 }
 
 func ExampleString() {
@@ -81,10 +96,15 @@ func ExampleString_unlisted() {
 	// Output: 0
 }
 
+func ExampleUpper() {
+	fmt.Println(name.Upper()["beer"])
+	// Output: BEER
+}
+
 func ExampleValid() {
 	fmt.Println(name.Valid("defacto2"))
-
 	fmt.Println(name.Valid("Defacto2"))
-	// Output: true
+	// Output:
+	// true
 	// false
 }

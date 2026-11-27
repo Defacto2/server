@@ -1,4 +1,4 @@
-// Package site proves links and titles for recommended websites.
+// Package site provides links and titles for recommended websites.
 //
 //nolint:gochecknoinits
 package site
@@ -243,7 +243,7 @@ var websites = Groups{
 	"lightforce": []Website{
 		{URL: "www.thelightforce.home.ml.org", Error: true, Name: web98},
 		{URL: "www.lightforce.cjb.net", Error: true, Name: web2k},
-		{URL: "www.thelightforce.com", Error: false, Name: "The LightForce"},
+		{URL: "www.thelightforce.com", Error: true, Name: "The LightForce"},
 	},
 	"linezer0": []Website{
 		{URL: "www.coderz.net/linezer0", Error: true, Name: "LineZer0"},
@@ -260,7 +260,7 @@ var websites = Groups{
 		{URL: "www.netmonkey.org", Error: true, Name: "later, official website"},
 	},
 	"cybercrime-international-network": []Website{
-		{URL: "www.meltdown.nu/cci ", Error: true, Name: "CyberCrime"},
+		{URL: "www.meltdown.nu/cci", Error: true, Name: "CyberCrime"},
 	},
 	"insanity-couriers": []Website{
 		{URL: "insanity.hax0r.org", Name: "Insanity", Error: true},
@@ -965,7 +965,7 @@ var websites = Groups{
 	},
 	"scenelink": []Website{
 		{
-			URL:   "/wayback/scenelink-from-1998-june-25/index.html",
+			URL:   "https://wayback.defacto2.net/scenelink-from-1998-june-25/index.html",
 			Name:  "SceneLink mirror",
 			Error: false,
 		},
@@ -1415,7 +1415,7 @@ var websites = Groups{
 
 func init() {
 	for _, sites := range websites {
-		slices.SortFunc(sites, func(a, b Website) int {
+		slices.SortStableFunc(sites, func(a, b Website) int {
 			if a.Error == b.Error {
 				return 0
 			}
@@ -1427,8 +1427,8 @@ func init() {
 	}
 }
 
-// Find returns the website for the given uri.
-// It returns an empty string if the uri is not known.
+// Find returns the websites for the given uri.
+// It returns nil if the uri is not known.
 func Find(uri string) []Website {
-	return websites[URI(uri)]
+	return slices.Clone(websites[URI(uri)])
 }

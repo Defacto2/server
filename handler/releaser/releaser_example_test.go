@@ -24,6 +24,16 @@ func ExampleHumanize() {
 	// Output: Razor 1911 Demo
 }
 
+func ExampleIndex() {
+	fmt.Println(releaser.Index("united-software-association*fairlight"))
+	fmt.Println(releaser.Index("class*paradigm*razor-1911"))
+	fmt.Println(releaser.Index("coop"))
+	// Output:
+	// UNITED SOFTWARE ASSOCIATION, FAIRLIGHT
+	// CLASS, PARADIGM, RAZOR 1911
+	// COOP
+}
+
 func ExampleLink() {
 	path := "class*paradigm*razor-1911-demo"
 	fmt.Println(releaser.Link(path))
@@ -36,11 +46,10 @@ func ExampleObfuscate() {
 	// Output: defacto2-demo-group
 }
 
-func ExampleIndex() {
-	fmt.Println(releaser.Index("united-software-association*fairlight"))
-	fmt.Println(releaser.Index("class*paradigm*razor-1911"))
-	fmt.Println(releaser.Index("coop"))
-	// Output: UNITED SOFTWARE ASSOCIATION, FAIRLIGHT
-	// CLASS, PARADIGM, RAZOR 1911
-	// COOP
+func ExampleTitle() {
+	fmt.Println(releaser.Title("_.=[   RaZoR 1911   ]=._"))
+	fmt.Println(releaser.Title("nappa"))
+	// Output:
+	// Razor 1911
+	// North American Pirate-Phreak Association
 }

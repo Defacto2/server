@@ -77,10 +77,10 @@ var engTitlePool = sync.Pool{
 func English(s string) string {
 	caserPtr, ok := engTitlePool.Get().(*cases.Caser)
 	if !ok {
-		// Handle allocation fallback or error if the object isn't *cases.Caser
-		caser := cases.Title(language.English)
+		caser := cases.Title(language.English, cases.NoLower)
 		caserPtr = &caser
 	}
+	defer engTitlePool.Put(caserPtr)
 
 	return caserPtr.String(s)
 }
@@ -110,10 +110,10 @@ func Abbreviation(lcase string) string {
 //
 // Example:
 //
-//	Abbreviation("1ST") = "1st"
-//	Abbreviation("1sT") = "1st"
-//	Abbreviation("iso") = "ISO"
-//	Abbreviation("Iso") = "ISO"
+//	AbbreviationMix("1ST") = "1st"
+//	AbbreviationMix("1sT") = "1st"
+//	AbbreviationMix("iso") = "ISO"
+//	AbbreviationMix("Iso") = "ISO"
 func AbbreviationMix(s string) string {
 	if res, ok := abbreviations[s]; ok {
 		return res
@@ -242,12 +242,12 @@ func Fix(s string, position, last int) string {
 	return English(s)
 }
 
-// Hyphen replaces spaces in a sentence with hyphens.
-// Each word is also parsed using [fix.Fix].
+// Hyphen formats each hyphen-separated word in s using [Fix].
+// If s does not contain a hyphen, it returns an empty string.
 //
 // Example:
 //
-//	Hyphen("members of 2000ad will meet at 3pm") = "Members-of-2000AD-Will-Meet-at-3PM"
+//	Hyphen("members-of-2000ad-will-meet-at-3pm") = "Members-of-2000AD-Will-Meet-at-3PM"
 func Hyphen(s string) string {
 	const hyphen = "-"
 	if !strings.Contains(s, hyphen) {
@@ -442,8 +442,8 @@ func TrimSP(s string) string {
 		return ""
 	}
 	hasDupes := false
-	for i := range len(s) - 1 {
-		if (s[i] == ' ' && s[i+1] == ' ') || s[i] == '\t' || s[i] == '\n' || s[i] == '\r' {
+	for i := range len(s) {
+		if (s[i] == ' ' && i+1 < len(s) && s[i+1] == ' ') || s[i] == '\t' || s[i] == '\n' || s[i] == '\r' {
 			hasDupes = true
 			break
 		}

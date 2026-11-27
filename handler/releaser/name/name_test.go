@@ -1,33 +1,71 @@
 package name_test
 
 import (
-	"fmt"
-	"io"
-	"strconv"
 	"testing"
 
 	"github.com/Defacto2/server/handler/releaser/name"
 	"github.com/nalgeon/be"
 )
 
-// checked in Sep 26, test coverage was 100%
+func TestAll(t *testing.T) {
+	t.Parallel()
+
+	// confirm all keys across names, lower, and upper are valid and values are not empty
+	for p, val := range name.All() {
+		if !name.Valid(p) {
+			t.Errorf("All() invalid %v", p)
+		}
+		if val == "" {
+			t.Errorf("All() empty value %v", p)
+		}
+	}
+}
+
+func TestClean(t *testing.T) {
+	t.Parallel()
+
+	isAlpha := func(b byte) bool {
+		return (b >= 'a' && b <= 'z') || (b >= 'A' && b <= 'Z')
+	}
+
+	tests := []struct {
+		name string
+		arg  string
+		want string
+	}{
+		{"empty", "", ""},
+		{"unchanged", "Defacto", "Defacto"},
+		{"strip digits and symbols", "Defacto2! 1996", "Defacto"},
+		{"strip all", "12345!@#", ""},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			got := name.Clean(tt.arg, isAlpha)
+			be.Equal(t, got, tt.want)
+		})
+	}
+}
 
 func TestFind(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
+		name  string
 		input string
 		want  name.Path
 	}{
-		{"", ""},
-		{"OldSkool", "oldskool"},
-		{"Defacto2", ""},
-		{"Intel", ""},
-		{"rpgca", ""},
+		{"empty", "", ""},
+		{"styled", "OldSkool", "oldskool"},
+		{"unlisted", "Defacto2", ""},
+		{"lowercase", "Intel", ""},
+		{"uppercase", "rpgca", ""},
 	}
 
-	for n, tt := range tests {
-		t.Run("testfind #"+strconv.Itoa(n), func(t *testing.T) {
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
 			got := name.Find(tt.input)
@@ -36,85 +74,49 @@ func TestFind(t *testing.T) {
 	}
 }
 
-func TestCopy(t *testing.T) {
-	t.Parallel()
-
-	// confirm all keys are valid and values are not empty
-	for p, val := range name.Copy() {
-		// to debug, send to os.Stdout
-		_, _ = fmt.Fprintln(io.Discard, p, val)
-		if !name.Valid(p) {
-			t.Errorf("Name() invalid %v", p)
-		}
-		if val == "" {
-			t.Errorf("Name() empty value %v", p)
-		}
-	}
-}
-
-func TestIndexes(t *testing.T) {
-	t.Parallel()
-
-	var key name.Path
-
-	c := name.Copy()
-	key = "pump"
-	be.True(t, c[key] != "")
-
-	l := name.Lower()
-	key = "intel"
-	be.True(t, l[key] != "")
-
-	u := name.Upper()
-	key = "rpgca"
-	be.True(t, u[key] != "")
-
-	a := name.All()
-	key = "pump"
-	be.True(t, a[key] != "")
-	key = "intel"
-	be.True(t, a[key] != "")
-	key = "rpgca"
-	be.True(t, a[key] != "")
-}
-
 func TestHumanize(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
+		name    string
 		path    name.Path
 		want    string
 		wantErr error
 	}{
 		{
+			name:    "invalid slash",
 			path:    "path/to/file",
 			want:    "",
 			wantErr: name.ErrPath,
 		},
 		{
+			name:    "empty",
 			path:    "",
 			want:    "",
 			wantErr: name.ErrPath,
 		},
 		{
+			name:    "ampersand",
 			path:    "path-ampersand-path",
 			want:    "path & path",
 			wantErr: nil,
 		},
 		{
+			name:    "underscore",
 			path:    "path_with_underscore",
 			want:    "path-with-underscore",
 			wantErr: nil,
 		},
 		{
+			name:    "asterisk",
 			path:    "path*with*asterisk",
 			want:    "path, with, asterisk",
 			wantErr: nil,
 		},
 	}
 
-	for n, tt := range tests {
-		t.Run("test humanize #"+strconv.Itoa(n), func(t *testing.T) {
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
 			got, err := name.Humanize(tt.path)
@@ -124,8 +126,28 @@ func TestHumanize(t *testing.T) {
 	}
 }
 
+func TestIndexes(t *testing.T) {
+	t.Parallel()
+
+	c := name.Copy()
+	be.Equal(t, c["pump"], "Pump!")
+
+	l := name.Lower()
+	be.Equal(t, l["intel"], "intel")
+
+	u := name.Upper()
+	be.Equal(t, u["rpgca"], "RPGCA")
+
+	a := name.All()
+	be.Equal(t, a["pump"], "Pump!")
+	be.Equal(t, a["intel"], "intel")
+	be.Equal(t, a["rpgca"], "RPGCA")
+	be.Equal(t, len(a), len(c)+len(l)+len(u))
+}
+
 func TestObfuscate(t *testing.T) {
 	t.Parallel()
+
 	tests := []struct {
 		name string
 		arg  string
@@ -147,6 +169,11 @@ func TestObfuscate(t *testing.T) {
 			want: "hello-world",
 		},
 		{
+			name: "hyphen",
+			arg:  "TDU-Jam!",
+			want: "tdu_jam",
+		},
+		{
 			name: "ampersand",
 			arg:  "Ben & Jerry's",
 			want: "ben-ampersand-jerrys",
@@ -163,11 +190,65 @@ func TestObfuscate(t *testing.T) {
 		},
 	}
 
-	for n, tt := range tests {
-		t.Run("test obfuscate #"+strconv.Itoa(n), func(t *testing.T) {
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
 			got := name.Obfuscate(tt.arg)
+			be.Equal(t, got, tt.want)
+		})
+	}
+}
+
+func TestString(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name string
+		path name.Path
+		want string
+	}{
+		{"empty", "", ""},
+		{"unlisted", "defacto2", ""},
+		{"styled", "acid-productions", "ACiD Productions"},
+		{"case insensitive", "ACID-PRODUCTIONS", "ACiD Productions"},
+		{"lowercase", "intel", "intel"},
+		{"uppercase", "rpgca", "RPGCA"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			got := name.String(tt.path)
+			be.Equal(t, got, tt.want)
+		})
+	}
+}
+
+func TestValid(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name string
+		path name.Path
+		want bool
+	}{
+		{"empty", "", false},
+		{"lowercase and digits", "razor-1911", true},
+		{"allowed punctuation", "a-b_c*d&0", true},
+		{"uppercase", "Defacto2", false},
+		{"space", "razor 1911", false},
+		{"slash", "path/to/file", false},
+		{"hash", "razor-1911#trsi", false},
+		{"bang", "acid-productions!", false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			got := name.Valid(tt.path)
 			be.Equal(t, got, tt.want)
 		})
 	}

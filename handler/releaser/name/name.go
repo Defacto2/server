@@ -63,7 +63,6 @@ var names = List{
 	"biased":                                "bIASED",
 	"binpda":                                "BiNPDA",
 	"coop":                                  "TDT / TRSi",
-	"core":                                  "CoRE",
 	"copycats-inc":                          "CopyCats Inc",
 	"coreutil":                              "The Utility Division of CORE",
 	"crackpl":                               "CrackPL",
@@ -172,7 +171,6 @@ var names = List{
 	"unknown-couriers":                      "The Unknöwn Couriers",
 	"wat-courier-crew":                      "WAT Courier Crew",
 	"usalliance":                            "USAlliance",
-	"acronym":                               "ACRONYMINIM",
 	"powr":                                  "PoWR",
 	"maim":                                  "MAiM",
 	"relic":                                 "RELiC",
@@ -380,23 +378,23 @@ func Find(name string) Path {
 	return pathIndex[strings.ToLower(name)]
 }
 
-// Copy returns a copy of the [names].
+// Copy returns the list of [names]. The returned map must not be modified.
 func Copy() List {
 	return names
 }
 
-// All returns a copy of the [allIndex] that includes
-// [names], [lowerIndex], [upperIndex].
+// All returns the [allIndex] list that includes [names], [lowerIndex], and [upperIndex].
+// The returned map must not be modified.
 func All() List {
 	return allIndex
 }
 
-// Lower returns a copy of the [lowerIndex].
+// Lower returns the [lowerIndex] list. The returned map must not be modified.
 func Lower() List {
 	return lowerIndex
 }
 
-// Upper returns a copy of the [upperIndex].
+// Upper returns the [upperIndex] list. The returned map must not be modified.
 func Upper() List {
 	return upperIndex
 }
@@ -413,7 +411,7 @@ func Humanize(p Path) (string, error) {
 	if !Valid(p) {
 		return "", ErrPath
 	}
-	s := strings.ToLower(string(p))
+	s := string(p)
 	s = strings.ReplaceAll(s, "-ampersand-", spacedAmpersand)
 	s = strings.ReplaceAll(s, "-", " ")
 	s = strings.ReplaceAll(s, "_", "-")

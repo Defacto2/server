@@ -103,8 +103,8 @@ func Humanize(path string) string {
 	return Clean(s)
 }
 
-// Index deobfuscates the URL path and applies [releaser.Humanize] so that it can
-// be stored in a database table as a releaser key and index in the database table.
+// Index deobfuscates the URL path and uppercases the result so that it can
+// be stored in a database table as a releaser key and index.
 func Index(path string) string {
 	if path == "" {
 		return ""
@@ -136,7 +136,7 @@ func Link(path string) string {
 }
 
 // Obfuscate cleans and formats the string for use as a URL path.
-// The string is expected to be a release group name or an known initialism, acronym or special name.
+// The string is expected to be a release group name or a known initialism, acronym or special name.
 //
 // Beware that initialisms and acronyms often are not unique and an unexpected URL may be returned.
 //
