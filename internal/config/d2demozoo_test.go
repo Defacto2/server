@@ -11,22 +11,34 @@ import (
 func TestDemozooAuth(t *testing.T) {
 	t.Parallel()
 
-	var empty config.DemozooAuth
-	be.Equal(t, "", empty.LogValue().String())
-	be.True(t, strings.Contains(empty.Help(), "demozoo.org"))
-	be.Equal(t, "", empty.Issue())
+	tests := []struct {
+		name      string
+		val       config.DemozooAuth
+		wantLog   string
+		wantHelp  string
+		wantIssue string
+	}{
+		{"empty", "", "", "demozoo.org", ""},
+		{"short", "12345678", "xxxxx", "", "too short"},
+		{"no dot", "1234567890", "xxxxx", "", "period"},
+		{"valid", "12345678.abcdefgh", "xxxxx", "", ""},
+	}
 
-	short := config.DemozooAuth("12345678")
-	be.Equal(t, "xxxxx", short.LogValue().String())
-	be.Equal(t, "", short.Help())
-	be.True(t, strings.Contains(short.Issue(), "too short"))
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 
-	noDot := config.DemozooAuth("1234567890")
-	be.Equal(t, "", noDot.Help())
-	be.True(t, strings.Contains(noDot.Issue(), "period"))
-
-	valid := config.DemozooAuth("12345678.abcdefgh")
-	be.Equal(t, "xxxxx", valid.LogValue().String())
-	be.Equal(t, "", valid.Help())
-	be.Equal(t, "", valid.Issue())
+			be.Equal(t, tt.val.LogValue().String(), tt.wantLog)
+			if tt.wantHelp == "" {
+				be.Equal(t, tt.val.Help(), "")
+			} else {
+				be.True(t, strings.Contains(tt.val.Help(), tt.wantHelp))
+			}
+			if tt.wantIssue == "" {
+				be.Equal(t, tt.val.Issue(), "")
+			} else {
+				be.True(t, strings.Contains(tt.val.Issue(), tt.wantIssue))
+			}
+		})
+	}
 }

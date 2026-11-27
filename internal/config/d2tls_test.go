@@ -11,37 +11,63 @@ import (
 func TestTLS(t *testing.T) {
 	t.Parallel()
 
-	const HTTPS = 443
-	c := config.Config{
-		TLSPort: HTTPS,
+	modes := []struct {
+		name      string
+		cfg       config.Config
+		wantTLS   bool
+		wantLocal bool
+	}{
+		{"disabled", config.Config{}, false, false},
+		{"local", config.Config{TLSPort: config.PortTLS(config.StdHTTPS)}, false, true},
+		{"key no port", config.Config{TLSKey: config.Abstlskey("/tmp/key.pem")}, false, false},
+		{
+			"tls",
+			config.Config{
+				TLSPort: config.PortTLS(8443),
+				TLSCert: config.Abstlscrt("/tmp/cert.pem"),
+				TLSKey:  config.Abstlskey("/tmp/key.pem"),
+			},
+			true,
+			false,
+		},
 	}
 
-	be.True(t, c.UseLocal())
-
-	// tls requires certs
-	be.True(t, !c.UseTLS())
-
-	// tls requires a non-zero port even when a key is set
-	noPort := config.Config{
-		TLSKey: config.Abstlskey("/tmp/key.pem"),
+	for _, tt := range modes {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			be.Equal(t, tt.cfg.UseTLS(), tt.wantTLS)
+			be.Equal(t, tt.cfg.UseLocal(), tt.wantLocal)
+		})
 	}
-	be.True(t, !noPort.UseTLS())
 
-	be.Equal(t, c.TLSPort.Value(), HTTPS)
+	t.Run("port", func(t *testing.T) {
+		t.Parallel()
 
-	be.Err(t, c.TLSPort.Check(), config.ErrPortSys)
+		p := config.PortTLS(config.StdHTTPS)
+		be.Equal(t, p.Value(), uint16(config.StdHTTPS))
+		be.Err(t, p.Check(), config.ErrPortSys)
+		be.True(t, strings.HasSuffix(p.Help(), "https://localhost"))
 
-	const valid = config.PortSys + 1
+		be.True(t, strings.Contains(config.PortTLS(0).Help(), "not using HTTPS"))
 
-	c.TLSPort = valid
-	be.Err(t, c.TLSPort.Check(), nil)
+		valid := config.PortTLS(config.PortSys + 1)
+		be.Err(t, valid.Check(), nil)
+		be.True(t, strings.HasSuffix(valid.Help(), "https://localhost:1025"))
+	})
 }
 
 func TestTLSFiles(t *testing.T) {
 	t.Parallel()
 
-	be.Equal(t, "", config.Abstlscrt(testdata.Abs()).Issue())
-	be.Equal(t, "", config.Abstlskey(testdata.Abs()).Issue())
+	be.Equal(t, config.Abstlscrt("").Issue(), "")
+	be.Equal(t, config.Abstlskey("").Issue(), "")
+	be.Equal(t, config.Abstlscrt("").Help(), "No TLS certificate is in use")
+	be.Equal(t, config.Abstlskey("").Help(), "No TLS key is in use")
+
+	be.Equal(t, config.Abstlscrt(testdata.Abs()).Issue(), "")
+	be.Equal(t, config.Abstlskey(testdata.Abs()).Issue(), "")
+	be.Equal(t, config.Abstlscrt(testdata.Abs()).Help(), "")
+	be.Equal(t, config.Abstlskey(testdata.Abs()).Help(), "")
 
 	be.True(t, strings.Contains(config.Abstlscrt(testdata.Dir()).Issue(), "points to a directory"))
 	be.True(t, strings.Contains(config.Abstlskey(testdata.Dir()).Issue(), "points to a directory"))

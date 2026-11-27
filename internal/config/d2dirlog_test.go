@@ -11,12 +11,12 @@ func TestAbsLog(t *testing.T) {
 	t.Parallel()
 
 	var empty config.Abslog
-	be.Equal(t, "No logs will be saved", empty.Help())
-	be.Equal(t, "", empty.Issue())
+	be.Equal(t, empty.Help(), "No logs will be saved")
+	be.Equal(t, empty.Issue(), "")
 
 	tmp := t.TempDir()
 	set := config.Abslog(tmp)
-	be.Equal(t, "", set.Help())
-	be.Equal(t, "", set.Issue())
-	be.Equal(t, tmp, set.String())
+	be.Equal(t, set.Help(), "")
+	be.Equal(t, set.Issue(), "")
+	be.Equal(t, set.String(), tmp)
 }

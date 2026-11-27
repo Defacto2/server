@@ -177,7 +177,18 @@ func repairs() [4]Repair {
 }
 
 func (r Repair) String() string {
-	return [...]string{"zip", "lha", "arc", "arj"}[r]
+	switch r {
+	case Zip:
+		return "zip"
+	case LHA:
+		return "lha"
+	case Arc:
+		return "arc"
+	case Arj:
+		return "arj"
+	default:
+		return fmt.Sprintf("unknown(%d)", r)
+	}
 }
 
 // Repack are the source and destination arguments required by the ReArchive Repair method.
@@ -1058,10 +1069,10 @@ func removeDir(sl *slog.Logger, name, path, root string, dryRun bool) error {
 	if name == "" || path == "" || root == "" {
 		return fmt.Errorf("%s: %w: %s %s %s", msg, ErrNoPath, name, path, root)
 	}
-	rootDir := filepath.Base(root)
-	switch name {
-	case rootDir:
+	if filepath.Clean(path) == filepath.Clean(root) {
 		return nil
+	}
+	switch name {
 	case syncthing:
 		if dryRun {
 			sl.Info("[dry-run] "+msg, slog.String("would_remove", path))
@@ -1135,12 +1146,13 @@ func removeImage(sl *slog.Logger, basename, path string, backup dir.Directory, d
 	ext := filepath.Ext(basename)
 	if filename, found := strings.CutSuffix(basename, ext); found {
 		if len(filename) == cflen {
-			filename, _ = helper.CfUUID(filename)
-			newpath := filepath.Dir(path)
-			switch ext {
-			case png, webp:
-				renameFile(sl, path, "rename cfid "+ext, filepath.Join(newpath, filename+ext), dryRun)
-				return nil
+			if newname, err := helper.CfUUID(filename); err == nil {
+				newpath := filepath.Dir(path)
+				switch ext {
+				case png, webp:
+					renameFile(sl, path, "rename cfid "+ext, filepath.Join(newpath, newname+ext), dryRun)
+					return nil
+				}
 			}
 		}
 		if _, err := uuid.Parse(filename); err != nil {

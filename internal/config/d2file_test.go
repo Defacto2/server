@@ -1,6 +1,10 @@
 package config_test
 
 import (
+	"errors"
+	"io/fs"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -11,45 +15,62 @@ import (
 
 var testdata = testutil.FileData("implodezip")
 
-func TestFileX(t *testing.T) {
+func TestFile(t *testing.T) {
 	t.Parallel()
 
-	const path = "this-is_notValid"
-	got := config.File(path)
+	tmp := t.TempDir()
+	file := filepath.Join(tmp, "file.txt")
+	be.Err(t, os.WriteFile(file, []byte("x"), 0o600), nil)
 
-	be.Err(t, got.Check())
+	tests := []struct {
+		name      string
+		path      string
+		wantErr   error
+		wantIssue string
+	}{
+		{"empty", "", os.ErrNotExist, ""},
+		{"missing", filepath.Join(tmp, "missing"), os.ErrNotExist, "not exist"},
+		{"dir", tmp, config.ErrNotFile, "points to a directory"},
+		{"valid", file, nil, ""},
+	}
 
-	s := got.Issue()
-	be.True(t, strings.Contains(s, "not exist"))
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 
-	s = got.String()
-	be.Equal(t, s, path)
-}
+			f := config.File(tt.path)
+			if tt.wantErr == nil {
+				be.Err(t, f.Check(), nil)
+			} else {
+				be.True(t, errors.Is(f.Check(), tt.wantErr))
+			}
 
-func TestFileDirectory(t *testing.T) {
-	t.Parallel()
+			if tt.wantIssue == "" {
+				be.Equal(t, f.Issue(), "")
+			} else {
+				be.True(t, strings.Contains(f.Issue(), tt.wantIssue))
+			}
 
-	got := config.File(testdata.Dir())
+			be.Equal(t, f.String(), tt.path)
+			be.Equal(t, f.LogValue().String(), tt.path)
+		})
+	}
 
-	be.Err(t, got.Check())
+	t.Run("permission", func(t *testing.T) {
+		t.Parallel()
+		if os.Geteuid() == 0 {
+			t.Skip("root bypasses directory permissions")
+		}
 
-	s := got.Issue()
-	be.True(t, strings.Contains(s, "points to a directory"))
+		noAccess := filepath.Join(t.TempDir(), "locked")
+		child := filepath.Join(noAccess, "secret.txt")
+		be.Err(t, os.Mkdir(noAccess, 0o700), nil)
+		be.Err(t, os.WriteFile(child, []byte("x"), 0o600), nil)
+		be.Err(t, os.Chmod(noAccess, 0o000), nil)
+		t.Cleanup(func() { _ = os.Chmod(noAccess, 0o700) })
 
-	s = got.String()
-	be.Equal(t, s, testdata.Dir())
-}
-
-func TestConfigFile(t *testing.T) {
-	t.Parallel()
-
-	got := config.File(testdata.Abs())
-
-	be.Err(t, got.Check(), nil)
-
-	s := got.Issue()
-	be.Equal(t, s, "")
-
-	s = got.String()
-	be.Equal(t, s, testdata.Abs())
+		f := config.File(child)
+		be.True(t, errors.Is(f.Check(), fs.ErrPermission))
+		be.True(t, strings.Contains(f.Issue(), "permission denied"))
+	})
 }

@@ -10,7 +10,7 @@ import (
 	"github.com/nalgeon/be"
 )
 
-func TestPrintAllKeysAndDescriptions(t *testing.T) {
+func TestPrint(t *testing.T) {
 	t.Parallel()
 
 	c := config.Config{
@@ -41,7 +41,7 @@ func TestPrintAllKeysAndDescriptions(t *testing.T) {
 	}
 }
 
-func TestPrintMaskingAndIssues(t *testing.T) {
+func TestPrintMasking(t *testing.T) {
 	t.Parallel()
 
 	c := config.Config{
@@ -64,6 +64,7 @@ func TestPrintMaskingAndIssues(t *testing.T) {
 	be.True(t, !strings.Contains(out, "my-secret-session-key"))
 	be.True(t, !strings.Contains(out, "my-google-client-id"))
 	be.True(t, !strings.Contains(out, "account-1"))
+	be.True(t, !strings.Contains(out, "account-2"))
 	be.True(t, !strings.Contains(out, "badkey"))
 
 	// Masked values and issues must be displayed.
@@ -95,7 +96,7 @@ func TestPrintAddresses(t *testing.T) {
 	be.True(t, strings.Contains(out, "https://127.0.0.1"))
 }
 
-func TestPrintTempPurge(t *testing.T) {
+func TestPurgeTemp(t *testing.T) {
 	t.Setenv("TMPDIR", t.TempDir())
 
 	var buf bytes.Buffer

@@ -1,6 +1,7 @@
 package config_test
 
 import (
+	"database/sql"
 	"os"
 	"path/filepath"
 	"testing"
@@ -11,7 +12,7 @@ import (
 	"github.com/nalgeon/be"
 )
 
-func TestTestInfo(t *testing.T) {
+func TestTempInfo(t *testing.T) {
 	t.Parallel()
 
 	tmp, err := dir.MkdirTemp("tempinfo")
@@ -33,7 +34,30 @@ func TestTestInfo(t *testing.T) {
 func TestRecordCount(t *testing.T) {
 	t.Parallel()
 
-	db := testutil.DB(t)
-	got := config.RecordCount(t.Context(), db)
-	be.True(t, got > 2)
+	t.Run("nil ctx", func(t *testing.T) {
+		t.Parallel()
+		defer func() {
+			if r := recover(); r == nil {
+				t.Fatal("expected panic")
+			}
+		}()
+		_ = config.RecordCount(nil, new(sql.DB)) //nolint:staticcheck // testing nil context
+	})
+
+	t.Run("nil exec", func(t *testing.T) {
+		t.Parallel()
+		defer func() {
+			if r := recover(); r == nil {
+				t.Fatal("expected panic")
+			}
+		}()
+		_ = config.RecordCount(t.Context(), nil)
+	})
+
+	t.Run("db", func(t *testing.T) {
+		t.Parallel()
+		db := testutil.DB(t)
+		got := config.RecordCount(t.Context(), db)
+		be.True(t, got > 2)
+	})
 }

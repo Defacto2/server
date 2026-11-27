@@ -1,23 +1,34 @@
 package config_test
 
 import (
-	"strings"
 	"testing"
 
 	"github.com/Defacto2/server/internal/config"
-	"github.com/Defacto2/server/internal/postgres"
 	"github.com/nalgeon/be"
 )
 
 func TestDatabaseURL(t *testing.T) {
 	t.Parallel()
 
-	const testurl = postgres.DefaultURL
-	const mask = "postgres://root:xxxxx@"
+	tests := []struct {
+		name string
+		raw  string
+		want string
+	}{
+		{"empty", "", ""},
+		{"no user", "postgres://localhost:5432/db", "postgres://localhost:5432/db"},
+		{"user only", "postgres://root@localhost:5432/db", "postgres://root@localhost:5432/db"},
+		{"password", "postgres://root:secret@localhost:5432/db?sslmode=disable", "postgres://root:xxxxx@localhost:5432/db?sslmode=disable"},
+		{"invalid", "postgres://root:secret@localhost:badport/db", "xxxxx"},
+	}
 
-	got := config.Connection(testurl).String()
-	be.True(t, strings.HasPrefix(got, mask))
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 
-	bad := config.Connection("postgres://root:secret@localhost:badport/db").String()
-	be.Equal(t, "xxxxx", bad)
+			c := config.Connection(tt.raw)
+			be.Equal(t, c.String(), tt.want)
+			be.Equal(t, c.LogValue().String(), tt.want)
+		})
+	}
 }

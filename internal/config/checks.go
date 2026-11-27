@@ -7,7 +7,6 @@ import (
 	"io"
 	"net/url"
 	"os"
-	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -201,7 +200,7 @@ func (c *Config) checkDatabase() checkGroup {
 	rawURL := string(c.DatabaseURL)
 	if rawURL == "" {
 		return checkGroup{
-			title: "DATABASE",
+			title: xdb,
 			items: []checkItem{{status: statusWarn, name: env, detail: ns}},
 		}
 	}
@@ -369,19 +368,14 @@ func (c *Config) checkLogDir() error {
 		return ErrNotDir
 	}
 
-	// test write permissions by creating and removing a temp file directly
-	name := filepath.Join(path, ".defacto2_touch_test")
-	if _, sErr := os.Stat(name); sErr == nil {
-		if rErr := os.Remove(name); rErr != nil {
-			return fmt.Errorf("cannot remove test file: %w", rErr)
-		}
-	}
-
-	f, err := os.Create(name)
+	// test write permissions by creating and removing a unique temp file
+	f, err := os.CreateTemp(path, ".defacto2_touch_*")
 	if err != nil {
 		return errors.Join(err, ErrTouch)
 	}
+	name := f.Name()
 	if err := f.Close(); err != nil {
+		_ = os.Remove(name)
 		return fmt.Errorf("cannot close test file: %w", err)
 	}
 	if err := os.Remove(name); err != nil {

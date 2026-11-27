@@ -12,7 +12,7 @@ import (
 	"github.com/nalgeon/be"
 )
 
-func TestChecks(t *testing.T) {
+func TestCheckLogDir(t *testing.T) {
 	t.Parallel()
 
 	c := Config{}

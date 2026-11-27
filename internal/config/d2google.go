@@ -23,7 +23,6 @@ func (c *Config) Override() {
 		}
 	}
 
-	c.GoogleIDs = "zero out and overwrite placeholder"
 	c.GoogleIDs = ""
 
 	// task 2, setup the default http port whenever there is a misconfiguration
@@ -107,18 +106,11 @@ func (g GoogleID) LogValue() slog.Value {
 }
 
 func (g GoogleID) Help() string {
-	const none = "No accounts configured for the web administration"
 	if g == "" {
-		return none
+		return "No accounts configured for the web administration"
 	}
 
-	accounts := len(strings.Split(g.String(), ","))
-	switch accounts {
-	case 0:
-		return none
-	default:
-		return "Google account(s) in use for sign in"
-	}
+	return "Google account(s) in use for sign in"
 }
 
 func (g GoogleID) String() string {

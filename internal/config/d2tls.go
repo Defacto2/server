@@ -11,7 +11,7 @@ func (c Config) UseTLS() bool {
 	return c.TLSPort > 0 && (c.TLSCert != "" || c.TLSKey != "")
 }
 
-// UseLocal returns true if the server is configured to use the local TSL-mode.
+// UseLocal returns true if the server is configured to use the local TLS-mode.
 func (c Config) UseLocal() bool {
 	return c.TLSPort > 0 && c.TLSCert == "" && c.TLSKey == ""
 }
