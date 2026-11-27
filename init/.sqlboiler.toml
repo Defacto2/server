@@ -1,7 +1,7 @@
 # .sqlboiler.toml
 #
 # SQLBoiler configuration file
-# https://github.com/volatiletech/sqlboiler
+# https://github.com/aarondl/sqlboiler
 #
 # This file is used to configure the SQLBoiler code generation tool.
 # It is used to generate Go code from a PostgreSQL database schema 
@@ -47,7 +47,7 @@ tag-ignore = []
 wipe = true
 
 # PostgreSQL database connection settings and defaults.
-# https://github.com/volatiletech/sqlboiler?tab=readme-ov-file#database-driver-configuration
+# https://github.com/aarondl/sqlboiler?tab=readme-ov-file#database-driver-configuration
 #
 # These values are used by the Go generate command to connect to the PostgreSQL database.
 # It is only required when the database schema has changed and the Go models need to be regenerated.

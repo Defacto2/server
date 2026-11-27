@@ -61,7 +61,5 @@ jobs:
         uses: actions/attest-build-provenance@v4
         with:
           subject-path: |
-            dist/*.tgz
-            dist/*.zip
             dist/*.deb
             dist/*_checksums.txt

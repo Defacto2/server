@@ -1,24 +1,29 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
 # example.server.sh
 #
-# The following script is used to run the server with environment variables.
-# The environment variables are loaded from a file named ".env.local" but 
-# this can be changed by modifying the FILENAME variable below.
-#
-# The defacto2-server binary should be in the same directory as this script.
-#
+# Runs defacto2-server with environment variables loaded from a file (default: .env.local).
+# Both the binary and env file are expected in the same directory as this script.
 
-# Filename containing the environment variables
-FILENAME=.env.local
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+ENV_FILE="${SCRIPT_DIR}/.env.local"
+SERVER_BIN="${SCRIPT_DIR}/defacto2-server"
 
-# Load environment variables from .env.local
-echo -e "Loading environment variables from $FILENAME\n"
-export $(grep -E -v '^#' $FILENAME | xargs)
+if [[ ! -f "$ENV_FILE" ]]; then
+  echo "Error: environment file not found: $ENV_FILE" >&2
+  exit 1
+fi
 
-# Run the server
-./defacto2-server
+if [[ ! -x "$SERVER_BIN" ]]; then
+  echo "Error: server binary not found or not executable: $SERVER_BIN" >&2
+  exit 1
+fi
 
-# Unset environment variables from .env.local
-echo -e "\nUnset environment variables from $FILENAME\n"
-unset $(grep -E -v '^#' $FILENAME | sed -E 's/(.*)=.*/\1/' | xargs)
+echo "Loading environment variables from $ENV_FILE"
+set -a
+# shellcheck disable=SC1090
+source "$ENV_FILE"
+set +a
+
+exec "$SERVER_BIN" "$@"

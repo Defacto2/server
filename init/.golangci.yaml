@@ -4,7 +4,6 @@ linters:
   disable:
     # conflicts
     - contextcheck # conflicts with echo patterns
-    #- depguard # too complex to maintain with this app
     - gomoddirectives # required at the moment (for: task doc)
     # retired
     - exhaustruct
@@ -104,9 +103,6 @@ linters:
       - legacy
       - std-error-handling
     rules:
-      - linters:
-          - dupl
-        path: ^model/files\.go$
       # UNIT & GO TESTS
       - linters:
           - cyclop
@@ -126,18 +122,12 @@ linters:
           - tagliatelle
           - wrapcheck
         path: _test\.go$
-    paths:
-      - third_party$
-      - builtin$
-      - examples$
 formatters:
   enable:
-    - gofmt
     - gofumpt
     - goimports
+  settings:
+    gofumpt:
+      extra-rules: true
   exclusions:
     generated: lax
-    paths:
-      - third_party$
-      - builtin$
-      - examples$

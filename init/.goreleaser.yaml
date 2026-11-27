@@ -1,4 +1,4 @@
-# .goreleaser-release.yaml
+# .goreleaser.yaml
 #
 # The GoReleaser configuration for the Defacto2 server.
 # GoReleaser is a release automation tool for Go projects and this file is
@@ -17,11 +17,9 @@
 #
 version: 2
 project_name: defacto2-server
-before:
-  hooks: []
 builds:
   - id: server
-    main: server.go
+    main: .
     env:
       - CGO_ENABLED=0
     targets:
@@ -41,8 +39,6 @@ nfpms:
     license: GPL-3.0
     formats:
       - deb
-    dependencies:
-      - git
     recommends:
       - caddy
       - postgresql
@@ -64,9 +60,7 @@ release:
     ---
     _defacto2-server_ is a portable, web application and server.
 
-    To improve the speed of GitHub Actions, 
-    generic pre-compiled binaries are no longer provided.
-    But, building the web server using Go is a simple 
-    and relatively quick task, see _Development Setup_ in the README.md.
+    To improve the speed of GitHub Actions, generic pre-compiled binaries are no longer provided.
+    But, building the web server using Go is a simple and relatively quick task, see _Development Setup_ in the README.md.
 
     Released by [GoReleaser](https://github.com/goreleaser/goreleaser).
