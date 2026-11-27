@@ -437,7 +437,7 @@ func Records(ctx context.Context, exec boil.ContextExecutor, uri string, page, l
 		return nil, fmt.Errorf(format, "page "+strconv.Itoa(page), ErrPagi)
 	}
 	if limit < 1 {
-		return nil, fmt.Errorf(format, "page "+strconv.Itoa(limit), ErrPagi)
+		return nil, fmt.Errorf(format, "limit "+strconv.Itoa(limit), ErrPagi)
 	}
 
 	if fn, ok := recordDispatch[Match(uri)]; ok {

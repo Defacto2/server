@@ -8,11 +8,9 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"uuid"
 
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/magicnumber"
-	"github.com/Defacto2/server/handler/form"
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/nils"
@@ -254,7 +252,7 @@ func FSPixelate(sl *slog.Logger, c *echo.Context, directory ...dir.Directory) er
 	}
 
 	const timeout = command.CmdTimeout * 2
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	ctx, cancel := context.WithTimeout(c.Request().Context(), timeout)
 	defer cancel()
 
 	dirs := dir.Paths(directory...)
@@ -302,12 +300,17 @@ const (
 )
 
 func (e Ext) String() string {
-	return [...]string{
-		FileID.Ext(),
-		Helper.Ext(),
-		Text.Ext(),
-		".zip",
-	}[e]
+	switch e {
+	case Diz:
+		return FileID.Ext()
+	case Hlp:
+		return Helper.Ext()
+	case Txt:
+		return Text.Ext()
+	case Zip:
+		return ".zip"
+	}
+	return ""
 }
 
 func (e Ext) extrasDeleter(c *echo.Context, extra dir.Directory) error {
@@ -413,7 +416,7 @@ func FSUseReadme(sl *slog.Logger, c *echo.Context, amigaFont bool, dirs command.
 	c = PageReload(c)
 
 	return c.String(http.StatusOK,
-		`Text filed imaged, the browser will refresh.`)
+		`Text file imaged, the browser will refresh.`)
 }
 
 type useProcess struct {
@@ -491,17 +494,19 @@ func (fp useProcess) process(sl *slog.Logger, c *echo.Context,
 }
 
 func FSRemoveCache(c *echo.Context) error {
-	unid := c.Param("unid")
-	if err := form.Checkname(unid); err != nil {
-		return badRequest(c, err)
+	const format = "record cache remover: %w"
+	if err := nils.Check(c); err != nil {
+		return fmt.Errorf(format, err)
 	}
-	if _, err := uuid.Parse(unid); err != nil {
+
+	unid, err := UUID(c)
+	if err != nil {
 		return badRequest(c, err)
 	}
 
 	s := dir.Pattern + "-" + unid
 	name := filepath.Join(os.TempDir(), s)
-	err := dir.RemoveAll(name)
+	err = dir.RemoveAll(name)
 	if err != nil {
 		return badRequest(c, err)
 	}

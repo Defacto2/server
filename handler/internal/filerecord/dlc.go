@@ -54,8 +54,8 @@ type DownloadContent struct {
 // This is used to generate the HTML for the "Download content" section of the File editor.
 //
 // This should only ever be used by the admin editor mode.
-// It extracts the file archve to a temporary directory,
-// to allow its extracted content can be parsed for usability
+// It extracts the file archive to a temporary directory,
+// so its extracted content can be parsed for usability
 // using magicfile techniques and other metadata.
 func (dlc *DownloadContent) List(ctx context.Context, sl *slog.Logger, art *models.File) template.HTML {
 	if nils.Slog("filerecord list context", ctx, sl, art) {
@@ -69,7 +69,7 @@ func (dlc *DownloadContent) List(ctx context.Context, sl *slog.Logger, art *mode
 	// Create root-scoped filesystem for secure operations
 	root, err := os.OpenRoot(dlc.tempRoot)
 	if err != nil {
-		return template.HTML("failed to open root directory: " + err.Error())
+		return template.HTML("failed to open root directory: " + template.HTMLEscapeString(err.Error()))
 	}
 	defer root.Close()
 
@@ -78,32 +78,32 @@ func (dlc *DownloadContent) List(ctx context.Context, sl *slog.Logger, art *mode
 		return WalkerChmod(root, path, d, err)
 	}
 	if err := filepath.WalkDir(dlc.tempRoot, chmodFn); err != nil {
-		return template.HTML(err.Error())
+		return template.HTML(template.HTMLEscapeString(err.Error()))
 	}
 
 	if err := filepath.WalkDir(dlc.tempRoot, dlc.countFn); err != nil {
-		return template.HTML(err.Error())
+		return template.HTML(template.HTMLEscapeString(err.Error()))
 	}
 
 	dlc.elems = make([]string, dlc.files)
 	dlc.index = -1
 	if err = filepath.WalkDir(dlc.tempRoot, dlc.listFn); err != nil {
-		return template.HTML(err.Error())
+		return template.HTML(template.HTMLEscapeString(err.Error()))
 	}
-	if len(dlc.elems) > dlc.MaxItems {
-		dlc.elems = dlc.elems[:dlc.MaxItems]
+	dlc.elems = dlc.elems[:dlc.index+1]
+	dlc.results = readme.SortList(false, strings.Join(dlc.elems, "\n"))
+	if dlc.MaxItems > 0 && len(dlc.results) > dlc.MaxItems {
+		dlc.results = dlc.results[:dlc.MaxItems]
 	}
-	dlc.results = readme.SortList(false,
-		strings.Join(dlc.elems[:dlc.index+1], "\n"))
 
-	if dlc.files > dlc.MaxItems {
+	if dlc.MaxItems > 0 && dlc.files > dlc.MaxItems {
 		dlc.html.WriteString(`<div class="border-bottom row mb-1">skipped ` +
 			strconv.Itoa(dlc.files-dlc.MaxItems) + ` other files</div>`)
 	}
 
 	if err = filepath.WalkDir(dlc.tempRoot, dlc.htmlFn); err != nil {
 		dlc.html.Reset()
-		return template.HTML(err.Error())
+		return template.HTML(template.HTMLEscapeString(err.Error()))
 	}
 
 	dlc.names = helper.SortNames("/", dlc.names)
@@ -205,7 +205,7 @@ func (dlc *DownloadContent) extractErr(sl *slog.Logger, err error) template.HTML
 	const msg = "list content of archive extraction"
 	if !errors.Is(err, archive.ErrNotArchive) && !errors.Is(err, archive.ErrNotImplemented) {
 		sl.Info(msg+" caused an error", slog.String("src", dlc.Source), slog.Any("error", err))
-		return template.HTML(err.Error())
+		return template.HTML(template.HTMLEscapeString(err.Error()))
 	}
 
 	e := Entry{
@@ -249,7 +249,10 @@ func (dlc *DownloadContent) extractNone(path string) template.HTML {
 		program: false,
 	}
 
-	info, _ := os.Stat(path)
+	info, err := os.Stat(path)
+	if err != nil {
+		return ""
+	}
 	d := fs.FileInfoToDirEntry(info)
 	if e.SkipEntry(path, d, dlc.platform) {
 		return template.HTML("")
@@ -356,7 +359,7 @@ func (dlc *DownloadContent) htmlFn(path string, d fs.DirEntry, err error) error 
 		le.modtime = oldestModTime(le.modtime, dlc.dbLastMod)
 	}
 	dlc.html.WriteString(le.HTML(e.bytes, dlc.platform, dlc.section))
-	if dlc.entries > dlc.MaxItems {
+	if dlc.MaxItems > 0 && dlc.entries >= dlc.MaxItems {
 		return filepath.SkipAll
 	}
 
@@ -370,7 +373,7 @@ func (dlc *DownloadContent) renderHTML(ctx context.Context, sl *slog.Logger) tem
 		return template.HTML(dlc.html.String())
 	}
 
-	// always render a file_id.idx if it is found
+	// always render a file_id.diz if it is found
 	idx := dlc.indexDiz()
 	if useDiz := idx >= 0; useDiz {
 		elms := ""
@@ -381,7 +384,7 @@ func (dlc *DownloadContent) renderHTML(ctx context.Context, sl *slog.Logger) tem
 		srcDIZ := filepath.Join(dlc.tempRoot, elms)
 		if err := dlc.Dirs.DizDeferred(sl, srcDIZ, dlc.unid); err != nil {
 			dlc.html.Reset()
-			return template.HTML(err.Error())
+			return template.HTML(template.HTMLEscapeString(err.Error()))
 		}
 
 		if count == 1 {
@@ -414,7 +417,7 @@ func (dlc *DownloadContent) renderHTML(ctx context.Context, sl *slog.Logger) tem
 	if srcNFO != "" {
 		if err := dlc.Dirs.TextDeferred(ctx, sl, srcNFO, dlc.unid); err != nil {
 			dlc.html.Reset()
-			return template.HTML(err.Error())
+			return template.HTML(template.HTMLEscapeString(err.Error()))
 		}
 	}
 

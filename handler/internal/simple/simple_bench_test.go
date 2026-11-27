@@ -18,7 +18,8 @@ func BenchmarkHash(b *testing.B) {
 
 	for _, str := range testStrings {
 		b.Run(fmt.Sprintf("length-%d", len(str)), func(b *testing.B) {
-			for range b.N {
+			b.ReportAllocs()
+			for b.Loop() {
 				_ = simple.Hash(str)
 			}
 		})
@@ -26,14 +27,13 @@ func BenchmarkHash(b *testing.B) {
 }
 
 func BenchmarkCleanHTML(b *testing.B) {
-	html := `<div class="content">
+	const html = `<div class="content">
 		<p class="lead">This is a <strong>test</strong> with <a href="https://example.com" class="link" id="test">links</a> and <span style="color: red;">formatting</span>.</p>
 		<p>Another paragraph with &nbsp; non-breaking &amp; spaces and <data-info="test">data attributes</data-info>.</p>
 	</div>`
 
-	b.Run("", func(b *testing.B) {
-		for range b.N {
-			simple.CleanHTML(html)
-		}
-	})
+	b.ReportAllocs()
+	for b.Loop() {
+		_ = simple.CleanHTML(html)
+	}
 }

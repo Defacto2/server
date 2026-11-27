@@ -3,6 +3,7 @@ package filerecord_test
 import (
 	"archive/zip"
 	"encoding/binary"
+	"html/template"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -10,6 +11,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/Defacto2/magicnumber"
 	"github.com/Defacto2/server/handler/internal/filerecord"
 	"github.com/Defacto2/server/handler/internal/simple"
 	"github.com/Defacto2/server/internal/command"
@@ -18,11 +20,10 @@ import (
 	"github.com/Defacto2/server/internal/logs"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/internal/testutil"
+	"github.com/Defacto2/server/model"
 	"github.com/aarondl/null/v8"
 	"github.com/nalgeon/be"
 )
-
-// checked in Sep 26, test coverage was good at under 65%
 
 const (
 	flaggedHash = "aa97833330f4a27f0c7888ae633de652be5a37840fc87cc364b5c90908d027d855d66fe60d8b2b23b02fb0fe482ddcf1"
@@ -120,6 +121,136 @@ func TestValues(t *testing.T) {
 
 	art.FileZipContent = null.StringFrom("file1.txt\nfile2.exe")
 	be.Equal(t, filerecord.ZipContent(art), "file1.txt\nfile2.exe")
+
+	art.DoseeLoadUtilities = null.Int16From(0)
+	be.Equal(t, filerecord.JsdosUtilities(art), false)
+	art.DoseeLoadUtilities = null.Int16From(1)
+	be.Equal(t, filerecord.JsdosUtilities(art), true)
+
+	art.DoseeNoXMS = null.Int16From(1)
+	art.DoseeNoEms = null.Int16From(1)
+	art.DoseeNoUmb = null.Int16From(1)
+	x, e, u = filerecord.JsdosMemory(art)
+	be.Equal(t, x, false)
+	be.Equal(t, e, false)
+	be.Equal(t, u, false)
+
+	// Invalid / empty fields return zero values.
+	empty := testutil.NewModel(t)
+	empty.Filename = null.String{}
+	empty.UUID = null.String{}
+	be.Equal(t, filerecord.AttrArtist(empty), "")
+	be.Equal(t, filerecord.AttrMusic(empty), "")
+	be.Equal(t, filerecord.AttrProg(empty), "")
+	be.Equal(t, filerecord.AttrWriter(empty), "")
+	be.Equal(t, filerecord.Basename(empty), "")
+	be.Equal(t, filerecord.Checksum(empty), "")
+	be.Equal(t, filerecord.Comment(empty), "")
+	be.Equal(t, filerecord.Idenfication16C(empty), "")
+	be.Equal(t, filerecord.IdenficationDZ(empty), "")
+	be.Equal(t, filerecord.IdenficationGitHub(empty), "")
+	be.Equal(t, filerecord.IdenficationPouet(empty), "")
+	be.Equal(t, filerecord.IdenficationYT(empty), "")
+	be.Equal(t, filerecord.JsdosBroken(empty), false)
+	be.Equal(t, filerecord.JsdosCPU(empty), "")
+	be.Equal(t, filerecord.JsdosMachine(empty), "")
+	be.Equal(t, filerecord.JsdosRun(empty), "")
+	be.Equal(t, filerecord.JsdosSound(empty), "")
+	be.Equal(t, filerecord.JsdosUtilities(empty), false)
+	be.Equal(t, filerecord.Magic(empty), "")
+	be.Equal(t, filerecord.RelationsStr(empty), "")
+	be.Equal(t, filerecord.TagCategory(empty), "")
+	be.Equal(t, filerecord.TagProgram(empty), "")
+	be.Equal(t, filerecord.UnID(empty), "")
+	be.Equal(t, filerecord.WebsitesStr(empty), "")
+	be.Equal(t, filerecord.ZipContent(empty), "")
+
+	empty.WebIDDemozoo = null.Int64From(0)
+	empty.WebIDPouet = null.Int64From(0)
+	empty.Section = null.StringFrom("not-a-category")
+	empty.Platform = null.StringFrom("not-a-platform")
+	be.Equal(t, filerecord.IdenficationDZ(empty), "")
+	be.Equal(t, filerecord.IdenficationPouet(empty), "")
+	be.Equal(t, filerecord.TagCategory(empty), "")
+	be.Equal(t, filerecord.TagProgram(empty), "")
+}
+
+func TestNilFile(t *testing.T) {
+	t.Parallel()
+
+	be.Equal(t, filerecord.AlertURL(nil), "")
+	be.Equal(t, filerecord.AttrArtist(nil), "")
+	be.Equal(t, filerecord.AttrMusic(nil), "")
+	be.Equal(t, filerecord.AttrProg(nil), "")
+	be.Equal(t, filerecord.AttrWriter(nil), "")
+	be.Equal(t, filerecord.Basename(nil), "")
+	be.Equal(t, filerecord.Checksum(nil), "")
+	be.Equal(t, filerecord.Comment(nil), "")
+	be.Equal(t, filerecord.Date(nil), template.HTML(model.ErrModel.Error()))
+
+	y, m, d := filerecord.Dates(nil)
+	be.Equal(t, y, int16(0))
+	be.Equal(t, m, int16(0))
+	be.Equal(t, d, int16(0))
+
+	be.Equal(t, filerecord.Description(nil), "")
+	be.Equal(t, filerecord.DisableReadme(nil), false)
+	be.Equal(t, filerecord.DownloadID(nil), "")
+	be.Equal(t, filerecord.ExtraZip(nil, ""), false)
+	be.Equal(t, filerecord.FileEntry(nil), "")
+	be.Equal(t, filerecord.FirstHeader(nil), "")
+	be.Equal(t, filerecord.ForceSimpleText(nil), false)
+	be.Equal(t, filerecord.Idenfication16C(nil), "")
+	be.Equal(t, filerecord.IdenficationDZ(nil), "")
+	be.Equal(t, filerecord.IdenficationGitHub(nil), "")
+	be.Equal(t, filerecord.IdenficationPouet(nil), "")
+	be.Equal(t, filerecord.IdenficationYT(nil), "")
+	be.Equal(t, filerecord.JsdosArchive(nil), false)
+	be.Equal(t, filerecord.JsdosBroken(nil), false)
+	be.Equal(t, filerecord.JsdosCPU(nil), "")
+	be.Equal(t, filerecord.JsdosMachine(nil), "")
+
+	x, e, u := filerecord.JsdosMemory(nil)
+	be.Equal(t, x, false)
+	be.Equal(t, e, false)
+	be.Equal(t, u, false)
+
+	be.Equal(t, filerecord.JsdosRun(nil), "")
+	be.Equal(t, filerecord.JsdosSound(nil), "")
+	be.Equal(t, filerecord.JsdosUse(nil), false)
+	be.Equal(t, filerecord.JsdosUtilities(nil), false)
+	be.Equal(t, filerecord.LastModification(nil), "")
+	be.Equal(t, filerecord.LastModificationAgo(nil), "")
+	be.Equal(t, filerecord.LastModificationDate(nil), "")
+
+	ly, lm, ld := filerecord.LastModifications(nil)
+	be.Equal(t, ly, 0)
+	be.Equal(t, lm, 0)
+	be.Equal(t, ld, 0)
+
+	be.Equal(t, filerecord.LinkPreview(nil), "")
+	be.Equal(t, filerecord.LinkPreviewTip(nil), "")
+	be.Equal(t, filerecord.Magic(nil), "")
+	be.Equal(t, filerecord.Readme(nil), "")
+	be.Equal(t, filerecord.RecordIsNew(nil), false)
+	be.Equal(t, filerecord.RecordOffline(nil), false)
+	be.Equal(t, filerecord.RecordOnline(nil), false)
+	be.Equal(t, filerecord.RecordProblems(nil), "")
+	be.Equal(t, filerecord.Relations(nil), template.HTML(""))
+	be.Equal(t, filerecord.RelationsStr(nil), "")
+
+	rf, rb := filerecord.ReleaserPair(nil)
+	be.Equal(t, rf, "")
+	be.Equal(t, rb, "")
+
+	be.Equal(t, filerecord.TagCategory(nil), "")
+	be.Equal(t, filerecord.TagProgram(nil), "")
+	be.Equal(t, filerecord.Title(nil), "")
+	be.Equal(t, filerecord.UnID(nil), "")
+	be.Equal(t, filerecord.UnsupportedFile(nil), true)
+	be.Equal(t, filerecord.Websites(nil), template.HTML(""))
+	be.Equal(t, filerecord.WebsitesStr(nil), "")
+	be.Equal(t, filerecord.ZipContent(nil), "")
 }
 
 func TestSimpleText(t *testing.T) {
@@ -263,6 +394,64 @@ func TestListEntry(t *testing.T) {
 	be.True(t, !strings.Contains(got, ">Extra</button>"))
 	be.True(t, !strings.Contains(got, ">Readme</button>"))
 	be.True(t, !strings.Contains(got, "btn-group"))
+
+	// Console and Amiga text platforms use preview-amiga for non-ANSI text.
+	le = filerecord.ListEntry{
+		UniqueID:     "888",
+		RelativeName: "amiga.txt",
+		Signature:    "plain text",
+		Texts:        true,
+	}
+	be.True(t, strings.Contains(le.HTML(bytes, tags.TextAmiga.String(), section), "/editor/readme/preview-amiga/"))
+	be.True(t, strings.Contains(le.HTML(bytes, tags.Console.String(), section), "/editor/readme/preview-amiga/"))
+	le.Signature = "ANSI text"
+	be.True(t, strings.Contains(le.HTML(bytes, tags.TextAmiga.String(), section), "/editor/readme/preview/888/"))
+
+	// XBinaryText renders preview-binary button but is excluded from textNFO Readme/Extra buttons.
+	le = filerecord.ListEntry{
+		UniqueID:     "888",
+		RelativeName: "art.xb",
+		Signature:    magicnumber.XBinaryText.String(),
+	}
+	got = le.HTML(bytes, tags.Text.String(), tags.Nfo.String())
+	be.True(t, strings.Contains(got, "/editor/readme/preview-binary/"))
+	be.True(t, !strings.Contains(got, ">Readme</button>"))
+
+	// Text + NFO platform/section enables Readme and Extra even when Texts is false.
+	le = filerecord.ListEntry{
+		UniqueID:     "888",
+		RelativeName: "group.nfo",
+		Signature:    "unknown",
+	}
+	got = le.HTML(bytes, tags.Text.String(), tags.Nfo.String())
+	be.True(t, strings.Contains(got, ">Readme</button>"))
+	be.True(t, strings.Contains(got, ">Extra</button>"))
+
+	// NonArchive FILE_ID.DIZ omits the DIZ copy button.
+	le = filerecord.ListEntry{
+		UniqueID:     "888",
+		RelativeName: extensions.FileID,
+		NonArchive:   true,
+	}
+	got = le.HTML(bytes, platform, section)
+	be.True(t, !strings.Contains(got, ">DIZ</button>"))
+
+	// CGA graphics dump uses preview/cga button.
+	le = filerecord.ListEntry{
+		UniqueID:     "888",
+		RelativeName: "art.cga",
+		Signature:    magicnumber.CGAGraphicsDump.String(),
+	}
+	be.True(t, strings.Contains(le.HTML(bytes, platform, section), "/editor/preview/cga/"))
+
+	// Images display ImageConfig in the footer.
+	le = filerecord.ListEntry{
+		UniqueID:     "888",
+		RelativeName: "pic.png",
+		Images:       true,
+		ImageConfig:  "png image, 320x200",
+	}
+	be.True(t, strings.Contains(le.HTML(bytes, platform, section), "png image, 320x200"))
 }
 
 func TestWebsites(t *testing.T) {
@@ -289,6 +478,16 @@ func TestWebsites(t *testing.T) {
 	art.ListLinks = null.StringFrom("http://example.com;Example page")
 	got = filerecord.Websites(art)
 	be.Equal(t, got, "")
+
+	// Bare domain without scheme gets prefixed with https://.
+	art.ListLinks = null.StringFrom("Site;example.com|Textfiles;http://textfiles.com")
+	got = filerecord.Websites(art)
+	be.True(t, strings.Contains(string(got), `href="https://example.com">Site`))
+	be.True(t, strings.Contains(string(got), `href="http://textfiles.com">Textfiles`))
+
+	// Empty host is skipped.
+	art.ListLinks = null.StringFrom("Bad;http://")
+	be.Equal(t, filerecord.Websites(art), template.HTML(""))
 }
 
 func TestUnsupportedFile(t *testing.T) {
@@ -310,6 +509,15 @@ func TestUnsupportedFile(t *testing.T) {
 	art.Platform = null.StringFrom("pdf")
 	got = filerecord.UnsupportedFile(art)
 	be.True(t, got)
+
+	art.Filename = null.StringFrom("index.html")
+	art.Platform = null.StringFrom("markup")
+	be.True(t, filerecord.UnsupportedFile(art))
+
+	art.Filename = null.StringFrom("image.dat")
+	art.Platform = null.StringFrom("dos")
+	art.FileMagicType = null.StringFrom(magicnumber.PortableNetworkGraphics.Title())
+	be.True(t, filerecord.UnsupportedFile(art))
 }
 
 func TestRelations(t *testing.T) {
@@ -337,6 +545,11 @@ func TestRelations(t *testing.T) {
 	art.ListRelations = null.StringFrom("9b1c6;Info text")
 	got = filerecord.Relations(art)
 	be.Equal(t, got, "")
+
+	art.ListRelations = null.StringFrom("First;9b1c6|Second;9b1c6")
+	got = filerecord.Relations(art)
+	be.True(t, strings.Contains(string(got), `href="/f/9b1c6">First</a>`))
+	be.True(t, strings.Contains(string(got), `href="/f/9b1c6">Second</a>`))
 }
 
 func TestRecordStatus(t *testing.T) {
@@ -401,6 +614,9 @@ func TestLinkPreviewTip(t *testing.T) {
 	art := testutil.NewModel(t)
 	got := filerecord.LinkPreviewTip(art)
 	be.Equal(t, got, "Read this as text")
+
+	art.Platform = null.StringFrom("text")
+	be.Equal(t, filerecord.LinkPreviewTip(art), "Read this as text")
 }
 
 func TestLinkPreview(t *testing.T) {
@@ -409,6 +625,12 @@ func TestLinkPreview(t *testing.T) {
 	art := testutil.NewModel(t)
 	got := filerecord.LinkPreview(art)
 	be.Equal(t, got, "/v/9b1c6")
+
+	art.Platform = null.StringFrom("text")
+	be.Equal(t, filerecord.LinkPreview(art), "/v/9b1c6")
+
+	art.ID = 0
+	be.Equal(t, filerecord.LinkPreview(art), "")
 }
 
 func TestLastModified(t *testing.T) {
@@ -417,11 +639,20 @@ func TestLastModified(t *testing.T) {
 	art := testutil.NewModel(t)
 	got := filerecord.LastModification(art)
 	be.Equal(t, got, "no timestamp")
+	be.Equal(t, filerecord.LastModificationDate(art), "no timestamp")
+	be.Equal(t, filerecord.LastModificationAgo(art), "No recorded timestamp")
+
+	a, b, c := filerecord.LastModifications(art)
+	be.Equal(t, a, 0)
+	be.Equal(t, b, 0)
+	be.Equal(t, c, 0)
 
 	t1970 := time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC)
 	art.FileLastModified = null.TimeFrom(t1970)
 	got = filerecord.LastModification(art)
 	be.Equal(t, got, "no timestamp")
+	be.Equal(t, filerecord.LastModificationDate(art), "no timestamp")
+	be.Equal(t, filerecord.LastModificationAgo(art), "No recorded timestamp")
 
 	t1985 := time.Date(1985, time.January, 1, 0, 0, 0, 0, time.UTC)
 	art.FileLastModified = null.TimeFrom(t1985)
@@ -431,7 +662,7 @@ func TestLastModified(t *testing.T) {
 	got = filerecord.LastModificationDate(art)
 	be.Equal(t, got, "1985-Jan-01")
 
-	a, b, c := filerecord.LastModifications(art)
+	a, b, c = filerecord.LastModifications(art)
 	be.Equal(t, a, 1985)
 	be.Equal(t, b, 1)
 	be.Equal(t, c, 1)
@@ -461,10 +692,27 @@ func TestJsdos(t *testing.T) {
 	got = filerecord.JsdosUse(art)
 	be.True(t, got)
 
-	got = filerecord.JsdosUsage(zip, pl)
-	be.True(t, got)
-	got = filerecord.JsdosUsage(exe, pl)
-	be.True(t, got)
+	art.Filename = null.StringFrom("RUNME.COM")
+	be.True(t, filerecord.JsdosUse(art))
+
+	art.Filename = null.StringFrom("RUNME.BAT")
+	be.True(t, !filerecord.JsdosUse(art))
+
+	art.Filename = null.StringFrom("README.TXT")
+	be.True(t, !filerecord.JsdosUse(art))
+
+	art.Platform = null.StringFrom("windows")
+	art.Filename = null.StringFrom(exe)
+	be.True(t, !filerecord.JsdosUse(art))
+
+	be.True(t, filerecord.JsdosUsage(zip, pl))
+	be.True(t, filerecord.JsdosUsage("ARCHIVE.LZH", pl))
+	be.True(t, filerecord.JsdosUsage(exe, pl))
+	be.True(t, filerecord.JsdosUsage("RUNME.COM", pl))
+	be.True(t, !filerecord.JsdosUsage("RUNME.BAT", pl))
+	be.True(t, !filerecord.JsdosUsage("RUNME.CMD", pl))
+	be.True(t, !filerecord.JsdosUsage("README.TXT", pl))
+	be.True(t, !filerecord.JsdosUsage(exe, "windows"))
 }
 
 func TestFirstHeader(t *testing.T) {
@@ -482,6 +730,9 @@ func TestFirstHeader(t *testing.T) {
 	art.Section = null.StringFrom("magazine")
 	got = filerecord.FirstHeader(art)
 	be.Equal(t, got, "Issue 5")
+
+	art.RecordTitle = null.StringFrom("Special")
+	be.Equal(t, filerecord.FirstHeader(art), "Special")
 }
 
 func TestFileEntry(t *testing.T) {
@@ -503,6 +754,20 @@ func TestFileEntry(t *testing.T) {
 	s = filerecord.FileEntry(art)
 	got = strings.Contains(s, "Updated just now")
 	be.True(t, got)
+
+	// Same relative timestamp for Created and Updated omits the duplicate Updated line.
+	art.Createdat = null.TimeFrom(now)
+	art.Updatedat = null.TimeFrom(now)
+	s = filerecord.FileEntry(art)
+	be.True(t, strings.Contains(s, "Created"))
+	be.True(t, !strings.Contains(s, "Updated"))
+
+	// Updatedat only.
+	art.Createdat = null.Time{}
+	art.Updatedat = null.TimeFrom(now)
+	s = filerecord.FileEntry(art)
+	be.True(t, strings.Contains(s, "Updated just now"))
+	be.True(t, !strings.Contains(s, "Created"))
 }
 
 func TestExtraZip(t *testing.T) {
@@ -523,6 +788,7 @@ func TestExtraZip(t *testing.T) {
 	err := command.CopyFile(sl,
 		src, filepath.Join(extra.Path(), testutil.UID4+".zip"))
 	be.Err(t, err, nil)
+	be.True(t, filerecord.ExtraZip(art, extra))
 }
 
 func TestDownloadID(t *testing.T) {
@@ -538,12 +804,26 @@ func TestDescription(t *testing.T) {
 
 	art := testutil.NewModel(t)
 	got := filerecord.Description(art)
-	be.Equal(t, got, "filename.txt released by .")
+	be.Equal(t, got, "filename.txt.")
 
 	art.Filename = null.StringFrom("myfile.txt")
 	art.GroupBrandBy = null.StringFrom("my group")
 	got = filerecord.Description(art)
 	be.Equal(t, got, "myfile.txt released by My Group.")
+
+	art.RecordTitle = null.StringFrom("Cool Release")
+	art.GroupBrandFor = null.StringFrom("second group")
+	art.DateIssuedYear = null.Int16From(1995)
+	be.Equal(t, filerecord.Description(art), "Cool Release released by My Group + Second Group in 1995.")
+
+	art.GroupBrandBy = null.String{}
+	be.Equal(t, filerecord.Description(art), "Cool Release released by Second Group in 1995.")
+
+	art.GroupBrandFor = null.StringFrom("independent")
+	be.Equal(t, filerecord.Description(art), "Cool Release independently released in 1995.")
+
+	art.GroupBrandFor = null.StringFrom("none")
+	be.Equal(t, filerecord.Description(art), "Cool Release in 1995.")
 }
 
 func TestDate(t *testing.T) {
@@ -568,17 +848,38 @@ func TestDate(t *testing.T) {
 	s = filerecord.Date(art)
 
 	a, b, c := filerecord.Dates(art)
-	be.Equal(t, 2021, a)
-	be.Equal(t, 1, b)
-	be.Equal(t, 1, c)
+	be.Equal(t, a, int16(2021))
+	be.Equal(t, b, int16(1))
+	be.Equal(t, c, int16(1))
 
 	got = strings.Contains(string(s), "January 1")
 	be.True(t, got)
 
 	art.DateIssuedYear = null.Int16From(30000)
-	s = filerecord.Date(art)
-	got = strings.Contains(string(s), "30000")
-	be.True(t, !got)
+	be.Equal(t, filerecord.Date(art), template.HTML("unknown date"))
+
+	// Out-of-range months and day-without-month fall back to year only.
+	art.DateIssuedYear = null.Int16From(2021)
+	art.DateIssuedMonth = null.Int16From(0)
+	art.DateIssuedDay = null.Int16{}
+	be.Equal(t, filerecord.Date(art), template.HTML("<strong>2021</strong>"))
+
+	art.DateIssuedMonth = null.Int16From(13)
+	art.DateIssuedDay = null.Int16From(15)
+	be.Equal(t, filerecord.Date(art), template.HTML("<strong>2021</strong>"))
+
+	art.DateIssuedMonth = null.Int16{}
+	art.DateIssuedDay = null.Int16From(15)
+	be.Equal(t, filerecord.Date(art), template.HTML("<strong>2021</strong>"))
+
+	// Missing year with valid/invalid month returns unknown date.
+	art.DateIssuedYear = null.Int16{}
+	art.DateIssuedMonth = null.Int16From(0)
+	art.DateIssuedDay = null.Int16{}
+	be.Equal(t, filerecord.Date(art), template.HTML("unknown date"))
+
+	art.DateIssuedMonth = null.Int16From(1)
+	be.Equal(t, filerecord.Date(art), template.HTML("unknown date"))
 }
 
 func TestListContent(t *testing.T) {
@@ -593,6 +894,12 @@ func TestListContent(t *testing.T) {
 		Source: "", MaxItems: -1, Dirs: dirs,
 	}
 
+	be.Equal(t, dlc.List(ctx, sl, nil), template.HTML(""))
+
+	noUUID := testutil.NewModel(t)
+	noUUID.UUID = null.String{}
+	be.True(t, strings.Contains(string(dlc.List(ctx, sl, noUUID)), "error, no UUID"))
+
 	s := dlc.List(ctx, sl, art)
 	got := strings.Contains(string(s), "invalid platform")
 	be.True(t, got)
@@ -602,19 +909,15 @@ func TestListContent(t *testing.T) {
 	got = strings.Contains(string(s), "error, ")
 	be.True(t, got)
 
-	src := testutil.FileData("archivezip").Abs()
-	err := command.CopyFile(sl, src, filepath.Join(t.TempDir(), "archive.zip"))
-	be.Err(t, err, nil)
-
+	art.Platform = null.StringFrom("dos")
+	art.Section = null.StringFrom("release")
+	dlc.Source = filepath.Join(t.TempDir(), "missing.zip")
 	s = dlc.List(ctx, sl, art)
-	got = strings.Contains(string(s), "error, ")
-	be.True(t, got)
+	be.True(t, strings.Contains(string(s), "no such file"))
 }
 
 // TestListContentHappyPath tests ListContent with a valid archive to ensure
-// no excess blank lines are present (regression test for slice bounds bug).
-// Due to archive extraction complexity, this test verifies the bug would have manifested
-// by checking that non-directory files don't produce empty slots in the output.
+// extracted entries are rendered cleanly without slice-bounds errors.
 func TestListContentHappyPath(t *testing.T) {
 	t.Parallel()
 
@@ -623,28 +926,32 @@ func TestListContentHappyPath(t *testing.T) {
 	art.Section = null.StringFrom("game")
 	art.Filename = null.StringFrom("archive.zip")
 
-	dirs := command.Dirs{}
 	sl := logs.Discard()
 	ctx := t.Context()
 
-	// Create temp directory and copy test archive
 	tmpDir := t.TempDir()
 	src := testutil.FileData("archivezip").Abs()
-	dst := filepath.Join(tmpDir, "archive.zip")
-	err := command.CopyFile(logs.Discard(), src, dst)
+	dst := filepath.Join(tmpDir, t.Name()+".zip")
+	err := command.CopyFile(sl, src, dst)
 	be.Err(t, err, nil)
 
-	// Call ListContent - it may error due to extraction issues, but we verify
-	// the function handles the slice bounds correctly (doesn't crash or return nil)
-	dlc := filerecord.DownloadContent{
-		Source: tmpDir, MaxItems: -1, Dirs: dirs,
-	}
-	result := dlc.List(ctx, sl, art)
+	thumbDir := t.TempDir()
+	extraDir := t.TempDir()
+	be.Err(t, os.WriteFile(filepath.Join(thumbDir, art.UUID.String+".png"), []byte("png"), 0o600), nil)
+	be.Err(t, os.WriteFile(filepath.Join(extraDir, art.UUID.String+".diz"), []byte("diz"), 0o600), nil)
 
-	// The key test: result is not nil/empty (function executed)
-	// and doesn't have unexpected format issues from the slice bug
-	resultStr := string(result)
-	be.True(t, len(resultStr) > 0)
+	dlc := filerecord.DownloadContent{
+		Source:   dst,
+		MaxItems: -1,
+		Dirs: command.Dirs{
+			Preview:   dir.Directory(t.TempDir()),
+			Thumbnail: dir.Directory(thumbDir),
+			Extra:     dir.Directory(extraDir),
+		},
+	}
+	resultStr := string(dlc.List(ctx, sl, art))
+	be.True(t, strings.Contains(resultStr, `<div class="border-bottom`))
+	be.True(t, !strings.HasPrefix(resultStr, "error, "))
 }
 
 func TestAlertURL(t *testing.T) {
@@ -661,6 +968,12 @@ func TestAlertURL(t *testing.T) {
 	art.FileSecurityAlertURL = null.StringFrom("https://example.com")
 	got = filerecord.AlertURL(art)
 	be.Equal(t, got, "https://example.com")
+
+	art.FileSecurityAlertURL = null.StringFrom("http://example.com/report")
+	be.Equal(t, filerecord.AlertURL(art), "https://example.com/report")
+
+	art.FileSecurityAlertURL = null.StringFrom("/gui/file/abc123")
+	be.Equal(t, filerecord.AlertURL(art), "https://www.virustotal.com/gui/file/abc123")
 }
 
 func TestLinkPreviewHref(t *testing.T) {
@@ -674,6 +987,12 @@ func TestLinkPreviewHref(t *testing.T) {
 
 	got = filerecord.LinkPreviewHref(1, "filename.txt", "text")
 	be.Equal(t, got, "/v/9b1c6")
+
+	be.Equal(t, filerecord.LinkPreviewHref(1, "archive.zip", "text"), "")
+	be.Equal(t, filerecord.LinkPreviewHref(1, "image.png", "dos"), "/v/9b1c6")
+	be.Equal(t, filerecord.LinkPreviewHref(1, "song.mp3", "audio"), "/v/9b1c6")
+	be.Equal(t, filerecord.LinkPreviewHref(1, "readme.nfo", "textamiga"), "/v/9b1c6")
+	be.True(t, strings.HasPrefix(filerecord.LinkPreviewHref(struct{}{}, "filename.txt", "text"), "error: "))
 }
 
 func TestLegacyString(t *testing.T) {
@@ -698,91 +1017,6 @@ func TestLegacyString(t *testing.T) {
 	be.Equal(t, got, "€100")
 }
 
-func TestWalkerChmod(t *testing.T) {
-	t.Parallel()
-
-	t.Run("directory permission == 0o755", func(t *testing.T) {
-		t.Parallel()
-
-		name := t.TempDir()
-		testDir := filepath.Join(name, "testdir")
-
-		if err := os.Mkdir(testDir, 0o700); err != nil {
-			t.Fatal(err)
-		}
-
-		entry := &mockDirEntry{
-			name:  "testdir",
-			isDir: true,
-			mode:  0o700,
-		}
-
-		root, got := os.OpenRoot(name)
-		be.Err(t, got, nil)
-
-		got = filerecord.WalkerChmod(root, testDir, entry, nil)
-		be.Err(t, got, nil)
-
-		info, got := os.Stat(testDir)
-		be.Err(t, got, nil)
-		be.Equal(t, info.Mode().Perm(), fs.FileMode(0o755))
-	})
-
-	t.Run("file permissions == 0o644", func(t *testing.T) {
-		t.Parallel()
-
-		name := t.TempDir()
-		testFile := filepath.Join(name, "testfile.txt")
-		if err := os.WriteFile(testFile, []byte("test"), 0o600); err != nil {
-			t.Fatal(err)
-		}
-
-		entry := &mockDirEntry{
-			name:  "testfile.txt",
-			isDir: false,
-			mode:  0o600,
-		}
-
-		root, got := os.OpenRoot(name)
-		be.Err(t, got, nil)
-
-		got = filerecord.WalkerChmod(root, testFile, entry, nil)
-		be.Err(t, got, nil)
-
-		info, got := os.Stat(testFile)
-		be.Err(t, got, nil)
-		be.Equal(t, info.Mode().Perm(), fs.FileMode(0o644))
-	})
-
-	t.Run("fs.SkipDir when error", func(t *testing.T) {
-		t.Parallel()
-
-		name := t.TempDir()
-		root, got := os.OpenRoot(name)
-		be.Err(t, got, nil)
-
-		got = filerecord.WalkerChmod(root, "", nil, fs.ErrInvalid)
-		be.Equal(t, got, fs.SkipDir)
-	})
-
-	t.Run("chmod errors", func(t *testing.T) {
-		t.Parallel()
-
-		name := t.TempDir()
-		root, got := os.OpenRoot(name)
-		be.Err(t, got, nil)
-		nonExistentFile := filepath.Join(name, "nonexistent", "file.txt")
-
-		entry := &mockDirEntry{
-			name:  "file.txt",
-			isDir: false,
-			mode:  0o644,
-		}
-		got = filerecord.WalkerChmod(root, nonExistentFile, entry, nil)
-		be.True(t, got != nil)
-	})
-}
-
 // mockDirEntry implements fs.DirEntry for testing.
 type mockDirEntry struct {
 	name  string
@@ -800,6 +1034,7 @@ func TestSkipFile(t *testing.T) {
 
 	e := filerecord.Entry{}
 	be.True(t, e.SkipFile("", ""))
+	be.True(t, e.SkipFile(t.TempDir(), ""))
 
 	name := testutil.FileData("readmetxt").Abs()
 	be.True(t, !e.SkipFile(name, ""))
@@ -809,12 +1044,24 @@ func TestSkipEntry(t *testing.T) {
 	t.Parallel()
 
 	e := filerecord.Entry{}
+	be.True(t, !e.SkipEntry("", nil, ""))
+	be.True(t, e.SkipEntry("dir", &mockDirEntry{name: "dir", isDir: true}, ""))
+	be.True(t, e.SkipEntry("bad.txt", &mockDirEntry{name: "bad.txt", isDir: false}, ""))
+
 	name := testutil.FileData("readmetxt").Abs()
 	info, err := os.Stat(name)
 	be.Err(t, err, nil)
 	d := fs.FileInfoToDirEntry(info)
 	be.True(t, e.SkipEntry("", d, ""))
+	be.True(t, e.SkipEntry("run.cmd", d, ""))
+	be.True(t, e.SkipEntry("config.ini", d, ""))
 	be.True(t, !e.SkipEntry(name, d, ""))
+
+	zeroPath := filepath.Join(t.TempDir(), "empty.txt")
+	be.Err(t, os.WriteFile(zeroPath, nil, 0o600), nil)
+	zinfo, err := os.Stat(zeroPath)
+	be.Err(t, err, nil)
+	be.True(t, e.SkipEntry(zeroPath, fs.FileInfoToDirEntry(zinfo), ""))
 
 	name = testutil.FileData("testpng").Abs()
 	info, err = os.Stat(name)

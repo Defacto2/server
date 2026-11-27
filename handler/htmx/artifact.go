@@ -67,7 +67,7 @@ func Validate(path string) error {
 	const format = "%w: %q"
 
 	path = strings.TrimSuffix(path, "/")
-	if filepath.IsAbs(path) {
+	if !filepath.IsLocal(path) || path == "." {
 		return fmt.Errorf(format, ErrPath, path)
 	}
 
@@ -101,8 +101,10 @@ func UUID(c *echo.Context) (string, error) {
 //
 // [HTMX header]: https://htmx.org/reference/#response_headers
 func PageReload(c *echo.Context) *echo.Context {
+	if c == nil {
+		return nil
+	}
 	c.Response().Header().Set("Hx-Refresh", "true")
-	c.Response().WriteHeader(http.StatusFound)
 
 	return c
 }
@@ -122,7 +124,9 @@ func CommitSanitize(c *echo.Context, tx *sql.Tx, name string,
 	}
 
 	value := c.FormValue(name)
-	value = sanitize(value)
+	if sanitize != nil {
+		value = sanitize(value)
+	}
 
 	ctx := c.Request().Context()
 	if err := fn(ctx, tx, key, value); err != nil {
@@ -249,6 +253,10 @@ func StatusOK(c *echo.Context, name string) error {
 }
 
 func Key(c *echo.Context) (int64, error) {
+	if err := nils.Check(c); err != nil {
+		return 0, fmt.Errorf("%s: %w", EditorKey, err)
+	}
+
 	sid := c.FormValue(EditorKey)
 	key, err := strconv.Atoi(sid)
 	if err != nil {
@@ -277,6 +285,12 @@ func KeyParam(c *echo.Context) (int64, error) {
 // the server cannot or will not process the request due to something that is perceived to be a client error.
 func badRequest(c *echo.Context, err error) error {
 	const code = http.StatusBadRequest
+	if c == nil {
+		if err != nil {
+			return err
+		}
+		return fmt.Errorf("bad request: %w", nils.Check(c))
+	}
 	if err == nil {
 		return c.String(code, "something went wrong")
 	}

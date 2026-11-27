@@ -396,7 +396,7 @@ func progr(exec magicnumber.Windows, ext string, bytes int64) string {
 		s = "PE program data"
 	}
 	if y := exec.TimeDateStamp.Year(); y >= epoch && y <= time.Now().Year() {
-		s += ", built " + exec.TimeDateStamp.Format("2006-01-2")
+		s += ", built " + exec.TimeDateStamp.Format(time.DateOnly)
 	}
 	return ` <small>` + s + `</small>`
 }
@@ -525,7 +525,7 @@ func Basename(art *models.File) string {
 	return ""
 }
 
-// Checksum returns the strong SHA386 hash checksum for the file record.
+// Checksum returns the strong SHA384 hash checksum for the file record.
 func Checksum(art *models.File) string {
 	if art == nil {
 		return ""
@@ -659,8 +659,8 @@ func (e *Entry) skipByInfo(path, platform string, info fs.FileInfo) bool {
 	return false
 }
 
-// isImage returns truf if the magic signature is a known image format,
-// both web friendly formats as well as obsolute formats.
+// isImage returns true if the magic signature is a known image format,
+// both web friendly formats as well as obsolete formats.
 func (e *Entry) isImage() bool {
 	// unsupported formats that cannot be converted to browser friendly, .png,.webp,etc.
 	if e.sign == magicnumber.RIPscrip {
@@ -829,13 +829,8 @@ func (e *Entry) skipImage(path string) bool {
 
 	switch e.sign {
 	case magicnumber.InterleavedBitmap:
-		r, _ := os.Open(path)
-		if r == nil {
-			return true
-		}
-		defer func() { _ = r.Close() }()
 		x, y := magicnumber.IlbmDecode(r)
-		e.format = imgtype + "ILBM image, " + strconv.Itoa(x) + "x" + strconv.Itoa(y)
+		e.format = "ILBM image, " + strconv.Itoa(x) + "x" + strconv.Itoa(y)
 	default:
 		e.format = e.sign.Title() + " image"
 	}
@@ -997,9 +992,13 @@ func Date(art *models.File) template.HTML {
 			ys = strconv.Itoa(i)
 		}
 	}
+	if ys == "" {
+		return "unknown date"
+	}
+
 	if art.DateIssuedMonth.Valid {
-		if s := time.Month(art.DateIssuedMonth.Int16); s.String() != "" {
-			ms = s.String()
+		if m := time.Month(art.DateIssuedMonth.Int16); m >= time.January && m <= time.December {
+			ms = m.String()
 		}
 	}
 	if art.DateIssuedDay.Valid {
@@ -1008,23 +1007,15 @@ func Date(art *models.File) template.HTML {
 		}
 	}
 
-	strong := func(s string) template.HTML {
-		return template.HTML("<strong>" + s + "</strong>")
+	strong := template.HTML("<strong>" + ys + "</strong>")
+	if ms == "" {
+		return strong
+	}
+	if ds == "" {
+		return strong + template.HTML(" "+ms)
 	}
 
-	if isYearOnly := ys != "" && ms == "" && ds == ""; isYearOnly {
-		return strong(ys)
-	}
-
-	if isInvalidDay := ys != "" && ms != "" && ds == ""; isInvalidDay {
-		return strong(ys) + template.HTML(" "+ms)
-	}
-
-	if isInvalid := ys == "" && ms == "" && ds == ""; isInvalid {
-		return "unknown date"
-	}
-
-	return strong(ys) + template.HTML(" "+ms+" "+ds)
+	return strong + template.HTML(" "+ms+" "+ds)
 }
 
 // Dates returns the year, month and day for the published date for the artifact.
@@ -1072,7 +1063,7 @@ func Description(art *models.File) string {
 
 	if strings.EqualFold(r, "independent") {
 		s += " independently released"
-	} else if !strings.EqualFold(r, "none") {
+	} else if r != "" && !strings.EqualFold(r, "none") {
 		s = s + " released by " + r
 	}
 
@@ -1361,7 +1352,7 @@ func JsdosUsage(filename, platform string) bool {
 	}
 }
 
-// JsdosUtilities returns true the js-dos emulator should also load the utilities archive
+// JsdosUtilities returns true if the js-dos emulator should also load the utilities archive
 // as an internal hard disk drive.
 func JsdosUtilities(art *models.File) bool {
 	if art == nil {
@@ -1380,21 +1371,11 @@ func LastModification(art *models.File) string {
 	}
 
 	const none = "no timestamp"
-	if !art.FileLastModified.Valid {
+	if !art.FileLastModified.Valid || art.FileLastModified.Time.Year() <= epoch {
 		return none
 	}
 
-	year, _ := strconv.Atoi(art.FileLastModified.Time.Format("2006"))
-	if year <= epoch {
-		return none
-	}
-
-	lm := art.FileLastModified.Time.Format("2006 Jan 2, 15:04")
-	if lm == "0001 Jan 1, 00:00" {
-		return none
-	}
-
-	return lm
+	return art.FileLastModified.Time.Format("2006 Jan 2, 15:04")
 }
 
 // LastModificationDate returns the last modified date for the file record.
@@ -1404,21 +1385,11 @@ func LastModificationDate(art *models.File) string {
 	}
 
 	const none = "no timestamp"
-	if !art.FileLastModified.Valid {
+	if !art.FileLastModified.Valid || art.FileLastModified.Time.Year() <= epoch {
 		return none
 	}
 
-	year, _ := strconv.Atoi(art.FileLastModified.Time.Format("2006"))
-	if year <= epoch {
-		return none
-	}
-
-	lm := art.FileLastModified.Time.Format(YYYYMMDD)
-	if lm == "0001-01-01" {
-		return none
-	}
-
-	return lm
+	return art.FileLastModified.Time.Format(YYYYMMDD)
 }
 
 // LastModifications returns the year, month and day for the last modified date for the file record.
@@ -1444,12 +1415,7 @@ func LastModificationAgo(art *models.File) string {
 	}
 
 	const none = "No recorded timestamp"
-	if !art.FileLastModified.Valid {
-		return none
-	}
-
-	year, _ := strconv.Atoi(art.FileLastModified.Time.Format("2006"))
-	if year <= epoch {
+	if !art.FileLastModified.Valid || art.FileLastModified.Time.Year() <= epoch {
 		return none
 	}
 
@@ -1744,7 +1710,7 @@ func UnsupportedFile(art *models.File) bool {
 
 	const bbsRipImage = ".rip"
 	if filepath.Ext(strings.ToLower(art.Filename.String)) == bbsRipImage {
-		// the bbs era, remote images protcol is not supported
+		// the bbs era, remote images protocol is not supported
 		// example: /f/b02392f
 		return true
 	}

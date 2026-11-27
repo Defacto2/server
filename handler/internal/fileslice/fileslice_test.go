@@ -18,17 +18,15 @@ import (
 	"github.com/nalgeon/be"
 )
 
-// checked in Sep 26, test coverage was great at under 90%
-
 var errBoom = errors.New("boom")
 
 func TestRecordsSubs(t *testing.T) {
 	t.Parallel()
 
 	s := fileslice.RecordsSub("")
-	be.Equal(t, "unknown uri", s)
+	be.Equal(t, s, "unknown uri")
 	s = fileslice.RecordsSub("hack")
-	be.Equal(t, "game trainers or hacks", s)
+	be.Equal(t, s, "game trainers or hacks")
 }
 
 func TestValid(t *testing.T) {
@@ -47,23 +45,33 @@ func TestValid(t *testing.T) {
 func TestMatch(t *testing.T) {
 	t.Parallel()
 
-	be.Equal(t, fileslice.URI(-1), fileslice.Match("not-a-valid-uri"))
-	be.Equal(t, fileslice.Newest, fileslice.Match("newest"))
-	be.Equal(t, fileslice.LastURI, fileslice.Match("windows-pack"))
-	be.Equal(t, fileslice.URI(1), fileslice.Match("advert"))
+	be.Equal(t, fileslice.Match("not-a-valid-uri"), fileslice.URI(-1))
+	be.Equal(t, fileslice.Match("newest"), fileslice.Newest)
+	be.Equal(t, fileslice.Match("windows-pack"), fileslice.LastURI)
+	be.Equal(t, fileslice.Match("advert"), fileslice.URI(1))
 }
 
 func TestRecordsSub(t *testing.T) {
 	t.Parallel()
 
-	s := fileslice.RecordsSub("")
-	be.Equal(t, "unknown uri", s)
-	for i := range 57 {
-		be.True(t, fileslice.URI(i).String() != "unknown uri")
+	be.Equal(t, fileslice.RecordsSub(""), "unknown uri")
+	be.Equal(t, fileslice.URI(-1).String(), "")
+	be.Equal(t, fileslice.URI(0).String(), "")
+	be.Equal(t, fileslice.URI(999).String(), "")
+
+	for i := 1; i <= int(fileslice.LastURI); i++ {
+		uri := fileslice.URI(i)
+		slug := uri.String()
+		be.True(t, slug != "")
+		be.True(t, fileslice.Valid(slug))
+		be.Equal(t, fileslice.Match(slug), uri)
+		logo, h1sub, _ := fileslice.FileInfo(slug)
+		be.True(t, logo != "" && logo != "unknown uri")
+		be.True(t, h1sub != "" && h1sub != "unknown uri")
 	}
 }
 
-func Slices() []fileslice.URI {
+func specialURIs() []fileslice.URI {
 	return []fileslice.URI{
 		fileslice.NewUploads,
 		fileslice.NewUpdates,
@@ -71,6 +79,8 @@ func Slices() []fileslice.URI {
 		fileslice.Deletions,
 		fileslice.Unwanted,
 		fileslice.Oldest,
+		fileslice.OneOffs,
+		fileslice.OneOffsAZ,
 		fileslice.Newest,
 		fileslice.Sensenstahl,
 	}
@@ -80,15 +90,23 @@ func TestFileInfo(t *testing.T) {
 	t.Parallel()
 
 	a, b, c := fileslice.FileInfo("")
-	be.Equal(t, "unknown uri", a)
-	be.Equal(t, "unknown uri", b)
+	be.Equal(t, a, "unknown uri")
+	be.Equal(t, b, "unknown uri")
 	be.Equal(t, c, "")
-	for uri := range slices.Values(Slices()) {
+	for uri := range slices.Values(specialURIs()) {
 		a, b, c = fileslice.FileInfo(uri.String())
 		be.True(t, a != "")
 		be.True(t, b != "")
 		be.True(t, c != "")
 	}
+}
+
+func TestStatistics(t *testing.T) {
+	t.Parallel()
+
+	got := fileslice.Statistics()
+	be.Equal(t, got.Record.Count, 0)
+	be.Equal(t, len(got.Yearly), 0)
 }
 
 func TestCounter(t *testing.T) {
@@ -177,13 +195,8 @@ func (c stubConnector) Connect(context.Context) (driver.Conn, error) {
 }
 func (c stubConnector) Driver() driver.Driver { return nil }
 
-func TestStatsGet(t *testing.T) {
-	t.Parallel()
-
-	sl := logs.Discard()
-	var s fileslice.Stats
-	be.Err(t, s.Get(t.Context(), nil, nil))
-	be.Err(t, s.Get(t.Context(), sl, nil))
+func newStubStatsDB(t *testing.T) *sql.DB {
+	t.Helper()
 
 	uris := tags.URIs()
 	catRows := [][]driver.Value{
@@ -225,8 +238,19 @@ func TestStatsGet(t *testing.T) {
 			}, nil
 		},
 	})
-	defer func() { _ = db.Close() }()
+	t.Cleanup(func() { _ = db.Close() })
+	return db
+}
 
+func TestStatsGet(t *testing.T) {
+	t.Parallel()
+
+	sl := logs.Discard()
+	var s fileslice.Stats
+	be.Err(t, s.Get(t.Context(), nil, nil))
+	be.Err(t, s.Get(t.Context(), sl, nil))
+
+	db := newStubStatsDB(t)
 	be.Err(t, s.Get(t.Context(), sl, db), nil)
 	be.Equal(t, s.Record.Count, 66)
 	be.Equal(t, s.Record.Bytes, 6600)
@@ -267,6 +291,11 @@ func TestStatsGet(t *testing.T) {
 	})
 	be.Equal(t, s.Yearly[len(s.Yearly)-1], fileslice.YearlyPoint{Year: 2010, Total: 6, Bytes: 600, Windows: 6})
 
+	// Calling Get again on the same Stats replaces values instead of doubling them.
+	be.Err(t, s.Get(t.Context(), sl, newStubStatsDB(t)), nil)
+	be.Equal(t, s.Record.Count, 66)
+	be.Equal(t, s.Record.Bytes, 6600)
+
 	// Query error paths (category query and yearly query)
 	errDB := sql.OpenDB(stubConnector{
 		queryFn: func(string) (driver.Rows, error) { return nil, errBoom },
@@ -282,11 +311,54 @@ func TestStatsGet(t *testing.T) {
 			}
 			return &stubRows{
 				cols: []string{"section", "platform", "count", "sum", "min", "max"},
+				data: [][]driver.Value{{tags.URIs()[tags.Nfo], tags.URIs()[tags.DOS], int64(5), int64(500), int64(1995), int64(1995)}},
 			}, nil
 		},
 	})
 	defer func() { _ = yearlyErrDB.Close() }()
 	be.Err(t, sErr.Get(t.Context(), sl, yearlyErrDB))
+	// Receiver must remain untouched when yearly query fails.
+	be.Equal(t, sErr.Record.Count, 0)
+}
+
+func TestSortsOffline(t *testing.T) {
+	t.Parallel()
+
+	var st fileslice.Stats
+	be.Err(t, st.Get(t.Context(), logs.Discard(), newStubStatsDB(t)), nil)
+
+	byName := st.SortName()
+	be.Equal(t, byName[0].Name, "ANSI art")
+	be.Equal(t, byName[len(byName)-1].Name, "Windows files")
+	for i := 1; i < len(byName); i++ {
+		be.True(t, byName[i-1].Name <= byName[i].Name)
+	}
+
+	byCount := st.SortCount()
+	be.Equal(t, byCount[0].Count, 14) // Text
+	for i := 1; i < len(byCount); i++ {
+		prev, cur := byCount[i-1], byCount[i]
+		be.True(t, prev.Count > cur.Count ||
+			(prev.Count == cur.Count && prev.Bytes > cur.Bytes) ||
+			(prev.Count == cur.Count && prev.Bytes == cur.Bytes && prev.Name <= cur.Name))
+	}
+
+	byByte := st.SortByte()
+	be.Equal(t, byByte[0].Bytes, 1400) // Text
+	for i := 1; i < len(byByte); i++ {
+		prev, cur := byByte[i-1], byByte[i]
+		be.True(t, prev.Bytes > cur.Bytes ||
+			(prev.Bytes == cur.Bytes && prev.Count > cur.Count) ||
+			(prev.Bytes == cur.Bytes && prev.Count == cur.Count && prev.Name <= cur.Name))
+	}
+
+	byYear := st.SortYear()
+	for i := 1; i < len(byYear); i++ {
+		prev, cur := byYear[i-1], byYear[i]
+		be.True(t, prev.MinYear < cur.MinYear ||
+			(prev.MinYear == cur.MinYear && prev.MaxYear < cur.MaxYear) ||
+			(prev.MinYear == cur.MinYear && prev.MaxYear == cur.MaxYear && prev.Name <= cur.Name))
+	}
 }
 
 func TestSorts(t *testing.T) {
@@ -317,6 +389,38 @@ func TestSorts(t *testing.T) {
 	be.True(t, era[1].MinYear >= era[0].MinYear)
 }
 
+func TestRecordsOffline(t *testing.T) {
+	t.Parallel()
+
+	errDB := sql.OpenDB(stubConnector{
+		queryFn: func(string) (driver.Rows, error) { return nil, errBoom },
+	})
+	defer func() { _ = errDB.Close() }()
+
+	_, err := fileslice.Records(nil, nil, "nfo", 1, 1)
+	be.Err(t, err)
+
+	_, err = fileslice.Records(t.Context(), errDB, "nfo", 0, 1)
+	be.Err(t, err, fileslice.ErrPagi)
+
+	_, err = fileslice.Records(t.Context(), errDB, "nfo", 1, 0)
+	be.Err(t, err, fileslice.ErrPagi)
+	be.True(t, strings.Contains(err.Error(), "limit 0"))
+
+	_, err = fileslice.Records(t.Context(), errDB, "not-a-uri", 1, 1)
+	be.Err(t, err, fileslice.ErrCategory)
+
+	// Exercises recordDispatch (list[T] and Artifacts methods) and Sensenstahl branch.
+	_, err = fileslice.Records(t.Context(), errDB, "nfo", 1, 1)
+	be.Err(t, err, errBoom)
+
+	_, err = fileslice.Records(t.Context(), errDB, "oldest", 1, 1)
+	be.Err(t, err, errBoom)
+
+	_, err = fileslice.Records(t.Context(), errDB, "sensenstahl", 1, 1)
+	be.Err(t, err, errBoom)
+}
+
 func TestRecords(t *testing.T) {
 	t.Parallel()
 
@@ -329,7 +433,7 @@ func TestRecords(t *testing.T) {
 
 	got, err := fileslice.Records(t.Context(), db, "nfo", 1, 1)
 	be.Err(t, err, nil)
-	be.True(t, len(got) == 1)
+	be.Equal(t, len(got), 1)
 
 	got, err = fileslice.Records(t.Context(), db, "nfo", 1, 2)
 	be.Err(t, err, nil)

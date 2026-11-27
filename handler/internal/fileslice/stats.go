@@ -176,11 +176,12 @@ func (s *Stats) Get(ctx context.Context, sl *slog.Logger, exec boil.ContextExecu
 		_ = rows.Close()
 	}()
 
+	var next Stats
 	uris := tags.URIs()
-	record := newBucket(&s.Record.Bytes, &s.Record.Count, &s.Record.MinYear, &s.Record.MaxYear)
-	bySection := s.sectionBuckets(uris)
-	byPlatform := s.platformBuckets(uris)
-	byPair := s.pairBuckets(uris)
+	record := newBucket(&next.Record.Bytes, &next.Record.Count, &next.Record.MinYear, &next.Record.MaxYear)
+	bySection := next.sectionBuckets(uris)
+	byPlatform := next.platformBuckets(uris)
+	byPair := next.pairBuckets(uris)
 
 	for rows.Next() {
 		var r statRow
@@ -202,10 +203,11 @@ func (s *Stats) Get(ctx context.Context, sl *slog.Logger, exec boil.ContextExecu
 		return fmt.Errorf(format, "rows", err)
 	}
 
-	if err := s.getYearly(ctx, exec, uris[tags.DOS], uris[tags.Windows], uris[tags.ANSI], uris[tags.Text]); err != nil {
+	if err := next.getYearly(ctx, exec, uris[tags.DOS], uris[tags.Windows], uris[tags.ANSI], uris[tags.Text]); err != nil {
 		return fmt.Errorf(format, "yearly", err)
 	}
-	s.Record.UpdatedAt = time.Now()
+	next.Record.UpdatedAt = time.Now()
+	*s = next
 
 	return nil
 }
@@ -271,12 +273,12 @@ type Era struct {
 func (s *Stats) SortYear() [22]Era {
 	items := s.eras()
 
-	slices.SortFunc(items[:], func(a, b Era) int {
-		if a.MinYear != b.MinYear {
-			return cmp.Compare(a.MinYear, b.MinYear)
-		}
-		// If min years are equal, order by recent year
-		return cmp.Compare(a.MaxYear, b.MaxYear)
+	slices.SortStableFunc(items[:], func(a, b Era) int {
+		return cmp.Or(
+			cmp.Compare(a.MinYear, b.MinYear),
+			cmp.Compare(a.MaxYear, b.MaxYear),
+			strings.Compare(a.Name, b.Name),
+		)
 	})
 
 	return items
@@ -296,12 +298,12 @@ type Item struct {
 func (s *Stats) SortByte() [22]Item {
 	items := s.items()
 
-	slices.SortFunc(items[:], func(a, b Item) int {
-		if a.Bytes != b.Bytes {
-			return cmp.Compare(b.Bytes, a.Bytes)
-		}
-		// If bytes are equal, order by count
-		return cmp.Compare(b.Count, a.Count)
+	slices.SortStableFunc(items[:], func(a, b Item) int {
+		return cmp.Or(
+			cmp.Compare(b.Bytes, a.Bytes),
+			cmp.Compare(b.Count, a.Count),
+			strings.Compare(a.Name, b.Name),
+		)
 	})
 
 	return items
@@ -311,12 +313,12 @@ func (s *Stats) SortByte() [22]Item {
 func (s *Stats) SortCount() [22]Item {
 	items := s.items()
 
-	slices.SortFunc(items[:], func(a, b Item) int {
-		if a.Count != b.Count {
-			return cmp.Compare(b.Count, a.Count)
-		}
-		// If count are equal, order by desc byte size
-		return cmp.Compare(b.Bytes, a.Bytes)
+	slices.SortStableFunc(items[:], func(a, b Item) int {
+		return cmp.Or(
+			cmp.Compare(b.Count, a.Count),
+			cmp.Compare(b.Bytes, a.Bytes),
+			strings.Compare(a.Name, b.Name),
+		)
 	})
 
 	return items

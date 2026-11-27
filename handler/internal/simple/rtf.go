@@ -22,53 +22,79 @@ func RTF(b []byte) bool {
 }
 
 var (
-	reControlWords  = regexp.MustCompile(`\\[a-zA-Z]+(?:-\d+|\d*)`)
-	reLeftovers     = regexp.MustCompile(`\\[a-zA-Z]+`)
-	reSingleLetters = regexp.MustCompile(`(?:^|\s)([a-zA-Z])(?:\s|$)`)
-	reSpaces        = regexp.MustCompile(`[ \t\f\v\r]+`)
-	empty           = []byte("")
-	space           = []byte(" ")
-	byteLF          = []byte("\n")
+	rePar          = regexp.MustCompile(`\\par\b`)
+	reControlWords = regexp.MustCompile(`\\[a-zA-Z]+(?:-\d+|\d*)`)
+	reSpaces       = regexp.MustCompile(`[ \t\f\v\r]+`)
+	empty          = []byte("")
+	space          = []byte(" ")
+	byteLF         = []byte("\n")
 )
+
+// stripRTFGroups removes nested RTF metadata groups (such as {\fonttbl...}
+// and {\colortbl...}) before braces are stripped so font names and style
+// definitions do not leak into the plain text output.
+func stripRTFGroups(b []byte) []byte {
+	headers := [...][]byte{
+		[]byte(`{\fonttbl`),
+		[]byte(`{\colortbl`),
+		[]byte(`{\stylesheet`),
+		[]byte(`{\info`),
+	}
+	out := make([]byte, 0, len(b))
+	for i := 0; i < len(b); {
+		if b[i] == '{' {
+			matched := false
+			for _, hdr := range headers {
+				if bytes.HasPrefix(b[i:], hdr) {
+					matched = true
+					break
+				}
+			}
+			if matched {
+				depth := 1
+				i++
+				for i < len(b) && depth > 0 {
+					switch b[i] {
+					case '\\':
+						i++ // skip escaped character
+					case '{':
+						depth++
+					case '}':
+						depth--
+					}
+					i++
+				}
+				continue
+			}
+		}
+		out = append(out, b[i])
+		i++
+	}
+	return out
+}
 
 // StripRTF removes RTF control words and formatting from text content.
 // This handles RTF version 1.0 standard patterns comprehensively.
 //
 // This first runs [RTF] and when false returns b unmodified.
 func StripRTF(b []byte) []byte {
-	if len(b) == 0 || !RTF(b) {
+	if !RTF(b) {
 		return b
 	}
 
-	// group delimiters
-	b = bytes.ReplaceAll(b, []byte("{"), empty)
-	b = bytes.ReplaceAll(b, []byte("}"), empty)
+	// remove font/color/stylesheet/info header groups
+	b = stripRTFGroups(b)
 
-	// replace paragraph marks with newlines
-	b = bytes.ReplaceAll(b, []byte("\\par"), []byte("\n"))
+	// replace paragraph marks with newlines (without matching \pard, etc.)
+	b = rePar.ReplaceAll(b, byteLF)
 
 	// remove RTF control words and their numeric parameters
 	b = reControlWords.ReplaceAll(b, nil)
 
-	// catch remaining control words with parameters
-	b = reLeftovers.ReplaceAll(b, nil)
-
-	// remove any remaining single letters  control words
-	b = reSingleLetters.ReplaceAll(b, space)
-
-	// common font names that appear in RTF files
-	b = bytes.ReplaceAll(b, []byte("MS Sans Serif"), empty)
-	b = bytes.ReplaceAll(b, []byte("Times New Roman"), empty)
-	b = bytes.ReplaceAll(b, []byte("Symbol"), empty)
-	b = bytes.ReplaceAll(b, []byte("System"), empty)
-	b = bytes.ReplaceAll(b, []byte("Arial"), empty)
-	b = bytes.ReplaceAll(b, []byte("Courier New"), empty)
-	b = bytes.ReplaceAll(b, []byte("Courier"), empty)
-	b = bytes.ReplaceAll(b, []byte("Helvetica"), empty)
-
-	// remaining backslashes and semicolons
+	// group delimiters and remaining backslashes
+	b = bytes.ReplaceAll(b, []byte("{"), empty)
+	b = bytes.ReplaceAll(b, []byte("}"), empty)
 	b = bytes.ReplaceAll(b, []byte("\\"), empty)
-	b = bytes.ReplaceAll(b, []byte(";"), empty)
 
 	// clean up multiple spaces but preserve line breaks
 	b = reSpaces.ReplaceAll(b, space)

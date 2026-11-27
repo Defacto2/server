@@ -2,7 +2,7 @@ package simple_test
 
 import (
 	"encoding/binary"
-	"log/slog"
+	"math"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -13,13 +13,15 @@ import (
 
 	"github.com/Defacto2/magicnumber"
 	"github.com/Defacto2/server/handler/internal/simple"
+	"github.com/Defacto2/server/internal/config"
 	"github.com/Defacto2/server/internal/dir"
+	"github.com/Defacto2/server/internal/logs"
 	"github.com/Defacto2/server/internal/testutil"
 	"github.com/aarondl/null/v8"
 	"github.com/nalgeon/be"
 )
 
-// checked in Sep 26, test coverage was good at over 85%
+var testLog = logs.Discard()
 
 func testpng(t *testing.T) string {
 	t.Helper()
@@ -37,6 +39,37 @@ func TestAssetSrc(t *testing.T) {
 
 	s = simple.AssetSrc("", file, "", "")
 	be.True(t, strings.Contains(s, "sha384-"))
+
+	d := filepath.Dir(testpng(t))
+	prev := simple.AssetSrc(config.AbsPreview, d, "TEST", ".PNG")
+	be.True(t, strings.HasPrefix(prev, config.StaticOriginal()+"/TEST.png?sha384-"))
+
+	thumb := simple.AssetSrc(config.AbsThumbnail, d, "TEST", ".png")
+	be.True(t, strings.HasPrefix(thumb, config.StaticThumb()+"/TEST.png?sha384-"))
+}
+
+func TestBytesHuman(t *testing.T) {
+	t.Parallel()
+
+	be.Equal(t, simple.BytesHuman(0), "(n/a)")
+	be.Equal(t, simple.BytesHuman(1000), "1.0 kB")
+	be.Equal(t, simple.BytesHuman(-1000), "1.0 kB")
+}
+
+func TestCleanFname(t *testing.T) {
+	t.Parallel()
+
+	got, err := simple.CleanFname("")
+	be.Err(t, err, nil)
+	be.Equal(t, got, "")
+
+	got, err = simple.CleanFname("readme.nfo")
+	be.Err(t, err, nil)
+	be.Equal(t, got, "readme.nfo")
+
+	got, err = simple.CleanFname(`<script>"x"</script>`)
+	be.Err(t, err, nil)
+	be.Equal(t, got, `&lt;script&gt;&#34;x&#34;&lt;/script&gt;`)
 }
 
 func TestStripHTMLTags(t *testing.T) {
@@ -47,6 +80,11 @@ func TestStripHTMLTags(t *testing.T) {
 		input    string
 		expected string
 	}{
+		{
+			name:     "Empty string",
+			input:    "",
+			expected: "",
+		},
 		{
 			name:     "Removes all HTML tags",
 			input:    `<p>Test <strong>content</strong> here</p>`,
@@ -143,11 +181,20 @@ func TestDownloadB(t *testing.T) {
 	x = simple.DownloadInBytes("1")
 	be.True(t, strings.Contains(string(x), "received an invalid type"))
 
+	x = simple.DownloadInBytes(null.Int64{})
+	be.True(t, strings.Contains(string(x), "(n/a)"))
+
 	x = simple.DownloadInBytes(null.Int64From(1))
 	be.True(t, strings.Contains(string(x), "1B"))
 
-	x = simple.DownloadInBytes(1024)
-	be.True(t, strings.Contains(string(x), "(1k)"))
+	for _, v := range []any{
+		int(1024), int64(1024), int32(1024), int16(1024), int8(10),
+		uint(1024), uint64(1024), uint32(1024), uint16(1024), uint8(10),
+		uint(math.MaxUint), uint64(math.MaxUint64),
+	} {
+		got := string(simple.DownloadInBytes(v))
+		be.True(t, strings.Contains(got, "text-body-secondary"))
+	}
 }
 
 func TestLinkRelations(t *testing.T) {
@@ -199,42 +246,49 @@ func TestLinkSites(t *testing.T) {
 func TestLinkPreviewTip(t *testing.T) {
 	t.Parallel()
 
-	s := simple.LinkPreviewTip("", "")
-	be.Equal(t, s, "")
-
-	s = simple.LinkPreviewTip(".zip", "windows")
-	be.Equal(t, s, "")
-
-	s = simple.LinkPreviewTip(".txt", "windows")
-	be.Equal(t, "Read this as text", s)
+	be.Equal(t, simple.LinkPreviewTip("", ""), "")
+	be.Equal(t, simple.LinkPreviewTip("file.zip", "windows"), "")
+	be.Equal(t, simple.LinkPreviewTip("index.htm", "markup"), "Read this as HTML")
+	be.Equal(t, simple.LinkPreviewTip("file.nfo", "text"), "Read this as text")
+	be.Equal(t, simple.LinkPreviewTip("file.nfo", "textamiga"), "Read this as text")
+	be.Equal(t, simple.LinkPreviewTip("readme.txt", "windows"), "Read this as text")
+	be.Equal(t, simple.LinkPreviewTip("pic.png", "image"), "View this as an image or photo")
+	be.Equal(t, simple.LinkPreviewTip("song.mp3", "audio"), "Play this as media")
+	be.Equal(t, simple.LinkPreviewTip("prog.bin", "dos"), "")
 }
 
 func TestReleaserPair(t *testing.T) {
 	t.Parallel()
 
-	s := simple.ReleaserPair(nil, nil)
-	be.Equal(t, s, [2]string{})
+	be.Equal(t, simple.ReleaserPair(nil, nil), [2]string{})
 
-	s = simple.ReleaserPair("1", "2")
-	be.Equal(t, "1", s[0])
-	be.Equal(t, "2", s[1])
+	s := simple.ReleaserPair("1", "2")
+	be.Equal(t, s[0], "1")
+	be.Equal(t, s[1], "2")
 
 	s = simple.ReleaserPair(nil, "2")
-	be.Equal(t, "2", s[0])
+	be.Equal(t, s[0], "2")
 	be.Equal(t, s[1], "")
+
+	s = simple.ReleaserPair("1", nil)
+	be.Equal(t, s[0], "1")
+	be.Equal(t, s[1], "")
+
+	s = simple.ReleaserPair(null.StringFrom("alpha"), null.StringFrom("beta"))
+	be.Equal(t, s, [2]string{"alpha", "beta"})
+	be.Equal(t, simple.ReleaserPair(null.String{}, null.String{}), [2]string{})
 }
 
 func TestUpdated(t *testing.T) {
 	t.Parallel()
 
-	s := simple.Updated(nil, "")
-	be.Equal(t, s, "")
-
-	s = simple.Updated("9:30pm", "")
-	be.True(t, strings.Contains(s, "error"))
-
-	s = simple.Updated(time.Now(), "")
-	be.True(t, strings.Contains(s, "Time just now"))
+	be.Equal(t, simple.Updated(nil, ""), "")
+	be.Equal(t, simple.Updated(null.Time{}, ""), "")
+	be.True(t, strings.Contains(simple.Updated("9:30pm", ""), "error"))
+	be.True(t, strings.Contains(simple.Updated(time.Now(), ""), "Time just now"))
+	be.True(t, strings.Contains(simple.Updated(time.Now().Add(-2*time.Hour), "Updated"), "Updated "))
+	be.True(t, strings.Contains(simple.Updated(null.TimeFrom(time.Now()), "Saved"), "Saved just now"))
+	be.True(t, strings.Contains(simple.Updated(null.TimeFrom(time.Now().Add(-2*time.Hour)), ""), " ago"))
 }
 
 func TestDemozooGetLink(t *testing.T) {
@@ -261,6 +315,9 @@ func TestDemozooGetLink(t *testing.T) {
 	fn = null.String{}
 	fs = null.Int64{}
 	dz = null.Int64From(1)
+	be.Equal(t, simple.DemozooGetLink(fn, fs, dz, null.String{String: "ignored", Valid: false}), "")
+	be.Equal(t, simple.DemozooGetLink(fn, fs, dz, null.StringFrom("")), "")
+
 	un = null.StringFrom("user")
 	html = simple.DemozooGetLink(fn, fs, dz, un)
 	be.True(t, html != "")
@@ -300,31 +357,66 @@ func TestImageSampleStat(t *testing.T) {
 func TestImageXY(t *testing.T) {
 	t.Parallel()
 
-	sl := slog.Default()
 	missing := [2]string{"0", ""}
-	s := simple.ImageXY(sl, "")
-	be.Equal(t, missing, s)
+	be.Equal(t, simple.ImageXY(nil, ""), missing)
 
 	img := testpng(t)
-	s = simple.ImageXY(sl, img)
-	be.Equal(t, "4,163", s[0])
-	be.Equal(t, "500x500", s[1])
+	s := simple.ImageXY(testLog, img)
+	be.Equal(t, s[0], "4,163")
+	be.Equal(t, s[1], "500x500")
+
+	tmp := t.TempDir()
+	txt := filepath.Join(tmp, "note.txt")
+	be.Err(t, os.WriteFile(txt, []byte("hello"), 0o600), nil)
+	be.Equal(t, simple.ImageXY(testLog, txt), [2]string{"5", ""})
+
+	badPNG := filepath.Join(tmp, "bad.png")
+	be.Err(t, os.WriteFile(badPNG, []byte("not a png"), 0o600), nil)
+	got := simple.ImageXY(testLog, badPNG)
+	be.True(t, got[0] != "" && got[0] != "0")
+	be.Equal(t, got[1], "")
+
+	be.Equal(t, simple.ImageXY(testLog, filepath.Join(tmp, "missing.png")), missing)
 }
 
 func TestLinkID(t *testing.T) {
 	t.Parallel()
 
-	s, err := simple.LinkID("", "")
-	be.Err(t, err)
+	s, err := simple.LinkID(nil, "f")
+	be.Err(t, err, simple.ErrLinkType)
+	be.Equal(t, s, "")
+
+	s, err = simple.LinkID("", "")
+	be.Err(t, err, simple.ErrLinkType)
 	be.Equal(t, s, "")
 
 	s, err = simple.LinkID("a string", "a string")
-	be.Err(t, err)
+	be.Err(t, err, simple.ErrLinkType)
 	be.Equal(t, s, "")
+
+	s, err = simple.LinkID(0, "f")
+	be.Err(t, err, simple.ErrNegative)
+	be.Equal(t, s, "")
+
+	s, err = simple.LinkID(-1, "f")
+	be.Err(t, err, simple.ErrNegative)
+	be.Equal(t, s, "")
+
+	s, err = simple.LinkID(uint(0), "f")
+	be.Err(t, err, simple.ErrNegative)
+	be.Equal(t, s, "")
+
+	s, err = simple.LinkID(uint64(1)<<63, "f")
+	be.Err(t, err, simple.ErrLinkType)
+	be.Equal(t, s, "")
+
+	s, err = simple.LinkID(uint(1), "")
+	be.Err(t, err, nil)
+	be.Equal(t, s, "/9b1c6")
 
 	s, err = simple.LinkID(1, "")
 	be.Err(t, err, nil)
-	be.Equal(t, "/9b1c6", s)
+	be.Equal(t, s, "/9b1c6")
 }
 
 func TestLinkRelr(t *testing.T) {
@@ -336,7 +428,7 @@ func TestLinkRelr(t *testing.T) {
 
 	s, err = simple.LinkRelr("a string")
 	be.Err(t, err, nil)
-	be.Equal(t, "/g/a-string", s)
+	be.Equal(t, s, "/g/a-string")
 }
 
 func TestMakeLink(t *testing.T) {
@@ -358,24 +450,23 @@ func TestMakeLink(t *testing.T) {
 func TestMagicAsTitle(t *testing.T) {
 	t.Parallel()
 
-	sl := slog.Default()
-	s := simple.MagicAsTitle(sl, "")
-	be.Equal(t, "file not found", s)
+	s := simple.MagicAsTitle(testLog, "")
+	be.Equal(t, s, "file not found")
 
-	s = simple.MagicAsTitle(sl, testpng(t))
+	s = simple.MagicAsTitle(testLog, testpng(t))
 	be.True(t, strings.Contains(s, "Portable Network Graphics"))
 
 	dir := t.TempDir()
 
 	staticANSI := filepath.Join(dir, "static.ans")
 	be.Err(t, os.WriteFile(staticANSI, []byte("\x1b[31mHello World\x1b[0m\r\n"), 0o600), nil)
-	be.Equal(t, simple.MagicAsTitle(sl, staticANSI), "ANSI escaped text")
+	be.Equal(t, simple.MagicAsTitle(testLog, staticANSI), "ANSI escaped text")
 
 	blinkANSI := filepath.Join(dir, "blink.ans")
 	be.Err(t, os.WriteFile(blinkANSI, []byte("\x1b[5;31mHello World\x1b[0m\r\n"), 0o600), nil)
-	be.Equal(t, simple.MagicAsTitle(sl, blinkANSI), "ANSI escaped text with blinking")
+	be.Equal(t, simple.MagicAsTitle(testLog, blinkANSI), "ANSI escaped text with blinking")
 
-	be.Equal(t, simple.MagicAsTitle(sl, testutil.FileData("maximum3ans").Abs()), simple.ANSImation)
+	be.Equal(t, simple.MagicAsTitle(testLog, testutil.FileData("maximum3ans").Abs()), simple.ANSImation)
 
 	f, err := os.Open(staticANSI)
 	be.Err(t, err, nil)
@@ -398,13 +489,13 @@ func TestMagicAsTitle(t *testing.T) {
 	copy(td[9:], "TheDraw COM file Screen Save\x1A")
 	pkTheDraw := filepath.Join(dir, "thedraw_pk.com")
 	be.Err(t, os.WriteFile(pkTheDraw, buildTestPKLITECOM(td), 0o600), nil)
-	be.Equal(t, simple.MagicAsTitle(sl, pkTheDraw),
+	be.Equal(t, simple.MagicAsTitle(testLog, pkTheDraw),
 		"PKLITE compressed executable of a TheDraw COM screen")
 
 	// Single-file PKLITE COM wrapping unknown binary code keeps base PKLITE title.
 	pkUnknown := filepath.Join(dir, "unknown_pk.com")
 	be.Err(t, os.WriteFile(pkUnknown, buildTestPKLITECOM([]byte{0xB4, 0x09, 0xCD, 0x21, 0xC3}), 0o600), nil)
-	be.Equal(t, simple.MagicAsTitle(sl, pkUnknown), "PKLITE compressed executable")
+	be.Equal(t, simple.MagicAsTitle(testLog, pkUnknown), "PKLITE compressed executable")
 }
 
 // buildTestPKLITECOM encodes raw as literal-only small-mode PKLITE v1.12 COM data.
@@ -462,27 +553,33 @@ func buildTestPKLITECOM(raw []byte) []byte {
 func TestMIME(t *testing.T) {
 	t.Parallel()
 
-	sl := slog.Default()
-	s := simple.MIME(sl, "")
-	be.Equal(t, "file not found", s)
+	s := simple.MIME(testLog, "")
+	be.Equal(t, s, "file not found")
 
-	s = simple.MIME(sl, testpng(t))
-	be.Equal(t, "image/png", s)
+	s = simple.MIME(testLog, testpng(t))
+	be.Equal(t, s, "image/png")
+
+	tmp := t.TempDir()
+	shortTxt := filepath.Join(tmp, "short.txt")
+	be.Err(t, os.WriteFile(shortTxt, []byte("hello scene\n"), 0o600), nil)
+	be.Equal(t, simple.MIME(testLog, shortTxt), "text/plain; charset=utf-8")
+
+	emptyFile := filepath.Join(tmp, "empty.txt")
+	be.Err(t, os.WriteFile(emptyFile, nil, 0o600), nil)
+	be.Equal(t, simple.MIME(testLog, emptyFile), "text/plain; charset=utf-8")
 }
 
 func TestMkdirStale(t *testing.T) {
 	t.Parallel()
 
-	sl := slog.Default()
-	s := simple.MkdirStale(sl, "")
+	s := simple.MkdirStale(testLog, "")
 	be.Equal(t, s, "")
 
-	s1 := simple.MkdirStale(sl, "a_string")
+	s1 := simple.MkdirStale(testLog, "a_string")
 	be.True(t, strings.Contains(s1, "a_string"))
-	s2 := simple.MkdirStale(sl, "a_string")
+	s2 := simple.MkdirStale(testLog, "a_string")
 	be.True(t, strings.Contains(s2, "a_string"))
-	be.True(t, s1 == s2)
-	t.Log("s1", s1, "s2", s2)
+	be.Equal(t, s1, s2)
 
 	t.Cleanup(func() {
 		_ = os.RemoveAll(s1)
@@ -493,10 +590,11 @@ func TestMkdirStale(t *testing.T) {
 func TestReleasers(t *testing.T) {
 	t.Parallel()
 
-	s := simple.Releasers("", "", true)
-	be.Equal(t, s, "")
+	be.Equal(t, simple.Releasers("", "", true), "")
+	be.Equal(t, simple.Releasers("group 1", "", false), "group 1")
+	be.Equal(t, simple.Releasers("", "group 2", false), "group 2")
 
-	s = simple.Releasers("group 1", "group 2", false)
+	s := simple.Releasers("group 1", "group 2", false)
 	be.True(t, strings.Contains(string(s), "group 1"))
 	be.True(t, strings.Contains(string(s), "group 2"))
 
@@ -506,16 +604,69 @@ func TestReleasers(t *testing.T) {
 	be.True(t, strings.Contains(string(s), "published by"))
 }
 
+func TestOpenGraphImg(t *testing.T) {
+	t.Parallel()
+
+	empty := dir.Directory(t.TempDir())
+	be.Equal(t, simple.OpenGraphImg("missing", empty, empty), "/image/layout/defacto2-ascii.png")
+
+	prevDir := dir.Directory(filepath.Dir(testpng(t)))
+	gotPrev := simple.OpenGraphImg("TEST", prevDir, empty)
+	be.True(t, strings.HasPrefix(gotPrev, config.StaticOriginal()+"/TEST.png?sha384-"))
+
+	gotThumb := simple.OpenGraphImg("TEST", empty, prevDir)
+	be.True(t, strings.HasPrefix(gotThumb, config.StaticThumb()+"/TEST.png?sha384-"))
+}
+
+func TestAnimPreview(t *testing.T) {
+	t.Parallel()
+
+	tmp := t.TempDir()
+	d := dir.Directory(tmp)
+	be.Equal(t, simple.AnimPreview("", d), "")
+	be.Equal(t, simple.AnimPreview("missing", d), "")
+
+	be.Err(t, os.WriteFile(filepath.Join(tmp, "anim.webp"), []byte("webp"), 0o600), nil)
+	be.Equal(t, simple.AnimPreview("anim", d), config.StaticOriginal()+"/anim.webp")
+}
+
 func TestScreenshot(t *testing.T) {
 	t.Parallel()
 
-	s := simple.Screenshot("", "", "")
-	be.Equal(t, s, "")
+	be.Equal(t, simple.Screenshot("", "", ""), "")
 
 	prev := filepath.Dir(testpng(t))
-	s = simple.Screenshot("TEST", "test", dir.Directory(prev))
+	s := simple.Screenshot("TEST", "test", dir.Directory(prev))
 	be.True(t, strings.Contains(string(s), `alt="test screenshot"`))
 	be.True(t, strings.Contains(string(s), `<img src="/public/image`))
+
+	// Escapes HTML characters in alt attribute.
+	escaped := simple.Screenshot("TEST", `quoted "title" <tag>`, dir.Directory(prev))
+	be.True(t, strings.Contains(string(escaped), `alt="quoted &#34;title&#34; &lt;tag&gt; screenshot"`))
+
+	// Picture element with avif/webp + png/jpg fallback and standalone formats.
+	tmp := t.TempDir()
+	d := dir.Directory(tmp)
+	be.Err(t, os.WriteFile(filepath.Join(tmp, "a.avif"), []byte("avifdata"), 0o600), nil)
+	be.True(t, strings.Contains(string(simple.Screenshot("a", "av", d)), "a.avif?"))
+
+	be.Err(t, os.WriteFile(filepath.Join(tmp, "a.png"), []byte("pngdata"), 0o600), nil)
+	pic := string(simple.Screenshot("a", "av", d))
+	be.True(t, strings.HasPrefix(pic, "<picture>"))
+	be.True(t, strings.Contains(pic, `type="image/avif"`))
+	be.True(t, strings.Contains(pic, "a.png?"))
+
+	be.Err(t, os.WriteFile(filepath.Join(tmp, "w.webp"), []byte("webpdata"), 0o600), nil)
+	be.True(t, strings.Contains(string(simple.Screenshot("w", "wp", d)), "w.webp?"))
+
+	be.Err(t, os.WriteFile(filepath.Join(tmp, "w.jpg"), []byte("jpgdata"), 0o600), nil)
+	picW := string(simple.Screenshot("w", "wp", d))
+	be.True(t, strings.HasPrefix(picW, "<picture>"))
+	be.True(t, strings.Contains(picW, `type="image/webp"`))
+	be.True(t, strings.Contains(picW, "w.jpg?"))
+
+	be.Err(t, os.WriteFile(filepath.Join(tmp, "j.jpg"), []byte("jpgdata"), 0o600), nil)
+	be.True(t, strings.Contains(string(simple.Screenshot("j", "jp", d)), "j.jpg?"))
 }
 
 func TestStatHumanize(t *testing.T) {
@@ -523,12 +674,14 @@ func TestStatHumanize(t *testing.T) {
 
 	x, y, z := simple.StatHumanize("")
 	const none = "file not found"
-	be.Equal(t, none, x)
-	be.Equal(t, none, y)
-	be.Equal(t, none, z)
+	be.Equal(t, x, none)
+	be.Equal(t, y, none)
+	be.Equal(t, z, none)
+
 	x, y, z = simple.StatHumanize(testpng(t))
-	be.True(t, strings.Contains(x, "202")) // a year prefix
-	be.Equal(t, "4,163", y)
+	_, err := time.Parse(simple.YYYYMMDD, x)
+	be.Err(t, err, nil)
+	be.Equal(t, y, "4,163")
 	be.True(t, strings.Contains(z, "4.2 kB"))
 }
 
@@ -543,9 +696,24 @@ func TestThumb(t *testing.T) {
 	thumb := dir.Directory(filepath.Dir(testpng(t)))
 	s = simple.Thumb(name, "a description", thumb, false)
 	be.True(t, strings.Contains(string(s), `alt="a description thumbnail"`))
+	be.True(t, strings.Contains(string(s), `class="card-img-top"`))
 
-	s = simple.Thumb(name, `quoted "title" <tag>`, thumb, false)
+	s = simple.Thumb(name, `quoted "title" <tag>`, thumb, true)
 	be.True(t, strings.Contains(string(s), `alt="quoted &#34;title&#34; &lt;tag&gt; thumbnail"`))
+	be.True(t, strings.Contains(string(s), `class="card-img-bottom"`))
+
+	tmp := t.TempDir()
+	d := dir.Directory(tmp)
+	be.Err(t, os.WriteFile(filepath.Join(tmp, "item.webp"), []byte("webp"), 0o600), nil)
+	onlyWebp := string(simple.Thumb("item", "desc", d, false))
+	be.True(t, strings.Contains(onlyWebp, "item.webp"))
+	be.True(t, !strings.Contains(onlyWebp, "<picture"))
+
+	be.Err(t, os.WriteFile(filepath.Join(tmp, "item.png"), []byte("png"), 0o600), nil)
+	both := string(simple.Thumb("item", "desc", d, false))
+	be.True(t, strings.HasPrefix(both, "<picture"))
+	be.True(t, strings.Contains(both, `type="image/webp"`))
+	be.True(t, strings.Contains(both, "item.png"))
 }
 
 func TestThumbSample(t *testing.T) {
@@ -646,8 +814,8 @@ func TestHashProperties(t *testing.T) {
 	hash2 := simple.Hash("this is a much longer input string for testing")
 
 	// Both should be base64 encoded FNV-64a hashes (12 characters)
-	be.Equal(t, 12, len(hash1))
-	be.Equal(t, 12, len(hash2))
+	be.Equal(t, len(hash1), 12)
+	be.Equal(t, len(hash2), 12)
 
 	// Test that hash only contains URL-safe base64 characters
 	validChars := "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_="

@@ -39,6 +39,8 @@ import (
 	"github.com/labstack/echo/v5"
 )
 
+var reSHA384 = regexp.MustCompile("^[a-fA-F0-9]{96}$")
+
 // Blacklisted contains a collection of hashes for blocked files, either for being:
 // unwanted files that people have uploaded for self promotion, slop, or just out of out of scope.
 // and also socalled "humor" junk that we do not want or cannot host online, because of common sense.
@@ -95,21 +97,14 @@ func UPSHA384(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 		return c.String(code, "empty hash error")
 	}
 
-	const pattern = "^[a-fA-F0-9]{96}$"
-	match, err := regexp.MatchString(pattern, hash)
-	if err != nil {
-		slog.Error(msg+" could not run the regular expression pattern",
-			slog.String("pattern", pattern), slog.String("hash", hash), slog.Any("error", err))
-		return c.String(code, "regex match error")
-	}
-	if !match {
+	if !reSHA384.MatchString(hash) {
 		return c.String(code, "invalid hash error: "+hash)
 	}
 
 	ctx := c.Request().Context()
 	uri, err := model.OneByHash(ctx, db, hash)
 	if err != nil {
-		slog.Error(msg+" database could not lookup the hash", slog.Any("error", err))
+		sl.Error(msg+" database could not lookup the hash", slog.Any("error", err))
 		return c.String(http.StatusServiceUnavailable, "cannot confirm the hash with the database")
 	}
 
@@ -119,21 +114,27 @@ func UPSHA384(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 // UPImage is a handler for the /uploader/image route.
 func UPImage(sl *slog.Logger, c *echo.Context, tx *sql.Tx, download dir.Directory) error {
 	const key = "uploader-image"
-	c.Set(key+"-operating-system", tags.Image.String())
+	if c != nil {
+		c.Set(key+"-operating-system", tags.Image.String())
+	}
 	return Transfer{Key: key, Download: download}.Submit(sl, c, tx)
 }
 
 // UPIntro is a handler for the /uploader/intro route.
 func UPIntro(sl *slog.Logger, c *echo.Context, tx *sql.Tx, download dir.Directory) error {
 	const key = "uploader-intro"
-	c.Set(key+"-category", tags.Intro.String())
+	if c != nil {
+		c.Set(key+"-category", tags.Intro.String())
+	}
 	return Transfer{Key: key, Download: download}.Submit(sl, c, tx)
 }
 
 // UPMagazine is a handler for the /uploader/magazine route.
 func UPMagazine(sl *slog.Logger, c *echo.Context, tx *sql.Tx, download dir.Directory) error {
 	const key = "uploader-magazine"
-	c.Set(key+"-category", tags.Mag.String())
+	if c != nil {
+		c.Set(key+"-category", tags.Mag.String())
+	}
 	return Transfer{Key: key, Download: download}.Submit(sl, c, tx)
 }
 
@@ -219,6 +220,7 @@ func (t Transfer) Submit(sl *slog.Logger, c *echo.Context, tx *sql.Tx) error { /
 	if tempDest == "" {
 		return c.HTML(http.StatusInternalServerError, "The temporary save cannot be created")
 	}
+	defer func() { _ = os.Remove(tempDest) }()
 
 	_, _ = fileMultipart.Seek(0, io.SeekStart)
 	magic := magicnumber.Find(fileMultipart)
@@ -242,12 +244,12 @@ func (t Transfer) Submit(sl *slog.Logger, c *echo.Context, tx *sql.Tx) error { /
 	if err != nil {
 		// resync the files table sequence if the insert failed and try again
 		if err := fix.SyncFilesIDSeq(tx); err != nil {
-			return c.HTML(http.StatusInternalServerError, err.Error())
+			return c.HTML(http.StatusInternalServerError, html.EscapeString(err.Error()))
 		}
 		// second attempt
 		id, uid, err = insert.Upload(sl, c, tx)
 		if err != nil {
-			return c.HTML(http.StatusInternalServerError, err.Error())
+			return c.HTML(http.StatusInternalServerError, html.EscapeString(err.Error()))
 		}
 	} else if id == 0 {
 		return nil
@@ -293,7 +295,7 @@ func (t Transfer) CopyTemp(sl *slog.Logger, fname uuid.UUID, tempDest string) {
 		sl.Error(msg+" "+s, args...)
 	}
 
-	if fname.String() == "" {
+	if fname == uuid.Nil() {
 		sl.Error(msg+" uuid is in an invalid syntax or empty",
 			slog.String("uuid", fname.String()))
 		return
@@ -317,7 +319,7 @@ func (t Transfer) CopyTemp(sl *slog.Logger, fname uuid.UUID, tempDest string) {
 	}
 
 	sl.Info(msg, slog.String("okay", "uploader transfer to the destination directory"),
-		slog.String("uuid", fname.String()), slog.Int64("bytes_tranfered", i))
+		slog.String("uuid", fname.String()), slog.Int64("bytes_transferred", i))
 }
 
 func (t Transfer) content(ctx context.Context, sl *slog.Logger, msg, fname, tempDest string) []string {
@@ -470,6 +472,7 @@ func (u Submit) Image(sl *slog.Logger, c *echo.Context) error {
 	if err != nil || tempDest == "" {
 		return c.HTML(http.StatusInternalServerError, "The temporary save cannot be copied")
 	}
+	defer func() { _ = os.Remove(tempDest) }()
 
 	dirs := command.Dirs{Download: "", Preview: u.Preview, Thumbnail: u.Thumbnail, Extra: ""}
 	fileMultipart, err := fileHeader.Open()
@@ -486,10 +489,10 @@ func (u Submit) Image(sl *slog.Logger, c *echo.Context) error {
 
 	if useImager(magic) {
 		if err := dirs.PictureImager(ctx, sl, tempDest, formData.unid); err != nil {
-			html := "The uploaded image file could not be converted. " +
-				"Try converting it first on your local machine," +
-				"either to a PNG or JPG format:\n" + err.Error()
-			return c.HTML(http.StatusBadRequest, html)
+			msgHTML := "The uploaded image file could not be converted. " +
+				"Try converting it first on your local machine, " +
+				"either to a PNG or JPG format:\n" + html.EscapeString(err.Error())
+			return c.HTML(http.StatusBadRequest, msgHTML)
 		}
 
 		return u.StatusOK(c, fileHeader.Filename)
@@ -511,15 +514,11 @@ func (u Submit) Image(sl *slog.Logger, c *echo.Context) error {
 }
 
 func useImager(magic magicnumber.Signature) bool {
-	x := magicnumber.Images()
-	slices.Sort(x)
-	return slices.Contains(x, magic)
+	return slices.Contains(magicnumber.Images(), magic)
 }
 
 func useTexter(magic magicnumber.Signature) bool {
-	x := magicnumber.Texts()
-	slices.Sort(x)
-	return slices.Contains(x, magic)
+	return slices.Contains(magicnumber.Texts(), magic)
 }
 
 func (u Submit) StatusOK(c *echo.Context, filename string) error {
@@ -597,6 +596,7 @@ func (u Submit) Replacement(sl *slog.Logger, c *echo.Context, tx *sql.Tx) error 
 	if err != nil || destTemp == "" {
 		return c.HTML(http.StatusInternalServerError, "The temporary save cannot be copied")
 	}
+	defer func() { _ = os.Remove(destTemp) }()
 
 	ctx := c.Request().Context()
 	if list, err := archive.Lists(ctx, destTemp); err == nil {
@@ -619,6 +619,8 @@ func (u Submit) Replacement(sl *slog.Logger, c *echo.Context, tx *sql.Tx) error 
 			slog.Warn(msg+" cannot open extras path", slog.String("path", u.Extra.Path()))
 			return
 		}
+		defer func() { _ = extra.Close() }()
+
 		name := upload.unid + ".zip"
 		err = extra.Remove(name)
 		if err != nil {
@@ -637,6 +639,7 @@ func Close(sl *slog.Logger, msg string, file multipart.File) {
 	}
 	if file == nil {
 		sl.Error(msg + " attempted to close an empty multipart file")
+		return
 	}
 	if err := file.Close(); err != nil {
 		sl.Info(msg+" could not close file", slog.Any("file", file),

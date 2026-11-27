@@ -27,7 +27,13 @@ func logFormErr(sl *slog.Logger, msg, form, name string, err error) {
 
 func errUpload(c *echo.Context, err error) error {
 	const code = http.StatusInternalServerError
-	if c == nil || err == nil {
+	if c == nil {
+		if err != nil {
+			return err
+		}
+		return fmt.Errorf("err upload: %w", nils.Check(c))
+	}
+	if err == nil {
 		return c.HTML(code, "unexpected error")
 	}
 	return c.HTML(code,

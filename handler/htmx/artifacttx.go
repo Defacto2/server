@@ -1,6 +1,7 @@
 package htmx
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"log/slog"
@@ -16,6 +17,7 @@ import (
 	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/model"
 	"github.com/Defacto2/server/model/fix"
+	"github.com/aarondl/sqlboiler/v4/boil"
 	"github.com/labstack/echo/v5"
 )
 
@@ -89,40 +91,64 @@ func TxCreditAudio(c *echo.Context, tx *sql.Tx) error {
 
 // TxDemozoo handles the post submission for the file artifact Demozoo production link.
 func TxDemozoo(c *echo.Context, tx *sql.Tx) error {
-	err := CommitStr(c, tx, "artifact-editor-demozoo", model.Demozoo.Update)
-	return HTMLLinkTo(c, err)
+	return commitLink(c, tx, "artifact-editor-demozoo", nil, model.Demozoo.Update)
 }
 
 // TxPouet handles the post submission for the file artifact Pouet production link.
 func TxPouet(c *echo.Context, tx *sql.Tx) error {
-	err := CommitStr(c, tx, "artifact-editor-pouet", model.Pouet.Update)
-	return HTMLLinkTo(c, err)
+	return commitLink(c, tx, "artifact-editor-pouet", nil, model.Pouet.Update)
 }
 
 // Tx16Colors handles the post submission for the file artifact 16 Colors link.
 func Tx16Colors(c *echo.Context, tx *sql.Tx) error {
-	err := CommitSanitize(c, tx, "artifact-editor-16colors",
+	return commitLink(c, tx, "artifact-editor-16colors",
 		form.SanitizeURLPath, model.Colors16.Update)
-	return HTMLLinkTo(c, err)
 }
 
 // TxGitHub handles the post submission for the file artifact GitHub repository link.
 func TxGitHub(c *echo.Context, tx *sql.Tx) error {
-	err := CommitSanitize(c, tx, "artifact-editor-github",
+	return commitLink(c, tx, "artifact-editor-github",
 		form.SanitizeGitHub, model.GitHub.Update)
-	return HTMLLinkTo(c, err)
 }
 
 // TxRelations handles the post submission for the file artifact releaser relationships.
 func TxRelations(c *echo.Context, tx *sql.Tx) error {
-	err := CommitStr(c, tx, "artifact-editor-relations", model.Relations.Update)
-	return HTMLLinkTo(c, err)
+	return commitLink(c, tx, "artifact-editor-relations", nil, model.Relations.Update)
 }
 
 // TxWebsites handles the post submission for the file artifact website links.
 func TxWebsites(c *echo.Context, tx *sql.Tx) error {
-	err := CommitStr(c, tx, "artifact-editor-websites", model.Sites.Update)
-	return HTMLLinkTo(c, err)
+	return commitLink(c, tx, "artifact-editor-websites", nil, model.Sites.Update)
+}
+
+func commitLink(c *echo.Context, tx *sql.Tx, name string,
+	sanitize func(string) string,
+	fn func(context.Context, boil.ContextExecutor, int64, string) error,
+) error {
+	const format = "commit link %s: %w"
+	if err := nils.Check(c, tx, fn); err != nil {
+		if c == nil {
+			return fmt.Errorf(format, "check", err)
+		}
+		return badRequest(c, fmt.Errorf(format, "check", err))
+	}
+
+	key, err := Key(c)
+	if err != nil {
+		return badRequest(c, fmt.Errorf(format, "key", err))
+	}
+
+	value := c.FormValue(name)
+	if sanitize != nil {
+		value = sanitize(value)
+	}
+
+	ctx := c.Request().Context()
+	if err := fn(ctx, tx, key, value); err != nil {
+		return badRequest(c, fmt.Errorf(format, "fn", err))
+	}
+
+	return c.HTML(http.StatusOK, successSpan+linkPreviewsHTML(c))
 }
 
 func TxEmulateUMB(c *echo.Context, tx *sql.Tx) error {
@@ -199,10 +225,17 @@ func TxEmulateRunProg(c *echo.Context, tx *sql.Tx) error {
 // HTMLLinkTo handles the post submission for a form submission to provide the
 // HTML formatted links for the "Links" section of the artifact editor.
 func HTMLLinkTo(c *echo.Context, err error) error {
+	if check := nils.Check(c); check != nil {
+		return fmt.Errorf("html link to: %w", check)
+	}
 	if err != nil {
 		return badRequest(c, err)
 	}
 
+	return c.HTML(http.StatusOK, linkPreviewsHTML(c))
+}
+
+func linkPreviewsHTML(c *echo.Context) string {
 	youtube := c.FormValue("artifact-editor-youtube")
 	demozoo := c.FormValue("artifact-editor-demozoo")
 	pouet := c.FormValue("artifact-editor-pouet")
@@ -215,7 +248,7 @@ func HTMLLinkTo(c *echo.Context, err error) error {
 	for i, link := range links {
 		links[i] = `<small><strong>Link to</strong></small> &nbsp; ` + link
 	}
-	return c.HTML(http.StatusOK, strings.Join(links, "<br>"))
+	return strings.Join(links, "<br>")
 }
 
 // TxLinksUndo handles the post submission for the file artifact links reset.
@@ -248,8 +281,8 @@ func TxLinksUndo(c *echo.Context, tx *sql.Tx) error {
 		if err != nil {
 			return badRequest(c, fmt.Errorf(format, "demozoo id "+demozooVal, err))
 		}
-		if demozooID > demozoo.Sanity {
-			return badRequest(c, fmt.Errorf(format, "demozoo id does not exist "+demozooVal, err))
+		if demozooID < 0 || demozooID > demozoo.Sanity {
+			return badRequest(c, fmt.Errorf(format, "demozoo id does not exist "+demozooVal, strconv.ErrRange))
 		}
 	}
 
@@ -260,8 +293,8 @@ func TxLinksUndo(c *echo.Context, tx *sql.Tx) error {
 		if err != nil {
 			return badRequest(c, fmt.Errorf(format, "pouet id "+pouetVal, err))
 		}
-		if pouetID > pouet.Sanity {
-			return badRequest(c, fmt.Errorf(format, "pouet id does not exist "+pouetVal, err))
+		if pouetID < 0 || pouetID > pouet.Sanity {
+			return badRequest(c, fmt.Errorf(format, "pouet id does not exist "+pouetVal, strconv.ErrRange))
 		}
 	}
 
@@ -461,15 +494,14 @@ func TxYouTube(c *echo.Context, tx *sql.Tx) error {
 }
 
 // TxReleasers handles the post submission for the file artifact releasers.
-// It will only update the releaser1 and the releaser2 values if they have changed.
-// The return value is either "Updated" or "Update" depending on if the values have changed.
+// It only updates the releaser1 and releaser2 values if they have changed,
+// otherwise returning HTTP 204 No Content.
 func TxReleasers(c *echo.Context, tx *sql.Tx) error {
 	return txReleasers(c, tx, false)
 }
 
 // TxReleasersUndo handles the post submission for the file artifact releasers reset.
-// It will always reset and save the releaser1 and the releaser2 values.
-// The return value is always "Resetted" unless an error occurs.
+// It restores the saved releaser1 and releaser2 values if they differ from the form inputs.
 func TxReleasersUndo(c *echo.Context, tx *sql.Tx) error {
 	return txReleasers(c, tx, true)
 }
@@ -493,7 +525,7 @@ func txReleasers(c *echo.Context, tx *sql.Tx, undo bool) error {
 
 	unchanged := (relr1 == undo1 && relr2 == undo2)
 	if unchanged {
-		return c.String(http.StatusNoContent, "")
+		return c.NoContent(http.StatusNoContent) //nolint:wrapcheck
 	}
 
 	relFor := relr1
@@ -562,15 +594,10 @@ func (ymd YMD) commit(c *echo.Context, tx *sql.Tx) error { //nolint:cyclop,funle
 	day := c.FormValue("artifact-editor-day")
 
 	if ymd == DateForm {
-		unchanged := year == undoY && month == undoM && day == undoD
-		switch {
-		case unchanged:
-			return c.String(http.StatusNoContent, "")
-		case ymd == DateForm:
-			y = year
-			m = month
-			d = day
+		if year == undoY && month == undoM && day == undoD {
+			return c.NoContent(http.StatusNoContent) //nolint:wrapcheck
 		}
+		y, m, d = year, month, day
 	}
 
 	const fmtymd = `%w, record date issued reset requires YYYY-MM-DD`
@@ -594,7 +621,7 @@ func (ymd YMD) commit(c *echo.Context, tx *sql.Tx) error { //nolint:cyclop,funle
 		d = values[2]
 		unchanged := year == y && month == m && day == d
 		if unchanged {
-			return c.String(http.StatusNoContent, "")
+			return c.NoContent(http.StatusNoContent) //nolint:wrapcheck
 		}
 	}
 

@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
-	"slices"
 	"strconv"
 	"strings"
 	"testing"
@@ -40,7 +39,23 @@ const (
 )
 
 func (prod Prod) String() string {
-	return [...]string{dz, pt}[prod]
+	switch prod {
+	case Demozoo:
+		return dz
+	case Pouet:
+		return pt
+	}
+	return ""
+}
+
+func (prod Prod) title() string {
+	switch prod {
+	case Demozoo:
+		return "Demozoo"
+	case Pouet:
+		return "Pouet"
+	}
+	return ""
 }
 
 // Submit handles the PUT production routes for Demozoo and Pouet.
@@ -84,9 +99,9 @@ func (prod Prod) Submit(
 
 	sl.Info(msg,
 		slog.String("okay", "the production has been submitted"),
-		slog.String("remote", strings.ToTitle(prod.String())), slog.Int("new_id", prodID))
+		slog.String("remote", prod.title()), slog.Int("new_id", prodID))
 
-	return c.String(http.StatusOK, prod.submitHTML(c, prodID, key))
+	return c.HTML(http.StatusOK, prod.submitHTML(c, prodID, key))
 }
 
 // ID validates the production ID and ensures that it is a valid numeric value.
@@ -96,7 +111,7 @@ func (prod Prod) ID(c *echo.Context) (int, error) {
 		return 0, fmt.Errorf(format, err)
 	}
 
-	name := strings.ToTitle(prod.String())
+	name := prod.title()
 	id, err := echo.PathParam[int](c, "id")
 	if err != nil {
 		return 0, c.String(http.StatusNotAcceptable,
@@ -208,7 +223,7 @@ func (prod Prod) ValidFn(c *echo.Context, prodID int, useCache bool,
 		if s, err := fn(sid); err == nil && s != "" {
 			s := "Production " + sid + " is probably not suitable for Defacto2!<br>" +
 				"Types: " + s
-			return true, c.String(http.StatusOK, s)
+			return true, c.HTML(http.StatusOK, s)
 		}
 	}
 	return false, nil
@@ -236,7 +251,7 @@ func (prod Prod) insert(ctx context.Context, tx *sql.Tx, prodID int) (int64, str
 
 func (prod Prod) submitHTML(c *echo.Context, prodID int, key int64) string {
 	const format = `<div class="text-success">Thanks for the submission of %s production, %d</div>`
-	html := fmt.Sprintf(format, strings.ToTitle(prod.String()), prodID)
+	html := fmt.Sprintf(format, prod.title(), prodID)
 	if sess.Editor(c) {
 		uri := helper.ObfuscateID(key)
 		const linkFmt = `<p data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="ctrl + alt + enter">` +
@@ -408,11 +423,12 @@ func (prod Prod) lookupPouet(c *echo.Context, db *sql.DB, useCache bool) error {
 		info = append(info, "on", product.ReleaseDate)
 	}
 
-	platforms := strings.Split(product.Platforms.String(), ",")
-	if len(platforms) > 0 {
+	if raw := strings.TrimSpace(product.Platforms.String()); raw != "" {
 		info = append(info, "for")
-		for val := range slices.Values(platforms) {
-			info = append(info, " ", strings.TrimSpace(val))
+		for val := range strings.SplitSeq(raw, ",") {
+			if name := strings.TrimSpace(val); name != "" {
+				info = append(info, name)
+			}
 		}
 	}
 
@@ -446,6 +462,9 @@ func ValidateDemozoo(c *echo.Context, prodID int, useCache bool) (demozoo.Produc
 		return none, fmt.Errorf(format, config.ErrNoZooAuth)
 	}
 	if code, err := prod.Get(ctx, auth, prodID); err != nil {
+		if code < http.StatusContinue || code > 599 {
+			code = http.StatusBadGateway
+		}
 		return none, c.String(code, err.Error())
 	}
 
@@ -486,13 +505,13 @@ func ValidateDemozoo(c *echo.Context, prodID int, useCache bool) (demozoo.Produc
 func ValidatePouet(c *echo.Context, prodID int, useCache bool) (pouet.Response, error) {
 	const msg = "htmx pouet valid context"
 	const format = `Production %d is probably not suitable for Defacto2.`
-	const helper = `<br>A production must an intro, demo or cracktro either for MsDos or Windows.`
+	const helper = `<br>A production must be an intro, demo or cracktro either for MsDos or Windows.`
 	none := pouet.Response{} //nolint:exhaustruct_v5
 	if err := nils.Check(c); err != nil {
 		return none, fmt.Errorf("%s: %w", msg, err)
 	}
 
-	exit, err := Demozoo.ValidFn(c, prodID, useCache, cache.PouetProduction.Read)
+	exit, err := Pouet.ValidFn(c, prodID, useCache, cache.PouetProduction.Read)
 	if exit || err != nil {
 		return none, err
 	}
@@ -514,7 +533,7 @@ func ValidatePouet(c *echo.Context, prodID int, useCache bool) (pouet.Response, 
 	if ok := plat && types; !ok {
 		key := strconv.Itoa(prodID)
 		_ = cache.PouetProduction.WriteNoExpire(key, "invalid")
-		return none, c.String(http.StatusOK, fmt.Sprintf(format, prodID)+helper)
+		return none, c.HTML(http.StatusOK, fmt.Sprintf(format, prodID)+helper)
 	}
 
 	if ok := prodLink(prod) != ""; !ok {
@@ -526,15 +545,20 @@ func ValidatePouet(c *echo.Context, prodID int, useCache bool) (pouet.Response, 
 }
 
 func prodLink(prod pouet.Response) string {
-	if s := prod.Prod.Download; s != "" {
+	if s := strings.TrimSpace(prod.Prod.Download); s != "" {
 		return s
 	}
 
-	unwanted := [...]string{"", "youtube", "sourceforge", "github"}
+	unwanted := [...]string{"youtube", "sourceforge", "github"}
+nextLink:
 	for _, link := range prod.Prod.DownloadLinks {
+		if strings.TrimSpace(link.Link) == "" {
+			continue
+		}
+		lower := strings.ToLower(link.Link)
 		for _, substr := range unwanted {
-			if strings.Contains(strings.ToLower(link.Link), substr) {
-				continue
+			if strings.Contains(lower, substr) {
+				continue nextLink
 			}
 		}
 

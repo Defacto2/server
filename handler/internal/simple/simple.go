@@ -197,7 +197,7 @@ func DemozooGetLink(filename, filesize, demozoo, unid any) template.HTML {
 
 	var uniqueID string
 	if s, ok := unid.(null.String); ok {
-		if s.Valid && s.String == "" {
+		if !s.Valid || s.String == "" {
 			return ""
 		}
 		uniqueID = s.String
@@ -249,7 +249,7 @@ func DownloadInBytes(v any) template.HTML {
 		}
 		bytes = val.Int64
 	default:
-		return template.HTML(fmt.Sprintf("%sDownloadB: %T", typeErr, v))
+		return template.HTML(fmt.Sprintf("%sDownloadInBytes: %T", typeErr, v))
 	}
 
 	return template.HTML(` <small class="text-body-secondary">(` +
@@ -392,15 +392,22 @@ func LinkID(id any, elem string) (string, error) {
 
 	var i int64
 	switch val := id.(type) {
-	case
-		int, int8, int16, int32, int64,
-		uint, uint8, uint16, uint32, uint64:
+	case int, int8, int16, int32, int64:
 		i = reflect.ValueOf(val).Int()
 		if i <= 0 {
 			return "", fmt.Errorf(format, i, "", ErrNegative)
 		}
+	case uint, uint8, uint16, uint32, uint64:
+		u := reflect.ValueOf(val).Uint()
+		if u == 0 {
+			return "", fmt.Errorf(format, 0, "", ErrNegative)
+		}
+		if u > math.MaxInt64 {
+			return "", fmt.Errorf(format, 0, fmt.Sprintf("%T", id), ErrLinkType)
+		}
+		i = int64(u)
 	default:
-		return "", fmt.Errorf(format, i, reflect.TypeOf(id).String(), ErrLinkType)
+		return "", fmt.Errorf(format, i, fmt.Sprintf("%T", id), ErrLinkType)
 	}
 
 	href, err := url.JoinPath("/", elem, helper.ObfuscateID(i))
@@ -687,10 +694,14 @@ func MIME(sl *slog.Logger, name string) string {
 
 	const sample = 512
 	data := make([]byte, sample)
-	_, err = file.Read(data)
-	if err != nil {
+	n, err := file.Read(data)
+	if err != nil && !errors.Is(err, io.EOF) {
 		logInfo("read sample of", err)
 		return err.Error()
+	}
+	data = data[:n]
+	if n == 0 {
+		return http.DetectContentType(data)
 	}
 
 	kind, err := filetype.Match(data)
@@ -847,7 +858,7 @@ func Screenshot(unid, desc string, preview dir.Directory) template.HTML {
 	integrityJpg, _ := helper.IntegrityFile(preview.Join(unid + jpg))
 	integrityAvi, _ := helper.IntegrityFile(preview.Join(unid + avif))
 
-	alt := strings.ToLower(desc) + " screenshot"
+	alt := template.HTMLEscapeString(strings.ToLower(desc) + " screenshot")
 	var elm strings.Builder
 	const size = 50
 	elm.Grow(size)
@@ -909,11 +920,6 @@ func StatHumanize(name string) (date, bytes, size string) {
 		humanize.Bytes(u)
 }
 
-// AnimPreview returns a HTML image tag or picture element for the given unid.
-// The unid is the filename of the thumbnail image without an extension.
-// The desc is the description of the image.
-// The thumbnail is the directory where the thumbnail images are stored.
-// The bottom flag is true if the image should be displayed at the bottom of the container element.
 // AnimPreview returns the static URL of the animated WebP preview image for an ANSImation
 // if it exists on disk, or an empty string otherwise.
 func AnimPreview(unid string, preview dir.Directory) string {
