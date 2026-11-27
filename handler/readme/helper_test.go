@@ -7,22 +7,56 @@ import (
 	"github.com/nalgeon/be"
 )
 
-func TestAddBytes(t *testing.T) {
+func TestAddPrefix(t *testing.T) {
 	t.Parallel()
 
-	str := []byte("hello world")
-	pre := []byte("prefix text")
-	suf := []byte("suffix text")
+	tests := []struct {
+		name   string
+		body   string
+		prefix string
+		want   string
+	}{
+		{"both", "hello world", "prefix", "prefix\n\nhello world"},
+		{"empty prefix", "hello", "", "hello"},
+		{"whitespace prefix", "hello", " \t\n ", "hello"},
+		{"empty body", "", "prefix", "prefix"},
+		{"whitespace body", " \t\n ", "prefix", "prefix"},
+		{"both empty", "", "", ""},
+	}
 
-	x := readme.AddPrefix(str, pre)
-	wantN := len(str) + len(pre) + 2
-	be.Equal(t, len(x), wantN)
-	want := string(pre) + "\n\n" + string(str)
-	be.Equal(t, string(x), want)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 
-	x = readme.AddSuffix(str, suf)
-	wantN = len(str) + len(pre) + 2
-	be.Equal(t, len(x), wantN)
-	want = string(str) + "\n\n" + string(suf)
-	be.Equal(t, string(x), want)
+			got := readme.AddPrefix([]byte(tt.body), []byte(tt.prefix))
+			be.Equal(t, string(got), tt.want)
+		})
+	}
+}
+
+func TestAddSuffix(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name   string
+		body   string
+		suffix string
+		want   string
+	}{
+		{"both", "hello world", "suffix", "hello world\n\nsuffix"},
+		{"empty suffix", "hello", "", "hello"},
+		{"whitespace suffix", "hello", " \t\n ", "hello"},
+		{"empty body", "", "suffix", "suffix"},
+		{"whitespace body", " \t\n ", "suffix", "suffix"},
+		{"both empty", "", "", ""},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			got := readme.AddSuffix([]byte(tt.body), []byte(tt.suffix))
+			be.Equal(t, string(got), tt.want)
+		})
+	}
 }

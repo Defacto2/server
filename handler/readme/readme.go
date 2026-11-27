@@ -453,7 +453,7 @@ func (t *Text) handleSAUCE(textBuf *bytes.Buffer) {
 	}
 }
 
-// Problematic reads the bytes buffer and returns true when known files formats are found
+// Problematic reads the bytes buffer and returns true when known file formats are found
 // that cannot be used as text for display in a web browser.
 // This includes UTF16 and UTF32 encoded texts, XBinary format texts, and any known image formats.
 func (t *Text) problematic(sl *slog.Logger, textBuf *bytes.Buffer) (bool, magicnumber.Signature) {
@@ -670,6 +670,11 @@ func (t *Text) decodePrimary(p []byte) ([]byte, bool) {
 		return p, true
 	}
 
+	if rawFind == magicnumber.UTF32Text || slices.Contains(magicnumber.Images(), rawFind) {
+		// Preserve raw bytes so problematic() can match magic headers (e.g. PNG's CRLF or UTF-32 NULs).
+		return p, true
+	}
+
 	if decoded, decErr := decodeUTF16(p); decErr == nil {
 		p = decoded
 	}
@@ -767,7 +772,7 @@ func (t *Text) useViewer() bool {
 //
 //   - EOF marker is removed
 //   - ASCII NULLs are swapped with spaces
-//   - CFLF newlines are swapped with LF newlines
+//   - CRLF newlines are swapped with LF newlines
 //   - Keywords are masked
 //   - SAUCE metadata and comments are removed
 //   - E-grave end of file marker is removed

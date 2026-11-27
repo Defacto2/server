@@ -30,10 +30,6 @@ func AddPrefix(p, prefix []byte) []byte {
 		return prefix
 	}
 
-	if len(prefix) == 0 {
-		return bytes.Clone(prefix)
-	}
-
 	const nl = 2
 	size := len(prefix) + nl + len(p)
 	buf := make([]byte, size)

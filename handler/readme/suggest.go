@@ -30,7 +30,7 @@ func Suggest(name, group, entries string) string {
 		base = strings.TrimSuffix(base, ext)
 	}
 
-	extensions := append(priority(), candidate()...)
+	extensions := slices.Concat(priority(), candidate())
 	for _, ext := range extensions {
 		groupMatch := group + ext
 		baseMatch := base + ext
@@ -54,7 +54,7 @@ func Suggest(name, group, entries string) string {
 }
 
 // SortList returns a sorted list of possible readme text files found in the file archive.
-// The first result is the closes filename to root that has a priority
+// The first result is the closest filename to root that has a priority
 // filename extension such as ".nfo", then ordered alphabetically.
 //
 // When compact is true all filenames using extensions that are not known textfiles,
@@ -68,48 +68,8 @@ func SortList(compact bool, entries string) []string {
 
 	lists := strings.Split(entries, "\n")
 
-	slices.SortFunc(lists, func(a, b string) int {
-		// used to order all other file paths alphabetically
-		x := strings.ToLower(a)
-		y := strings.ToLower(b)
-
-		// used to compare the depth of sub-directories, less is better
-		subsX := strings.Count(x, "/")
-		subsY := strings.Count(y, "/")
-
-		// used to order all other file extensions alphabetically
-		extX := strings.ToLower(filepath.Ext(x))
-		extY := strings.ToLower(filepath.Ext(y))
-
-		rank := func(list []string, target string) int {
-			if idx := slices.Index(list, target); idx != -1 {
-				return idx
-			}
-			// Unmatched items rank lower
-			const unmatched = 1000
-			return unmatched
-		}
-
-		// used to compare which filename uses a candidate file extension
-		prioX := rank(priority(), extX)
-		prioY := rank(priority(), extY)
-
-		// used to compare which filename uses a priority file extension
-		candX := rank(candidate(), extX)
-		candY := rank(candidate(), extY)
-
-		return cmp.Or(
-			cmp.Compare(subsX, subsY),
-			cmp.Compare(prioX, prioY),
-			cmp.Compare(candX, candY),
-			strings.Compare(extX, extY),
-			strings.Compare(x, y),
-		)
-	})
-
-	// filter out known bad filenames, such as known website advertising injections
+	// trim and filter out known bad filenames, such as known website advertising injections
 	paths := make([]string, 0, len(lists))
-
 	for _, s := range lists {
 		path := strings.TrimSpace(s)
 		if path == "" {
@@ -131,6 +91,46 @@ func SortList(compact bool, entries string) []string {
 
 		paths = append(paths, path)
 	}
+
+	slices.SortFunc(paths, func(a, b string) int {
+		// used to order all other file paths alphabetically
+		x := strings.ToLower(a)
+		y := strings.ToLower(b)
+
+		// used to compare the depth of sub-directories, less is better
+		subsX := strings.Count(x, "/")
+		subsY := strings.Count(y, "/")
+
+		// used to order all other file extensions alphabetically
+		extX := filepath.Ext(x)
+		extY := filepath.Ext(y)
+
+		rank := func(list []string, target string) int {
+			if idx := slices.Index(list, target); idx != -1 {
+				return idx
+			}
+			// Unmatched items rank lower
+			const unmatched = 1000
+			return unmatched
+		}
+
+		// used to compare which filename uses a priority file extension
+		prioX := rank(priority(), extX)
+		prioY := rank(priority(), extY)
+
+		// used to compare which filename uses a candidate file extension
+		candX := rank(candidate(), extX)
+		candY := rank(candidate(), extY)
+
+		return cmp.Or(
+			cmp.Compare(subsX, subsY),
+			cmp.Compare(prioX, prioY),
+			cmp.Compare(candX, candY),
+			strings.Compare(extX, extY),
+			strings.Compare(x, y),
+		)
+	})
+
 	return paths
 }
 
