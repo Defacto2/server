@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -121,12 +122,9 @@ func (serv *Server) SessionLock(next echo.HandlerFunc, sl *slog.Logger) echo.Han
 			return nil
 		}
 
-		for _, account := range serv.Environment.GoogleAccounts {
-			sum := sha512.Sum384([]byte(id))
-			check := sum == account
-			if check {
-				return next(c)
-			}
+		sum := sha512.Sum384([]byte(id))
+		if slices.Contains(serv.Environment.GoogleAccounts, sum) {
+			return next(c)
 		}
 
 		if err := app.StatusErr(sl, c, code, ""); err != nil {
@@ -334,9 +332,7 @@ func CacheMiddleware() echo.MiddlewareFunc {
 				strings.Contains(path, "/categories"),
 				strings.Contains(path, "/platforms"):
 				c.Response().Header().Set(CacheControl, maxAge+age24hours)
-			case
-				strings.Contains(path, "/artifacts"),
-				strings.Contains(path, "/artifacts/new"):
+			case strings.Contains(path, "/artifacts"):
 				c.Response().Header().Set(CacheControl, maxAge+age5min)
 			case
 				strings.Contains(path, "/artifact/"):
