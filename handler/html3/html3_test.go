@@ -4,7 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"embed"
+	"errors"
+	"html/template"
+	"io"
 	"net/http"
+	"net/http/httptest"
 	"strings"
 	"testing"
 
@@ -12,6 +16,7 @@ import (
 	"github.com/Defacto2/server/internal/logs"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
+	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/internal/testutil"
 	"github.com/Defacto2/server/model"
 	"github.com/aarondl/null/v8"
@@ -19,7 +24,17 @@ import (
 	"github.com/nalgeon/be"
 )
 
-// checked in Sep 26, test coverage was great at 75%+
+type mapRenderer struct {
+	tmpls map[string]*template.Template
+}
+
+func (r mapRenderer) Render(_ *echo.Context, w io.Writer, name string, data any) error {
+	t, ok := r.tmpls[name]
+	if !ok || t == nil {
+		return html3.ErrTmpl
+	}
+	return t.ExecuteTemplate(w, "layout", data)
+}
 
 func TestFilename(t *testing.T) {
 	t.Parallel()
@@ -45,6 +60,29 @@ func TestRoutes(t *testing.T) {
 	var db sql.DB
 	got := html3.Route(sl, e, &db)
 	be.True(t, got != nil)
+
+	// Moved-permanently redirects.
+	redirects := []struct {
+		from string
+		to   string
+	}{
+		{"/html3/index", "/html3"},
+		{"/html3/categories/index", "/html3/categories"},
+		{"/html3/platforms/index", "/html3/platforms"},
+	}
+	for _, tc := range redirects {
+		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, tc.from, nil)
+		rec := httptest.NewRecorder()
+		e.ServeHTTP(rec, req)
+		be.Equal(t, rec.Code, http.StatusMovedPermanently)
+		be.Equal(t, rec.Header().Get(echo.HeaderLocation), tc.to)
+	}
+
+	// Unknown /html3/:uri hits custom404.
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/html3/nonexistent", nil)
+	rec := httptest.NewRecorder()
+	e.ServeHTTP(rec, req)
+	be.Equal(t, rec.Code, http.StatusNotFound)
 }
 
 func TestGlobTo(t *testing.T) {
@@ -71,6 +109,8 @@ func TestTemplates(t *testing.T) {
 func TestError(t *testing.T) {
 	t.Parallel()
 
+	be.Err(t, html3.Error(nil, nil))
+
 	c := testutil.NewContext(t, "")
 	got := html3.Error(c, nil)
 	be.Err(t, got)
@@ -85,9 +125,16 @@ func TestError(t *testing.T) {
 func TestID(t *testing.T) {
 	t.Parallel()
 
+	be.Equal(t, html3.ID(nil), "")
+
 	c := testutil.NewContext(t, "")
-	got := html3.ID(c)
-	be.Equal(t, got, "")
+	be.Equal(t, html3.ID(c), "")
+
+	c.SetPath("/html3/category/bbs")
+	be.Equal(t, html3.ID(c), "bbs")
+
+	c.SetPath("/html3/platform/dos:offset")
+	be.Equal(t, html3.ID(c), "dos")
 }
 
 func TestLeadFS(t *testing.T) {
@@ -99,6 +146,9 @@ func TestLeadFS(t *testing.T) {
 	got = html3.LeadFS(10, null.Int64From(3))
 	wants := strings.Repeat(" ", 8) + "3B"
 	be.Equal(t, got, wants)
+
+	be.Equal(t, html3.LeadFSInt(0, 0), "0B")
+	be.Equal(t, html3.LeadFSInt(6, 1024), "    1k")
 }
 
 func TestLeadInt(t *testing.T) {
@@ -110,6 +160,37 @@ func TestLeadInt(t *testing.T) {
 	x = html3.LeadInt(10, 3)
 	wants := strings.Repeat(" ", 9) + "3"
 	be.Equal(t, x, wants)
+}
+
+func TestQueryOfflineGuards(t *testing.T) {
+	t.Parallel()
+
+	ctx := t.Context()
+	c := testutil.NewContext(t, "/html3")
+
+	_, _, _, _, err := html3.RecordsBy(99).Query(ctx, c, nil, 1)
+	be.Err(t, err, html3.ErrPage)
+	_, _, _, _, err = html3.Everything.Query(ctx, nil, nil, 1)
+	be.Err(t, err)
+
+	_, _, _, _, err = html3.QueryAsArt(ctx, nil, "", 1)
+	be.Err(t, err)
+	_, _, _, _, err = html3.QueryAsDocument(ctx, nil, "", 1)
+	be.Err(t, err)
+	_, _, _, _, err = html3.QueryAsSoftware(ctx, nil, "", 1)
+	be.Err(t, err)
+	_, _, _, _, err = html3.QueryByGroup(ctx, nil, c)
+	be.Err(t, err)
+	_, _, _, _, err = html3.QueryBySection(ctx, nil, c, 1)
+	be.Err(t, err)
+	_, _, _, _, err = html3.QueryBySection(ctx, nil, nil, 1)
+	be.Err(t, err)
+	_, _, _, _, err = html3.QueryByPlatform(ctx, nil, c, 1)
+	be.Err(t, err)
+	_, _, _, _, err = html3.QueryByPlatform(ctx, nil, nil, 1)
+	be.Err(t, err)
+	_, _, _, _, err = html3.QueryEverything(ctx, nil, "", 1)
+	be.Err(t, err)
 }
 
 func TestQuery(t *testing.T) {
@@ -140,8 +221,6 @@ func TestQuery(t *testing.T) {
 		{"as art", html3.AsArt.Query},
 		{"as document", html3.AsDocument.Query},
 		{"as software", html3.AsSoftware.Query},
-		// html3.BySection.Query,
-		// html3.ByPlatform.Query,
 		{"by group", html3.ByGroup.Query},
 	}
 	for _, q := range queries {
@@ -172,6 +251,18 @@ func TestListInfo(t *testing.T) {
 	be.Equal(t, a, "Index of /html3/abc")
 	be.Equal(t, b, "n/a - n/a.")
 
+	a, b = html3.ByPlatform.ListInfo("platform/dos", "dos")
+	be.Equal(t, a, "Index of /html3/platform/dos")
+	be.True(t, strings.Contains(b, "Dos"))
+
+	a, b = html3.AsArt.ListInfo("art", "")
+	be.Equal(t, a, "Index of /html3/art")
+	be.True(t, strings.HasPrefix(b, "Digital + pixel art, "))
+
+	a, b = html3.AsDocument.ListInfo("documents", "")
+	be.Equal(t, a, "Index of /html3/documents")
+	be.True(t, strings.HasPrefix(b, "Document + text art, "))
+
 	a, b = html3.AsSoftware.ListInfo("abc", "xyz")
 	be.Equal(t, a, "Index of /html3/abc")
 	be.Equal(t, b, "Software, applications and programs for any platform.")
@@ -180,17 +271,25 @@ func TestListInfo(t *testing.T) {
 func TestRecordsBy(t *testing.T) {
 	t.Parallel()
 
-	by := html3.Everything
-	be.Equal(t, by.String(), "html3_all")
-	be.Equal(t, by.Parent(), "")
-
-	by = html3.AsSoftware
-	be.Equal(t, by.String(), "html3_software")
-	be.Equal(t, by.Parent(), "")
-
-	by = html3.BySection
-	be.Equal(t, by.String(), "html3_category")
-	be.Equal(t, by.Parent(), "categories")
+	cases := []struct {
+		by     html3.RecordsBy
+		str    string
+		parent string
+	}{
+		{html3.Everything, "html3_all", ""},
+		{html3.BySection, "html3_category", "categories"},
+		{html3.ByPlatform, "html3_platform", "platforms"},
+		{html3.ByGroup, "html3_group", "groups"},
+		{html3.AsArt, "html3_art", ""},
+		{html3.AsDocument, "html3_documents", ""},
+		{html3.AsSoftware, "html3_software", ""},
+		{html3.RecordsBy(-1), "", ""},
+		{html3.RecordsBy(99), "", ""},
+	}
+	for _, tc := range cases {
+		be.Equal(t, tc.by.String(), tc.str)
+		be.Equal(t, tc.by.Parent(), tc.parent)
+	}
 }
 
 func TestClauses(t *testing.T) {
@@ -234,6 +333,8 @@ func TestSorter(t *testing.T) {
 	}
 
 	const a, d = "A", "D"
+	be.Equal(t, html3.Sorter("")[string(html3.Name)], d)
+
 	for _, s := range tests {
 		switch s {
 		case html3.NameAsc:
@@ -273,7 +374,6 @@ func TestFile_Description(t *testing.T) {
 	const (
 		x = "Hello world"
 		g = "Defacto2"
-		s = "intro"
 		p = "dos"
 		m = "magazine"
 	)
@@ -303,10 +403,7 @@ func TestFile_Description(t *testing.T) {
 				Platform: tt.fields.Platform,
 				Size:     0,
 			}
-			t.Run(tt.name, func(t *testing.T) {
-				t.Parallel()
-				be.Equal(t, f.Description(), tt.expect)
-			})
+			be.Equal(t, f.Description(), tt.expect)
 		})
 	}
 }
@@ -324,7 +421,7 @@ func TestDescription(t *testing.T) {
 		null.StringFrom("Defacto2"),
 		null.StringFrom("Hello world"),
 	)
-	be.Equal(t, "Hello world from Defacto2 for Dos.", s)
+	be.Equal(t, s, "Hello world from Defacto2 for Dos.")
 }
 
 func TestFileHref(t *testing.T) {
@@ -347,44 +444,30 @@ func TestFileLinkPad(t *testing.T) {
 	be.Equal(t, s, "")
 
 	s = html3.FileLinkPad(20, null.StringFrom("file"))
-	be.Equal(t, "                ", s)
+	be.Equal(t, s, "                ")
 }
 
 func TestFormattings(t *testing.T) {
 	t.Parallel()
 
-	be.Equal(t,
-		html3.File{Filename: "", Title: "", GroupBy: "", Section: "", Platform: "", Size: 0}.FileLinkPad(0), "", "empty")
-	be.Equal(t,
-		html3.File{Filename: "", Title: "", GroupBy: "", Section: "", Platform: "", Size: 0}.FileLinkPad(4), "    ", "4 pads")
-	be.Equal(t,
-		html3.File{Filename: "file", Title: "", GroupBy: "", Section: "", Platform: "", Size: 0}.FileLinkPad(6), "  ", "2 pads")
-	be.Equal(t,
-		html3.File{Filename: "file.txt", Title: "", GroupBy: "", Section: "", Platform: "", Size: 0}.FileLinkPad(6), "", "too big")
-	be.Equal(t,
-		html3.File{Filename: "", Title: "", GroupBy: "", Section: "", Platform: "", Size: 0}.LeadFS(0), "0B", "0 size")
-	be.Equal(t,
-		html3.File{Filename: "", Title: "", GroupBy: "", Section: "", Platform: "", Size: 1}.LeadFS(3), " 1B", "1 size")
-	be.Equal(t,
-		html3.File{Filename: "", Title: "", GroupBy: "", Section: "", Platform: "", Size: 1000}.LeadFS(0), "1000B", "1000 size")
-	be.Equal(t,
-		html3.File{Filename: "", Title: "", GroupBy: "", Section: "", Platform: "", Size: 1024}.LeadFS(0), "1k", "1k size")
-	be.Equal(t,
-		html3.File{Filename: "", Title: "", GroupBy: "", Section: "", Platform: "", Size: int64(1024 * 1024)}.LeadFS(0), "1M", "1MB size")
-	be.Equal(t,
-		html3.File{Filename: "", Title: "", GroupBy: "", Section: "", Platform: "", Size: int64(1024 * 1024 * 1024)}.LeadFS(0), "1G", "1GB size")
-	be.Equal(t,
-		html3.File{Filename: "", Title: "", GroupBy: "", Section: "", Platform: "", Size: int64(1024 * 1024 * 1024 * 1024)}.LeadFS(0), "1T", "1TB size")
-	be.Equal(t,
-		html3.LeadInt(0, 1), "1")
-	be.Equal(t,
-		html3.LeadInt(1, 1), "1")
-	be.Equal(t,
-		html3.LeadInt(3, 1), "  1")
-	be.True(t,
-		html3.File{Filename: "", Title: "", GroupBy: "", Section: "", Platform: "java", Size: 0}.IsOS())
-	be.Equal(t,
-		html3.File{Filename: "", Title: "", GroupBy: "", Section: "", Platform: "java", Size: 0}.OS(), " for Java")
+	be.Equal(t, html3.File{}.FileLinkPad(0), "")
+	be.Equal(t, html3.File{}.FileLinkPad(4), "    ")
+	be.Equal(t, html3.File{Filename: "file"}.FileLinkPad(6), "  ")
+	be.Equal(t, html3.File{Filename: "file.txt"}.FileLinkPad(6), "")
+	be.Equal(t, html3.File{}.LeadFS(0), "0B")
+	be.Equal(t, html3.File{Size: 1}.LeadFS(3), " 1B")
+	be.Equal(t, html3.File{Size: 1000}.LeadFS(0), "1000B")
+	be.Equal(t, html3.File{Size: 1024}.LeadFS(0), "1k")
+	be.Equal(t, html3.File{Size: int64(1024 * 1024)}.LeadFS(0), "1M")
+	be.Equal(t, html3.File{Size: int64(1024 * 1024 * 1024)}.LeadFS(0), "1G")
+	be.Equal(t, html3.File{Size: int64(1024 * 1024 * 1024 * 1024)}.LeadFS(0), "1T")
+	be.Equal(t, html3.LeadInt(0, 1), "1")
+	be.Equal(t, html3.LeadInt(1, 1), "1")
+	be.Equal(t, html3.LeadInt(3, 1), "  1")
+	be.True(t, html3.File{Platform: "java"}.IsOS())
+	be.True(t, !html3.File{Platform: "unknown"}.IsOS())
+	be.Equal(t, html3.File{Platform: "java"}.OS(), " for Java")
+	be.Equal(t, html3.File{Platform: "unknown"}.OS(), "")
 }
 
 func TestPagi(t *testing.T) {
@@ -410,6 +493,8 @@ func TestPagi(t *testing.T) {
 		{"middle of many pages", args{page: 5, maxPage: 10}, 4, 5, 6},
 		{"near end of many pages", args{9, 10}, 7, 8, 9},
 		{"last of many pages", args{10, 10}, 7, 8, 9},
+		{"beyond last page", args{20, 10}, 7, 8, 9},
+		{"negative maxPage", args{1, -5}, 0, 0, 0},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -426,40 +511,95 @@ func TestPagi(t *testing.T) {
 func TestNavi(t *testing.T) {
 	t.Parallel()
 
-	limit := 10
-	page := 2
-	maxPage := 5
-	current := "current"
-	qs := "query"
-
 	expected := html3.Navigate{
-		Current:  current,
-		QueryStr: qs,
-		Limit:    limit,
+		Current:  "current",
+		QueryStr: "query",
+		Limit:    10,
 		Link1:    0,
 		Link2:    0,
 		Link3:    0,
-		Page:     page,
+		Page:     2,
 		PagePrev: 1,
 		PageNext: 3,
 		PageMax:  5,
 	}
+	be.Equal(t, html3.Navi(10, 2, 5, "current", "query"), expected)
 
-	result := html3.Navi(limit, page, maxPage, current, qs)
+	first := html3.Navi(10, 1, 5, "all", "")
+	be.Equal(t, first.PagePrev, 1)
+	be.Equal(t, first.PageNext, 2)
 
-	if result != expected {
-		t.Errorf("Navi(%d, %d, %d, %s, %s) = %v; want %v", limit, page, maxPage, current, qs, result, expected)
-	}
+	last := html3.Navi(10, 5, 5, "all", "")
+	be.Equal(t, last.PagePrev, 4)
+	be.Equal(t, last.PageNext, 5)
 }
 
 func testTmpl(t *testing.T, got error) {
 	t.Helper()
 
 	be.Err(t, got)
-	httpErr, ok := got.(*echo.HTTPError) //nolint:errorlint
+	httpErr, ok := errors.AsType[*echo.HTTPError](got)
 	be.True(t, ok)
 	be.Equal(t, httpErr.Code, http.StatusInternalServerError)
-	be.Equal(t, httpErr.Message, "html3: cannot render the template") // this is expected
+	be.Equal(t, httpErr.Message, "html3: cannot render the template")
+}
+
+func TestSugaredOffline(t *testing.T) {
+	t.Parallel()
+
+	sl := logs.Discard()
+	dummyDB := &sql.DB{}
+
+	// Nil-guard paths across all sugared handlers.
+	be.Err(t, html3.Categories(nil, nil))
+	be.Err(t, html3.Platforms(nil, nil))
+	be.Err(t, html3.Groups(nil, nil, nil))
+	be.Err(t, html3.Groups(sl, testutil.NewContext(t, "/html3/groups"), nil))
+	be.Err(t, html3.Index(nil, nil, nil))
+	be.Err(t, html3.List(nil, nil, nil, html3.Everything))
+	be.Err(t, html3.All(nil, nil, nil))
+	be.Err(t, html3.Art(nil, nil, nil))
+	be.Err(t, html3.Category(nil, nil, nil))
+	be.Err(t, html3.Documents(nil, nil, nil))
+	be.Err(t, html3.Group(nil, nil, nil))
+	be.Err(t, html3.Platform(nil, nil, nil))
+	be.Err(t, html3.Software(nil, nil, nil))
+
+	// Invalid page offset returns 404 before touching the DB.
+	cZero := testutil.NewPath(t, "/html3/groups/0", echo.PathValues{{Name: "offset", Value: "/0"}})
+	err := html3.Groups(sl, cZero, dummyDB)
+	httpErr, ok := errors.AsType[*echo.HTTPError](err)
+	be.True(t, ok)
+	be.Equal(t, httpErr.Code, http.StatusNotFound)
+
+	cListZero := testutil.NewPath(t, "/html3/all/0", echo.PathValues{{Name: "offset", Value: "/0"}})
+	err = html3.List(sl, cListZero, dummyDB, html3.Everything)
+	httpErr, ok = errors.AsType[*echo.HTTPError](err)
+	be.True(t, ok)
+	be.Equal(t, httpErr.Code, http.StatusNotFound)
+
+	// Categories and Platforms render successfully with real templates offline.
+	db, err := sql.Open(postgres.DriverName, "")
+	be.Err(t, err, nil)
+	defer func() { _ = db.Close() }()
+
+	tmpls, err := html3.Templates(t.Context(), sl, db, testutil.ProjectFS(t))
+	be.Err(t, err, nil)
+
+	e := echo.New()
+	e.Renderer = mapRenderer{tmpls: tmpls}
+
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/html3/categories", nil)
+	rec := httptest.NewRecorder()
+	be.Err(t, html3.Categories(sl, e.NewContext(req, rec)), nil)
+	be.Equal(t, rec.Code, http.StatusOK)
+	be.True(t, strings.Contains(rec.Body.String(), "Index of /html3/categories"))
+
+	req = httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/html3/platforms", nil)
+	rec = httptest.NewRecorder()
+	be.Err(t, html3.Platforms(sl, e.NewContext(req, rec)), nil)
+	be.Equal(t, rec.Code, http.StatusOK)
+	be.True(t, strings.Contains(rec.Body.String(), "Index of /html3/platforms"))
 }
 
 func TestAll(t *testing.T) {
@@ -517,9 +657,32 @@ func TestTemplatesOfflineDB(t *testing.T) {
 	be.Err(t, err, nil)
 	defer func() { _ = db.Close() }()
 
-	fsys := testutil.ProjectFS(t)
 	sl := logs.Discard()
+
+	// Empty FS returns map with nil templates.
+	emptyTmpls, err := html3.Templates(t.Context(), sl, db, embed.FS{})
+	be.Err(t, err, nil)
+	be.Equal(t, len(emptyTmpls), 11)
+	for _, tmpl := range emptyTmpls {
+		be.True(t, tmpl == nil)
+	}
+
+	fsys := testutil.ProjectFS(t)
 	tmpls, err := html3.Templates(t.Context(), sl, db, fsys)
 	be.Err(t, err, nil)
 	be.True(t, tmpls["html3_index"] != nil)
+
+	// Invoke TemplateFuncMap closures.
+	fm := html3.TemplateFuncMap(t.Context(), sl, db)
+	linkHref, ok := fm["linkHref"].(func(int64) string)
+	be.True(t, ok)
+	be.Equal(t, linkHref(1), "/html3/d/9b1c6")
+
+	safeHTML, ok := fm["safeHTML"].(func(string) template.HTML)
+	be.True(t, ok)
+	be.Equal(t, safeHTML("<b>hi</b>"), template.HTML("<b>hi</b>"))
+
+	metaByName, ok := fm["metaByName"].(func(string) tags.TagData)
+	be.True(t, ok)
+	be.Equal(t, metaByName("missing-tag"), tags.TagData{})
 }

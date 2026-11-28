@@ -18,7 +18,7 @@ type RecordsBy int
 const (
 	Everything RecordsBy = iota // Everything displays all records from the file table.
 	BySection                   // BySection groups records by the section file table column.
-	ByPlatform                  // BySection groups records by the platform file table column.
+	ByPlatform                  // ByPlatform groups records by the platform file table column.
 	ByGroup                     // ByGroup groups the records by the distinct, group_brand_for file table column.
 	AsArt                       // AsArt group records as art.
 	AsDocument                  // AsDocument group records as documents.
@@ -28,7 +28,7 @@ const (
 // Parent returns the parent route for the current route.
 func (tt RecordsBy) Parent() string {
 	const count = 7
-	if tt >= count {
+	if tt < 0 || tt >= count {
 		return ""
 	}
 
@@ -47,7 +47,7 @@ func (tt RecordsBy) Parent() string {
 // String RecordsBy are the record groupings.
 func (tt RecordsBy) String() string {
 	const count = 7
-	if tt >= count {
+	if tt < 0 || tt >= count {
 		return ""
 	}
 

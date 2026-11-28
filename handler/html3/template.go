@@ -9,6 +9,7 @@ import (
 	"log/slog"
 	"strings"
 
+	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/internal/tags"
 )
 
@@ -24,6 +25,10 @@ const (
 )
 
 func emptyFS(fsys fs.FS) bool {
+	if fsys == nil {
+		return true
+	}
+
 	entries, err := fs.ReadDir(fsys, ".")
 
 	result := err != nil || len(entries) == 0
@@ -46,7 +51,7 @@ func index(sl *slog.Logger, fsys fs.FS, funcMap template.FuncMap) *template.Temp
 	}
 
 	const name = "index.html"
-	// this template is broken out to vars for easier debuging
+	// this template is broken out to vars for easier debugging
 	patterns := []string{GlobTo(layout), GlobTo(dirs), GlobTo(name)}
 	t, err := template.New("").Funcs(funcMap).ParseFS(fsys, patterns...)
 	if err != nil {
@@ -115,7 +120,7 @@ func tagByName(t *tags.T, name string) (tags.TagData, error) {
 		return data, nil
 	}
 
-	data.Info = strings.ToUpper(string(s[0])) + s[1:]
+	data.Info = helper.Capitalize(s)
 
 	return data, nil
 }

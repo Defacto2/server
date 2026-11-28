@@ -156,11 +156,8 @@ func TemplateFuncMap() template.FuncMap {
 }
 
 func SearchResult(index any) template.HTML {
-	ind := 0 //nolint:wastedassign
-	switch v := index.(type) {
-	case int:
-		ind = v
-	default:
+	ind, ok := index.(int)
+	if !ok {
 		return ""
 	}
 	const limit = 13
@@ -184,25 +181,33 @@ func SearchResult(index any) template.HTML {
 	}
 }
 
-// Suggestion returns a human readable string of the byte count with a named description.
+// Suggestion returns a human readable string of the item count with a named description.
 func Suggestion(name, initialism string, count any) string {
 	s := name
 	if initialism != "" {
 		s += ", " + initialism
 	}
+	p := message.NewPrinter(language.English)
 	switch val := count.(type) {
-	case int, int8, int16, int32, int64,
-		uint, uint8, uint16, uint32, uint64:
+	case int, int8, int16, int32, int64:
 		i := reflect.ValueOf(val).Int()
-		p := message.NewPrinter(language.English)
 		s += p.Sprintf(" (%d item", i)
-		if i > 1 {
+		if i != 1 {
+			s += "s"
+		}
+		s += ")"
+	case uint, uint8, uint16, uint32, uint64:
+		u := reflect.ValueOf(val).Uint()
+		s += p.Sprintf(" (%d item", u)
+		if u != 1 {
 			s += "s"
 		}
 		s += ")"
 	default:
-		s += "suggestion type error: " + reflect.TypeOf(count).String()
-		return s
+		if count == nil {
+			return s + "suggestion type error: <nil>"
+		}
+		return s + "suggestion type error: " + reflect.TypeOf(count).String()
 	}
 	return s
 }

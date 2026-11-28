@@ -43,7 +43,7 @@ func qs(s string) string {
 
 // previous returns the previous page number.
 func previous(page int) int {
-	if page == 1 {
+	if page <= 1 {
 		return 1
 	}
 

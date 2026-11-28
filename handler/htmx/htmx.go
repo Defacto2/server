@@ -104,7 +104,7 @@ func DBConnections(c *echo.Context, db *sql.DB) error {
 	currentTime := time.Now()
 
 	const feedback = `%d of %d, <small>%s</small>`
-	return c.String(http.StatusOK, fmt.Sprintf(feedback,
+	return c.HTML(http.StatusOK, fmt.Sprintf(feedback,
 		conns, maxConn, currentTime.Format("15:04:05")))
 }
 
@@ -464,6 +464,7 @@ func Alternatives(s string) []string {
 	}
 
 	const minChars = 4
+	lowerS := strings.ToLower(s)
 	lookups := []string{s}
 	// examples of key and values:
 	// "tristar-ampersand-red-sector-inc": {"TRSi", "TRS", "Tristar"},
@@ -484,7 +485,7 @@ func Alternatives(s string) []string {
 			if len(s) < minChars {
 				continue
 			}
-			if strings.Contains(strings.ToLower(value), strings.ToLower(s)) {
+			if strings.Contains(strings.ToLower(value), lowerS) {
 				lookups = append(lookups, key, value)
 			}
 		}
@@ -556,7 +557,7 @@ func SearchReleaser(sl *slog.Logger, c *echo.Context, db *sql.DB, ft *fulltext.T
 	})
 	if err != nil {
 		return c.String(http.StatusInternalServerError,
-			"cannot render the htmx search releases template")
+			"cannot render the htmx search releasers template")
 	}
 
 	return nil
@@ -651,7 +652,7 @@ func datalist(sl *slog.Logger, c *echo.Context, db *sql.DB, input string, magazi
 	})
 	if err != nil {
 		return c.String(http.StatusInternalServerError,
-			"cannot render the htmx datalist releases template")
+			"cannot render the htmx datalist releasers template")
 	}
 
 	return nil

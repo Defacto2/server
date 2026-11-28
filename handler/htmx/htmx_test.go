@@ -1,16 +1,14 @@
 package htmx_test
 
-// These tests are mostly for nil checks to ensure the server doesn't panic.
-
-// checked in Sep 26, test coverage was great at under 70%
-
 import (
 	"bytes"
+	"context"
+	"database/sql"
 	"embed"
 	"html/template"
+	"net"
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -19,6 +17,7 @@ import (
 
 	"github.com/Defacto2/server/handler/fulltext"
 	"github.com/Defacto2/server/handler/htmx"
+	"github.com/Defacto2/server/internal/config"
 	"github.com/Defacto2/server/internal/logs"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
@@ -32,21 +31,30 @@ import (
 func TestAreacodes(t *testing.T) {
 	t.Parallel()
 
-	c := testutil.NewInput(t,
-		"/areacodes", "htmx-search", "CA,201")
-	err := htmx.Areacodes(c)
-	be.Err(t, err, nil)
+	be.Err(t, htmx.Areacodes(nil))
 
-	form := url.Values{}
-	form.Set("htmx-search", "201")
-	req := httptest.NewRequestWithContext(t.Context(), http.MethodPost, "/areacodes", strings.NewReader(form.Encode()))
-	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
-	rec := httptest.NewRecorder()
-	c2 := echo.New().NewContext(req, rec)
-	err = htmx.Areacodes(c2)
-	be.Err(t, err, nil)
-	be.True(t, !strings.Contains(rec.Body.String(), "<br><br>"))
+	cEmpty := testutil.NewInput(t, "/areacodes", "htmx-search", "   ")
+	be.Err(t, htmx.Areacodes(cEmpty), nil)
+	be.Equal(t, recorder(t, cEmpty).Code, http.StatusOK)
+	be.Equal(t, recorder(t, cEmpty).Body.String(), "")
+
+	cNone := testutil.NewInput(t, "/areacodes", "htmx-search", "<script>nope</script>")
+	be.Err(t, htmx.Areacodes(cNone), nil)
+	recNone := recorder(t, cNone)
+	be.Equal(t, recNone.Code, http.StatusOK)
+	be.True(t, strings.Contains(recNone.Body.String(), "&lt;script&gt;nope&lt;/script&gt;"))
+
+	c := testutil.NewInput(t, "/areacodes", "htmx-search", "CA,201")
+	be.Err(t, htmx.Areacodes(c), nil)
+	rec := recorder(t, c)
+	be.Equal(t, rec.Code, http.StatusOK)
 	be.True(t, strings.Contains(rec.Body.String(), "201 - New Jersey (NJ)"))
+
+	c2 := testutil.NewInput(t, "/areacodes", "htmx-search", "201")
+	be.Err(t, htmx.Areacodes(c2), nil)
+	rec2 := recorder(t, c2)
+	be.True(t, !strings.Contains(rec2.Body.String(), "<br><br>"))
+	be.True(t, strings.Contains(rec2.Body.String(), "201 - New Jersey (NJ)"))
 }
 
 func TestDemozooLookup(t *testing.T) {
@@ -69,6 +77,8 @@ func TestDemozooLookup(t *testing.T) {
 	err = htmx.Demozoo.Lookup(c, db, false)
 	be.Err(t, err)
 
+	c = testutil.NewInput(t,
+		"/demozoo/production", "demozoo-submission", newrecord)
 	c.Set("zooauth", "")
 	err = htmx.Demozoo.Lookup(c, db, false)
 	be.Err(t, err, nil)
@@ -77,21 +87,24 @@ func TestDemozooLookup(t *testing.T) {
 func TestDemozooValid(t *testing.T) {
 	t.Parallel()
 
-	c := testutil.NewInput(t,
-		"/demozoo/production", "demozoo-submission", "1")
-	got, err := htmx.ValidateDemozoo(c, 1, false)
+	// Offline validation checks without dialing demozoo.org.
+	_, err := htmx.ValidateDemozoo(nil, 1, false)
 	be.Err(t, err)
-	t.Log(got)
 
-	c.Set("zooauth", "")
-	got, err = htmx.ValidateDemozoo(c, 1, false)
+	c := testutil.NewInput(t, "/demozoo/production", "demozoo-submission", "0")
+	_, err = htmx.ValidateDemozoo(c, 0, false)
 	be.Err(t, err, nil)
+	be.Equal(t, recorder(t, c).Code, http.StatusNotAcceptable)
 
-	t.Log(got)
+	c = testutil.NewInput(t, "/demozoo/production", "demozoo-submission", "1")
+	_, err = htmx.ValidateDemozoo(c, 1, false)
+	be.Err(t, err, config.ErrNoZooAuth)
 }
 
 func TestDBConnections(t *testing.T) {
 	t.Parallel()
+
+	be.Err(t, htmx.DBConnections(nil, nil))
 
 	db := testutil.DB(t)
 	c := testutil.NewContext(t, "/dbconns")
@@ -103,20 +116,106 @@ func TestDeleteForever(t *testing.T) {
 	t.Parallel()
 
 	sl := logs.Discard()
-	tx := testutil.Tx(t)
+	be.Err(t, htmx.DeleteForever(nil, nil, nil, "1"))
 
+	cBad := testutil.NewContext(t, "/delete/forever/abc")
+	be.Err(t, htmx.DeleteForever(sl, cBad, &sql.Tx{}, "abc"), nil)
+	be.Equal(t, recorder(t, cBad).Code, http.StatusNotFound)
+
+	tx := testutil.Tx(t)
 	err := htmx.DeleteForever(sl, testutil.NewContext(t, "/delete/forever/0"), tx, "0")
 	be.Err(t, err, nil)
 	_ = tx.Rollback()
 	// despite the rollback option, it is probably best not to test the delete forever func on an actual record
 }
 
+func TestHTMXOfflineGuards(t *testing.T) {
+	t.Parallel()
+
+	sl := logs.Discard()
+	dummyDB := &sql.DB{}
+
+	be.Err(t, htmx.DBIndexes(nil, nil))
+	be.Err(t, htmx.DBAssets(nil, config.Config{}))
+
+	// SearchByID offline branches.
+	be.Err(t, htmx.SearchByID(nil, nil, nil))
+
+	cEmpty := testutil.NewInput(t, "/editor/search/id", "htmx-search", "   ")
+	be.Err(t, htmx.SearchByID(sl, cEmpty, dummyDB), nil)
+	be.Equal(t, recorder(t, cEmpty).Code, http.StatusOK)
+	be.Equal(t, recorder(t, cEmpty).Body.String(), `<!-- empty search query -->`)
+
+	cNone := testutil.NewInput(t, "/editor/search/id", "htmx-search", "xyz!")
+	be.Err(t, htmx.SearchByID(sl, cNone, dummyDB), nil)
+	be.Equal(t, recorder(t, cNone).Code, http.StatusOK)
+	be.True(t, strings.Contains(recorder(t, cNone).Body.String(), "No matching artifacts found."))
+
+	// SearchReleaser offline branches.
+	ft := fulltext.Tidbits{}
+	be.Err(t, htmx.SearchReleaser(nil, nil, nil, nil))
+
+	cRelEmpty := testutil.NewInput(t, "/search/releaser", "htmx-search", "()")
+	be.Err(t, htmx.SearchReleaser(sl, cRelEmpty, dummyDB, &ft), nil)
+	be.Equal(t, recorder(t, cRelEmpty).Code, http.StatusOK)
+	be.Equal(t, recorder(t, cRelEmpty).Body.String(), `<!-- empty search query -->`)
+
+	// DataList offline branches.
+	be.Err(t, htmx.DataListReleasers(nil, nil, nil, "a"))
+	be.Err(t, htmx.DataListMagazines(nil, nil, nil, "a"))
+
+	cDL := testutil.NewContext(t, "/datalist/releasers")
+	be.Err(t, htmx.DataListReleasers(sl, cDL, dummyDB, "()"), nil)
+	be.Equal(t, recorder(t, cDL).Code, http.StatusOK)
+	be.Equal(t, recorder(t, cDL).Body.String(), "")
+
+	cDLM := testutil.NewContext(t, "/datalist/magazines")
+	be.Err(t, htmx.DataListMagazines(sl, cDLM, dummyDB, "()"), nil)
+	be.Equal(t, recorder(t, cDLM).Code, http.StatusOK)
+	be.Equal(t, recorder(t, cDLM).Body.String(), "")
+}
+
 func TestPings(t *testing.T) {
 	t.Parallel()
 
-	// ping errors get send and handled by the context
-	err := htmx.Pings(testutil.NewContext(t, "/pings"), "http", 1323)
+	be.Err(t, htmx.Pings(nil, "http", 1323))
+
+	// Pre-cancelled context stops the loop cleanly and writes 0 URLs summary.
+	ctx, cancel := context.WithCancel(t.Context())
+	cancel()
+	req := httptest.NewRequestWithContext(ctx, http.MethodGet, "/pings", nil)
+	rec := httptest.NewRecorder()
+	cCancel := echo.New().NewContext(req, rec)
+	be.Err(t, htmx.Pings(cCancel, "http", 1323), nil)
+	be.Equal(t, rec.Code, http.StatusOK)
+	be.True(t, strings.HasPrefix(rec.Header().Get(echo.HeaderContentType), "multipart/mixed; boundary="))
+	be.Equal(t, rec.Header().Get("Cache-Control"), "no-cache")
+	be.Equal(t, rec.Header().Get("X-Accel-Buffering"), "no")
+	be.True(t, strings.Contains(rec.Body.String(), "0 URLs were pinged"))
+
+	// Local test server exercises full multipart streaming across 200 and 404 responses.
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/this-is-an-invalid-url" {
+			http.NotFound(w, r)
+			return
+		}
+		_, _ = w.Write([]byte("ok"))
+	}))
+	defer srv.Close()
+
+	_, portStr, err := net.SplitHostPort(srv.Listener.Addr().String())
 	be.Err(t, err, nil)
+	port, err := strconv.Atoi(portStr)
+	be.Err(t, err, nil)
+
+	c := testutil.NewContext(t, "/pings")
+	be.Err(t, htmx.Pings(c, "http", port), nil)
+	recSrv := recorder(t, c)
+	be.Equal(t, recSrv.Code, http.StatusOK)
+	body := recSrv.Body.String()
+	be.True(t, strings.Contains(body, `text-success">200</span>`))
+	be.True(t, strings.Contains(body, `text-danger-emphasis">404</span>`))
+	be.True(t, strings.Contains(body, "URLs were pinged"))
 }
 
 func TestPouetLookup(t *testing.T) {
@@ -159,7 +258,13 @@ func TestAlternatives(t *testing.T) {
 	be.Equal(t, len(s), 0)
 
 	s = htmx.Alternatives("trs")
-	be.True(t, len(s) > 0)
+	be.True(t, len(s) > 1)
+
+	s = htmx.Alternatives("tristar")
+	be.True(t, len(s) > 1)
+
+	s = htmx.Alternatives("razor-1911")
+	be.True(t, len(s) > 1)
 }
 
 func TestSearchReleaser(t *testing.T) {
@@ -193,15 +298,57 @@ func TestDataList(t *testing.T) {
 func TestTemplates(t *testing.T) {
 	t.Parallel()
 
-	x := htmx.Templates(embed.FS{})
-	be.True(t, len(x) == 5)
+	be.Equal(t, htmx.GlobTo("searchids.tmpl"), "view/htmx/searchids.tmpl")
+
+	empty := htmx.Templates(embed.FS{})
+	be.Equal(t, len(empty), 5)
+	for _, tmpl := range empty {
+		be.True(t, tmpl == nil)
+	}
+
+	nilMap := htmx.Templates(nil)
+	be.Equal(t, len(nilMap), 5)
+
+	loaded := htmx.Templates(testutil.ProjectFS(t))
+	be.Equal(t, len(loaded), 5)
+	for name, tmpl := range loaded {
+		be.True(t, tmpl != nil)
+		_ = name
+	}
 }
 
 func TestTemplateFuncMap(t *testing.T) {
 	t.Parallel()
 
-	x := htmx.TemplateFuncMap()
-	be.True(t, x != nil)
+	fm := htmx.TemplateFuncMap()
+	be.True(t, fm != nil)
+
+	markFn, ok := fm["mark"].(func(string, string) template.HTML)
+	be.True(t, ok)
+	be.True(t, strings.Contains(string(markFn("hi", "say hi")), "<mark"))
+
+	safeFn, ok := fm["safeHTML"].(func(string) template.HTML)
+	be.True(t, ok)
+	be.Equal(t, safeFn("<b>ok</b>"), template.HTML("<b>ok</b>"))
+
+	tidbitFn, ok := fm["tidbits"].(func(int) template.HTML)
+	be.True(t, ok)
+	_ = tidbitFn(0)
+}
+
+func TestSearchResult(t *testing.T) {
+	t.Parallel()
+
+	be.Equal(t, htmx.SearchResult("0"), template.HTML(""))
+	be.Equal(t, htmx.SearchResult(-1), template.HTML(""))
+	be.Equal(t, htmx.SearchResult(14), template.HTML(""))
+	be.Equal(t, htmx.SearchResult(0), template.HTML("1"))
+	be.Equal(t, htmx.SearchResult(8), template.HTML("9"))
+	be.Equal(t, htmx.SearchResult(9), template.HTML("0"))
+	be.Equal(t, htmx.SearchResult(10), template.HTML("-"))
+	be.Equal(t, htmx.SearchResult(11), template.HTML("="))
+	be.Equal(t, htmx.SearchResult(12), template.HTML("["))
+	be.Equal(t, htmx.SearchResult(13), template.HTML("]"))
 }
 
 func TestSuggestion(t *testing.T) {
@@ -209,6 +356,12 @@ func TestSuggestion(t *testing.T) {
 
 	got := htmx.Suggestion("", "", "")
 	be.Equal(t, got, "suggestion type error: string")
+	be.Equal(t, htmx.Suggestion("", "", nil), "suggestion type error: <nil>")
+
+	be.Equal(t, htmx.Suggestion("a group", "", 0), "a group (0 items)")
+	be.Equal(t, htmx.Suggestion("a group", "", 1), "a group (1 item)")
+	be.Equal(t, htmx.Suggestion("a group", "", uint(1)), "a group (1 item)")
+	be.Equal(t, htmx.Suggestion("a group", "grp", uint64(1000)), "a group, grp (1,000 items)")
 
 	const count = 10
 	got = htmx.Suggestion("a group", "grp", count)
@@ -226,6 +379,9 @@ func TestAppendUniqueReleasers(t *testing.T) {
 		{Unique: model.Releaser{URI: "class", Name: "Class"}},
 		{Unique: model.Releaser{URI: "paradigm", Name: "Paradigm"}},
 	}
+	be.Equal(t, len(htmx.AppendUniqueReleasers(dst, nil, 5)), 1)
+	be.Equal(t, len(htmx.AppendUniqueReleasers(dst, add, 1)), 1)
+
 	got := htmx.AppendUniqueReleasers(dst, add, 2)
 	be.Equal(t, len(got), 2)
 	be.Equal(t, got[0].Unique.URI, "razor-1911")
@@ -265,9 +421,9 @@ func TestParseSearchIDs(t *testing.T) {
 
 	uid := "c8cd0b4c-2f54-11e0-8827-cc1607e15609"
 	ids, uuids, prefixes := htmx.ParseSearchIDs(
-		"1, 0, -5, " + uid + ", 00000000-0000-0000-0000-000000000000, c8cd0b4c, c8cd0b4c-2f54, c8cd, invalid",
+		"1, 0, -5, 9b1c6, " + uid + ", 00000000-0000-0000-0000-000000000000, c8cd0b4c, c8cd0b4c-2f54, c8cd0b4cX2f54, c8cd0b4z, c8cd, invalid",
 	)
-	be.Equal(t, ids, []int{1})
+	be.Equal(t, ids, []int{1, 1})
 	be.Equal(t, uuids, []uuid.UUID{uuid.MustParse(uid)})
 	be.Equal(t, prefixes, []string{"c8cd0b4c", "c8cd0b4c-2f54"})
 }

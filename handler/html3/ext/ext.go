@@ -5,9 +5,8 @@ package ext
 
 import (
 	"path/filepath"
+	"slices"
 	"strings"
-
-	"github.com/Defacto2/helper"
 )
 
 const (
@@ -24,7 +23,7 @@ const (
 	lzh = ".lzh"
 	rar = ".rar"
 	tar = ".tar"
-	tgz = ".tar.gz"
+	tgz = ".tgz"
 	zip = ".zip"
 
 	fst = ".1st"
@@ -58,6 +57,7 @@ const (
 	fla  = ".flac"
 	mla  = ".m1a"
 	m2a  = ".m2a"
+	m4a  = ".m4a"
 	mid  = ".mid"
 	midi = ".midi"
 	mp1  = ".mp1"
@@ -80,9 +80,8 @@ const (
 	avi  = ".avi"
 	divx = ".divx"
 	flv  = ".flv"
-	gt   = ".gt"
+	qt   = ".qt"
 	mov  = ".mov"
-	m4a  = ".m4a"
 	m4v  = ".m4v"
 	mp4  = ".mp4"
 	swf  = ".swf"
@@ -98,9 +97,9 @@ var (
 	documents = [...]string{fst, asc, ans, cpt, diz, doc, dox, me, nfo, pcb, pdf, txt, unp}
 	images    = [...]string{bmp, gif, ico, iff, jpg, jpeg, lbm, png, pcx}
 	htmls     = [...]string{htm, htmx}
-	audios    = [...]string{au, fla, mla, m2a, mid, midi, mp1, mp2, mp3, mpa, mpga, mpeg, ogg, snd, wav, wave, wma}
+	audios    = [...]string{au, fla, mla, m2a, m4a, mid, midi, mp1, mp2, mp3, mpa, mpga, mpeg, ogg, snd, wav, wave, wma}
 	tunes     = [...]string{it, mod, s3m, xm}
-	videos    = [...]string{avi, divx, flv, gt, mov, m4a, m4v, mp4, swf, rm, ram, wmv, xvid}
+	videos    = [...]string{avi, divx, flv, qt, mov, m4v, mp4, swf, rm, ram, wmv, xvid}
 )
 
 // IsApp returns true if the named file uses a Windows application filename.
@@ -146,7 +145,10 @@ func IsVideo(name string) bool {
 // IsExt returns true if the file extension of the named file is found in the collection of extensions.
 func IsExt(name string, extensions ...string) bool {
 	ext := strings.ToLower(filepath.Ext(name))
-	return helper.Finds(ext, extensions...)
+	if ext == "" {
+		return false
+	}
+	return slices.Contains(extensions, ext)
 }
 
 // Icon names for the Apache2 .gif image files used as icons for the named file.
@@ -164,22 +166,25 @@ const (
 // for the named file.
 func IconName(name string) string {
 	n := strings.ToLower(filepath.Ext(name))
+	if n == "" {
+		return ""
+	}
 	switch {
-	case IsArchive(n):
+	case slices.Contains(archives[:], n):
 		return Zip
-	case IsApp(n):
+	case slices.Contains(apps[:], n):
 		return App
-	case IsAudio(n):
+	case slices.Contains(audios[:], n):
 		return Sfx
-	case IsDocument(n):
+	case slices.Contains(documents[:], n):
 		return Doc
-	case IsHTML(n):
+	case slices.Contains(htmls[:], n):
 		return Htm
-	case IsImage(n):
+	case slices.Contains(images[:], n):
 		return Pic
-	case IsTune(n):
+	case slices.Contains(tunes[:], n):
 		return Sfx
-	case IsVideo(n):
+	case slices.Contains(videos[:], n):
 		return Vid
 	}
 	return ""

@@ -33,7 +33,7 @@ func Art(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 
 // Categories lists the names, descriptions and sums of the category (section) tags.
 func Categories(sl *slog.Logger, c *echo.Context) error {
-	const msg = "htm3 categories"
+	const msg = "html3 categories"
 	const format = msg + ": %w"
 	if err := nils.Check(c, sl); err != nil {
 		return fmt.Errorf(format, err)
@@ -78,7 +78,7 @@ func Group(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 func Groups(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	const msg = "html3 groups listings"
 	const format = msg + ": %w"
-	if err := nils.Check(c, sl); err != nil {
+	if err := nils.Check(sl, c, db); err != nil {
 		return fmt.Errorf(format, err)
 	}
 
@@ -100,7 +100,7 @@ func Groups(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	if err := model.Alphabetical.Limit(ctx, db, &allReleasers, 0, 0); err != nil {
 		s := ErrSQL.Error()
 		sl.Error(msg+" alphabetical "+s, slog.Any("error", err))
-		return echo.NewHTTPError(http.StatusNotFound, s)
+		return echo.NewHTTPError(http.StatusServiceUnavailable, s)
 	}
 
 	count := len(allReleasers)
@@ -208,7 +208,7 @@ func Index(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 
 // List all the records associated with the RecordsBy grouping.
 func List(sl *slog.Logger, c *echo.Context, db *sql.DB, tt RecordsBy) error { //nolint:funlen
-	const msg = "htm3 list records by"
+	const msg = "html3 list records by"
 	const format = msg + ": %w"
 	if err := nils.Check(sl, c, db); err != nil {
 		return fmt.Errorf(format, err)
@@ -301,7 +301,7 @@ func Platform(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 
 // Platforms lists the names, descriptions and sums of the platform tags.
 func Platforms(sl *slog.Logger, c *echo.Context) error {
-	const msg = "htm3 platforms"
+	const msg = "html3 platforms"
 	const format = msg + ": %w"
 	if err := nils.Check(c, sl); err != nil {
 		return fmt.Errorf(format, err)

@@ -276,40 +276,26 @@ func (tt RecordsBy) ListInfo(current, id string) (string, string) {
 func Pagi(page, maxPage int) (int, int, int) {
 	const page1, page2, page3, page4 = 1, 2, 3, 4
 
-	limit := maxPage
-	switch limit {
-	case 0, page1, page2:
+	if maxPage <= page2 {
 		return 0, 0, 0
+	}
+	switch maxPage {
 	case page3:
 		return page2, 0, 0
 	case page4:
 		return page2, page3, 0
 	}
 
-	a := page + -1
-	b := page + 0
+	a := page - 1
+	b := page
 	c := page + 1
 
-	if c > limit {
-		diff := c - limit
-		c = limit - diff
-		b = limit - diff - page1
-		a = limit - diff - page2
-		return a, b, c
-	}
-
-	if c == limit {
-		diff := c - limit + page1
-		c = limit - diff
-		b = limit - diff - page1
-		a = limit - diff - page2
-		return a, b, c
+	if c >= maxPage {
+		return maxPage - page3, maxPage - page2, maxPage - page1
 	}
 
 	if a <= 1 {
-		a = page2
-		b = page3
-		c = page4
+		return page2, page3, page4
 	}
 	return a, b, c
 }
@@ -320,6 +306,9 @@ func (tt RecordsBy) Query(
 	ctx context.Context, c *echo.Context, db *sql.DB, offset int,
 ) (int, int, int64, models.FileSlice, error) {
 	const format = "html3 query %w: %d"
+	if err := nils.Check(c); err != nil {
+		return argsNil(err)
+	}
 
 	clause := c.QueryString()
 	switch tt {
@@ -484,6 +473,9 @@ func (exe execute) query(ctx context.Context, exec boil.ContextExecutor, c *echo
 func QueryBySection(ctx context.Context, exec boil.ContextExecutor, c *echo.Context, offset int) (
 	int, int, int64, models.FileSlice, error,
 ) {
+	if err := nils.Check(c); err != nil {
+		return argsNil(err)
+	}
 	return execute{
 		label: "by category",
 		fetch: Clauses(c.QueryString()).ByCategory,
@@ -496,6 +488,9 @@ func QueryBySection(ctx context.Context, exec boil.ContextExecutor, c *echo.Cont
 func QueryByPlatform(ctx context.Context, exec boil.ContextExecutor, c *echo.Context, offset int) (
 	int, int, int64, models.FileSlice, error,
 ) {
+	if err := nils.Check(c); err != nil {
+		return argsNil(err)
+	}
 	return execute{
 		label: "by platform",
 		fetch: Clauses(c.QueryString()).ByPlatform,

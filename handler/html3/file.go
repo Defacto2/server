@@ -1,7 +1,7 @@
 //nolint:exhaustive
 package html3
 
-// Package file html3.go contains the file record detail functions.
+// Package file file.go contains the file record detail functions.
 
 import (
 	"strings"
