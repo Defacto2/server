@@ -1239,7 +1239,7 @@ var collection = Milestones{
 			"ARC quickly took the PC BBS scene by storm by allowing boards and users to use a single application to both archive and compress a directory of files into a single package. " +
 			"The adoption was rapid, with contemporary texts claiming it was in widespread use by the year's end.</p>" +
 			"<p>Its impact on the scene allowed groups like Software Pirates Inc. to bundle additional help and description files in their releases and would later leave the opinion of including separate BBS ads, intros, cracktros with the release.</p>" +
-			`<pre style="font-size:1.5em;line-height:1em;" class="font-dos-mda reader reader-invert border border-black rounded-1 p-1">` +
+			`<pre style="font-size:1.5em;line-height:1em;" class="font-dos-mda reader reader-invert wrap-overflow border border-black rounded-1 p-1">` +
 			"<br><p>ARC - Archive utility, Version 3.10, created on 05/01/85 at 22:34:50<br>" +
 			"(C) COPYRIGHT 1985 by System Enhancement Associates; ALL RIGHTS RESERVED" +
 			`</p></pre>`,
@@ -1648,7 +1648,7 @@ var collection = Milestones{
 			"<a href=\"/g/the-north-west-connection\">The&nbsp;North&nbsp;West&nbsp;Connection</a>&nbsp;(TNWC) for the game Paladin. " +
 			"The drama accuses <a href=\"/g/ptl-club?\">PTL Club</a> of stealing and <q>re-releasing</q> an early game released by TNWC. " +
 			"Scene drama often involves texts that call out other groups for poor behavior, breaking commonly accepted rules, or being <q>lame.</q></p>" +
-			`<pre style="font-size:28px;" class="font-dos-mda reader reader-invert border border-black rounded-1 p-1"><br>` +
+			`<pre style="font-size:28px;" class="font-dos-mda reader reader-invert wrap-overflow border border-black rounded-1 p-1"><br>` +
 			"<p>DO NOT TAKE THIS FILE FROM THE ARCHIVE!!!!<br>" +
 			"Well unlike PTL I won't sacrifice some game code to put up a fancy title screen for the group that released this (TNWC). " +
 			"This is officially out third release, but really it's our second major one since PTL took Paladin and \"re-released\" it by taking off the doc check.<br>" +
@@ -1749,13 +1749,13 @@ var collection = Milestones{
 		Link: "/g/pirate",
 		Content: "<p>Created in Chicago, Pirate magazine was a bi-monthly text newsletter for the Scene on the PC platform and distributed through bulletin boards. " +
 			"It ran for at least five issues between June 1989 and April 1990.</p>" +
-			`<pre style="font-size:28px;" class="font-dos-mda reader reader-invert border border-black rounded-1 p-1"><br>` +
+			`<pre style="font-size:28px;" class="font-dos-mda reader reader-invert wrap-overflow border border-black rounded-1 p-1"><br>` +
 			"What's a pirate? COMPUTER PIRACY is copying and distribution of copyright software (warez). Pirates are hobbyists who enjoy collecting and playing with the latest programs. " +
 			"Most pirates enjoy collecting warez, getting them running, and then generally archive them, or store them away. A PIRATE IS NOT A BOOTLEGGER. " +
 			"Bootleggers are to piracy what a chop-shop is to a home auto mechanic. Bootleggers are people who DEAL stolen merchandise for personal gain. " +
 			"Bootleggers are crooks. They sell stolen goods. Pirates are not crooks, and most pirates consider bootleggers to be lower life forms..." +
 			"</pre>" +
-			`<pre style="font-size:28px;" class="font-dos-mda reader reader-invert border border-black rounded-1 p-1"><br>` +
+			`<pre style="font-size:28px;" class="font-dos-mda reader reader-invert wrap-overflow border border-black rounded-1 p-1"><br>` +
 			"Pirates SHARE warez to learn, trade information, and have fun! But, being a pirate is more than swapping warez. It's a life style and a passion." +
 			"<br><br></pre>",
 	},
@@ -1823,7 +1823,7 @@ var collection = Milestones{
 			"<figcaption class=\"blockquote-footer\">Founder of The&nbsp;Humble&nbsp;Guys, Fabulous&nbsp;Furlough recalls Bubble Bobble as the first THG release that used the .NFO file extension.</figcaption></figure>" +
 			// bubble bobble
 			"<p>Bubble Bobble was the more notable game of the period and may have been a more memorable game title when recalling the event.</p>" +
-			`<pre style="font-size:1.5em;line-height:1em;" class="font-dos-mda reader reader-invert border border-black rounded-1 p-1">` +
+			`<pre style="font-size:1.5em;line-height:1em;" class="font-dos-mda reader reader-invert wrap-overflow border border-black rounded-1 p-1">` +
 			"KNIGHTS.NFO WHITEDET.NFO STUNT.NFO TRUMP.NFO DEJAVUII.NFO AJAX.NFO TERRAIN.NFO BUBBLE.NFO TREK.NFO CRMEWAVE.NFO STRIDER.NFO GUNBOAT.NFO 1989STAT.NFO ..." +
 			"</pre>",
 	},

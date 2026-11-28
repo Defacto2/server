@@ -236,6 +236,8 @@ pre.wrap-overflow {
 .reader-invert {
   background-color: #000;
   color: #fff;
+  scrollbar-color: #495057 #000;
+  scrollbar-width: thin;
 }
 
 .input-date::placeholder {
@@ -781,6 +783,12 @@ a {
 
 .milestone-body p:last-child {
   margin-bottom: 0;
+}
+
+.milestone-body pre.reader.wrap-overflow {
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  width: 100%;
 }
 
 .milestone-list .list-group-item {
