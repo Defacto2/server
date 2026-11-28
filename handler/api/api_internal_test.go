@@ -123,7 +123,9 @@ func TestCacheHelpers(t *testing.T) {
 	cacheResults(key, "hello")
 	val, ok := cachedResults(key)
 	be.Equal(t, ok, true)
-	be.Equal(t, val.(string), "hello")
+	s, ok := val.(string)
+	be.Equal(t, ok, true)
+	be.Equal(t, s, "hello")
 
 	// Expired entry should miss.
 	apiCacheMu.Lock()

@@ -1,3 +1,4 @@
+//nolint:musttag
 package sitemap_test
 
 import (

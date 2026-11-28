@@ -88,7 +88,7 @@ func TestInvalid(t *testing.T) {
 		be.Err(t, os.WriteFile(src, []byte("hello arc\n"), 0o600), nil)
 
 		arcPath := filepath.Join(tmpDir, "valid.arc")
-		out, err := exec.CommandContext(t.Context(), command.Arc, "a", arcPath, src).CombinedOutput()
+		out, err := exec.CommandContext(t.Context(), command.Arc, "a", arcPath, src).CombinedOutput() //nolint:gosec // test fixture paths
 		if err != nil {
 			t.Fatalf("create arc fixture: %v: %s", err, out)
 		}

@@ -125,13 +125,13 @@ func TestAddTextBinary(t *testing.T) {
 	// Amiga ANSI text
 	amiga := &models.File{DateIssuedYear: null.Int16From(1993)}
 	got = ds.addTextBinary(amiga, buf, elems, map[string]any{"platform": textamiga, "magic": "ANSI"})
-	be.True(t, strings.Contains(got["preElementClass"].(string), "font-amiga"))
+	be.True(t, strings.Contains(mustString(t, got, "preElementClass"), "font-amiga"))
 
 	// CGA era (<= 1988) ANSI text
 	cga := &models.File{DateIssuedYear: null.Int16From(1986)}
 	got = ds.addTextBinary(cga, buf, elems, map[string]any{"platform": "dos", "magic": "ANSI"})
 	be.Equal(t, got["contentBinarySwappers"], false)
-	be.True(t, strings.Contains(got["preElementClass"].(string), "font-dos-cga"))
+	be.True(t, strings.Contains(mustString(t, got, "preElementClass"), "font-dos-cga"))
 
 	// CGA era binary text
 	got = ds.addTextBinary(cga, buf, elems, map[string]any{
@@ -139,8 +139,8 @@ func TestAddTextBinary(t *testing.T) {
 		"magic":    magicnumber.Unknown.Title(),
 	})
 	be.Equal(t, got["contentBinarySwappers"], false)
-	be.True(t, strings.Contains(got["preElementClass"].(string), "reader"))
-	be.True(t, strings.Contains(got["preElementClass"].(string), "text-bg-dark"))
+	be.True(t, strings.Contains(mustString(t, got, "preElementClass"), "reader"))
+	be.True(t, strings.Contains(mustString(t, got, "preElementClass"), "text-bg-dark"))
 
 	// High-res binary text with empty elems must not panic and keeps text-bg-dark.
 	hiRes := &models.File{DateIssuedYear: null.Int16From(1995)}
@@ -364,7 +364,7 @@ func TestAddReadme(t *testing.T) {
 	be.Err(t, os.WriteFile(filepath.Join(extraDir, unid+".txt"), []byte("Hello from extra readme!\n"), 0o600), nil)
 	rdData, err := ds.addReadme(logs.Discard(), art, map[string]any{"platform": "text"})
 	be.Err(t, err, nil)
-	be.True(t, strings.Contains(rdData["contentUTF8"].(string), "Hello from extra readme!"))
+	be.True(t, strings.Contains(mustString(t, rdData, "contentUTF8"), "Hello from extra readme!"))
 }
 
 func TestAddText(t *testing.T) {
@@ -384,15 +384,15 @@ func TestAddText(t *testing.T) {
 	got := ds.addText8bit(sl, plain, bytes.NewBufferString("Line 1\nLine 2\n"), map[string]any{"platform": "dos"})
 	be.Equal(t, got["vgaCheck"], "checked")
 	be.Equal(t, got["preClassCP437"], "font-dos-mda")
-	be.True(t, strings.Contains(got["contentCP437"].(string), "Line 1"))
+	be.True(t, strings.Contains(mustString(t, got, "contentCP437"), "Line 1"))
 
 	// Amiga platform + ISO-8859-1 NBSP/SHY replacement
 	amigaDS := Dirs{Platform: textamiga}
 	amigaArt := &models.File{DateIssuedYear: null.Int16From(1993)}
-	got = amigaDS.addText8bit(sl, amigaArt, bytes.NewBuffer([]byte("foo\xa0bar\xadbaz\n")), map[string]any{"platform": textamiga})
+	got = amigaDS.addText8bit(sl, amigaArt, bytes.NewBufferString("foo\xa0bar\xadbaz\n"), map[string]any{"platform": textamiga})
 	be.Equal(t, got["topazCheck"], "checked")
 	be.Equal(t, got["preClassLatin1"], "")
-	be.True(t, strings.Contains(got["contentLatin1"].(string), "foo bar-baz"))
+	be.True(t, strings.Contains(mustString(t, got, "contentLatin1"), "foo bar-baz"))
 
 	// addTextUTF8 branches
 	be.Equal(t, len(ds.addTextUTF8(nil, nil, map[string]any{})), 0)
@@ -409,7 +409,9 @@ func TestAddZip(t *testing.T) {
 	zeroDS := Dirs{}
 	zeroGot := zeroDS.addZip("a.txt\nb.txt\n", map[string]any{})
 	be.Equal(t, zeroGot["contentDesc"], "contains 2 files")
-	be.Equal(t, len(zeroGot["content"].([]string)), 2)
+	zeroContent, ok := zeroGot["content"].([]string)
+	be.True(t, ok)
+	be.Equal(t, len(zeroContent), 2)
 
 	ds := Dirs{}
 	ds.Maximum.Items = 2
@@ -421,11 +423,15 @@ func TestAddZip(t *testing.T) {
 
 	one := ds.addZip("readme.txt", map[string]any{})
 	be.Equal(t, one["contentDesc"], "contains one file")
-	be.Equal(t, len(one["content"].([]string)), 1)
+	oneContent, ok := one["content"].([]string)
+	be.True(t, ok)
+	be.Equal(t, len(oneContent), 1)
 
 	many := ds.addZip("a.txt\nb.txt\nc.txt\n", map[string]any{})
 	be.Equal(t, many["contentDesc"], "contains 3 files")
-	be.Equal(t, len(many["content"].([]string)), 2)
+	manyContent, ok := many["content"].([]string)
+	be.True(t, ok)
+	be.Equal(t, len(manyContent), 2)
 }
 
 func TestEncodingUTF(t *testing.T) {
@@ -585,4 +591,12 @@ func TestOneByKey(t *testing.T) {
 	art, err := ds.oneByKey(t.Context(), logs.Discard(), echoCtx(t), nil)
 	be.Err(t, err)
 	be.True(t, art == nil)
+}
+
+// mustString returns m[key] as a string and fails the test if it is not one.
+func mustString(t *testing.T, m map[string]any, key string) string {
+	t.Helper()
+	s, ok := m[key].(string)
+	be.True(t, ok)
+	return s
 }

@@ -174,8 +174,12 @@ func TestFuncClosures(t *testing.T) {
 	}
 
 	m := wa.FuncClosure()
-	be.Equal(t, m["logo"].(func() string)(), "DF2")
-	be.Equal(t, m["version"].(func() string)(), "1.2.3")
+	logo, ok := m["logo"].(func() string)
+	be.True(t, ok)
+	be.Equal(t, logo(), "DF2")
+	version, ok := m["version"].(func() string)
+	be.True(t, ok)
+	be.Equal(t, version(), "1.2.3")
 	for _, key := range []string{
 		"sri_bootstrap5", "sri_bootstrap5JS", "sri_bootstrapIcons",
 		"sri_canvasAnsi", "sri_canvasReadme", "sri_chiptunePlayer",
@@ -190,14 +194,30 @@ func TestFuncClosures(t *testing.T) {
 	}
 
 	const unid = "00000000-0000-0000-0000-000000000001"
-	be.Equal(t, m["recordImgSampleStat"].(func(string) bool)(unid), false)
-	be.True(t, strings.Contains(string(m["recordImgSample"].(func(string) template.HTML)(unid)), "No preview"))
-	be.True(t, strings.Contains(string(m["recordThumbSample"].(func(string) template.HTML)(unid)), "No thumbnail"))
-	be.True(t, m["screenshot"].(func(string, string) template.HTML)(unid, "desc") == "")
-	be.Equal(t, m["animPreview"].(func(string) string)(unid), "")
-	be.True(t, strings.Contains(string(m["thumb"].(func(string, string, bool) template.HTML)(unid, "desc", false)), "no thumbnail"))
-	be.True(t, strings.Contains(m["recordPreviewSrc"].(func(string, string) string)(unid, ".png"), "no such file"))
-	be.True(t, strings.Contains(m["recordThumbnailSrc"].(func(string, string) string)(unid, ".png"), "no such file"))
+	recordImgSampleStat, ok := m["recordImgSampleStat"].(func(string) bool)
+	be.True(t, ok)
+	be.Equal(t, recordImgSampleStat(unid), false)
+	recordImgSample, ok := m["recordImgSample"].(func(string) template.HTML)
+	be.True(t, ok)
+	be.True(t, strings.Contains(string(recordImgSample(unid)), "No preview"))
+	recordThumbSample, ok := m["recordThumbSample"].(func(string) template.HTML)
+	be.True(t, ok)
+	be.True(t, strings.Contains(string(recordThumbSample(unid)), "No thumbnail"))
+	screenshot, ok := m["screenshot"].(func(string, string) template.HTML)
+	be.True(t, ok)
+	be.True(t, screenshot(unid, "desc") == "")
+	animPreview, ok := m["animPreview"].(func(string) string)
+	be.True(t, ok)
+	be.Equal(t, animPreview(unid), "")
+	thumb, ok := m["thumb"].(func(string, string, bool) template.HTML)
+	be.True(t, ok)
+	be.True(t, strings.Contains(string(thumb(unid, "desc", false)), "no thumbnail"))
+	recordPreviewSrc, ok := m["recordPreviewSrc"].(func(string, string) string)
+	be.True(t, ok)
+	be.True(t, strings.Contains(recordPreviewSrc(unid, ".png"), "no such file"))
+	recordThumbnailSrc, ok := m["recordThumbnailSrc"].(func(string, string) string)
+	be.True(t, ok)
+	be.True(t, strings.Contains(recordThumbnailSrc(unid, ".png"), "no such file"))
 
 	ogFn, ok := m["og_image"].(func(any) string)
 	be.True(t, ok)

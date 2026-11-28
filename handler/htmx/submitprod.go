@@ -48,16 +48,6 @@ func (prod Prod) String() string {
 	return ""
 }
 
-func (prod Prod) title() string {
-	switch prod {
-	case Demozoo:
-		return "Demozoo"
-	case Pouet:
-		return "Pouet"
-	}
-	return ""
-}
-
 // Submit handles the PUT production routes for Demozoo and Pouet.
 // This will attempt to insert a new file record into the database using
 // the production ID. If the ID is already in use, an error message is returned.
@@ -227,6 +217,16 @@ func (prod Prod) ValidFn(c *echo.Context, prodID int, useCache bool,
 		}
 	}
 	return false, nil
+}
+
+func (prod Prod) title() string {
+	switch prod {
+	case Demozoo:
+		return "Demozoo"
+	case Pouet:
+		return "Pouet"
+	}
+	return ""
 }
 
 func (prod Prod) exists(ctx context.Context, tx *sql.Tx, prodID int) (bool, error) {

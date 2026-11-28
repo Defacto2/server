@@ -110,8 +110,12 @@ func TestHostStats(t *testing.T) {
 		_, ok := got[key]
 		be.True(t, ok)
 	}
-	be.True(t, strings.HasSuffix(got["memPercent"].(string), "%"))
-	be.True(t, strings.HasSuffix(got["swapPercent"].(string), "%"))
+	mem, ok := got["memPercent"].(string)
+	be.True(t, ok)
+	be.True(t, strings.HasSuffix(mem, "%"))
+	swap, ok := got["swapPercent"].(string)
+	be.True(t, ok)
+	be.True(t, strings.HasSuffix(swap, "%"))
 }
 
 func TestAssetsData(t *testing.T) {

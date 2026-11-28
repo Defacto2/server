@@ -868,56 +868,6 @@ func (p *Production) Get(ctx context.Context, auth string, id int) (int, error) 
 	return p.get(ctx, client(), auth, id)
 }
 
-func (p *Production) get(ctx context.Context, c http.Client, auth string, id int) (int, error) {
-	const format = "get demozoo production id %d %s: %w"
-	if id < firstID {
-		return 0, fmt.Errorf(format, id, "", ErrID)
-	}
-
-	url := ProdURL + strconv.Itoa(id)
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
-	if err != nil {
-		return 0, fmt.Errorf(format, id, "new request", err)
-	}
-	req.Header.Set("User-Agent", helper.UserAgent)
-	req.Header.Set("Authorization", "Api-Key "+auth)
-
-	res, err := c.Do(req)
-	if err != nil {
-		return 0, fmt.Errorf(format, id, "client do", err)
-	}
-	if res == nil {
-		return 0, http.ErrBodyNotAllowed
-	}
-	if res.Body == nil {
-		return res.StatusCode, fmt.Errorf(format, id, "client do returned nothing "+res.Status, ErrStatus)
-	}
-	defer res.Body.Close()
-
-	if res.StatusCode != http.StatusOK {
-		_, _ = io.Copy(io.Discard, res.Body)
-		return res.StatusCode, fmt.Errorf(format, id, res.Status, ErrStatus)
-	}
-
-	body, err := io.ReadAll(res.Body)
-	if err != nil {
-		_, _ = io.Copy(io.Discard, res.Body)
-		return 0, fmt.Errorf(format, id, "read all", err)
-	}
-
-	err = json.Unmarshal(body, p)
-	clear(body)
-	if err != nil {
-		return 0, fmt.Errorf(format, id, "json unmarshal", err)
-	}
-
-	if p.ID != id {
-		return 0, fmt.Errorf(format, id, "p.id != id", ErrSuccess)
-	}
-
-	return 0, nil
-}
-
 // GithubRepo returns the Github repository path of the production using
 // the Production struct. It searches the external links for a link class that
 // matches GithubRepo.
@@ -1130,6 +1080,56 @@ func (p *Production) Releasers() (tx, co, gx, mu []string) {
 	}
 
 	return tx, co, gx, mu
+}
+
+func (p *Production) get(ctx context.Context, c http.Client, auth string, id int) (int, error) {
+	const format = "get demozoo production id %d %s: %w"
+	if id < firstID {
+		return 0, fmt.Errorf(format, id, "", ErrID)
+	}
+
+	url := ProdURL + strconv.Itoa(id)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		return 0, fmt.Errorf(format, id, "new request", err)
+	}
+	req.Header.Set("User-Agent", helper.UserAgent)
+	req.Header.Set("Authorization", "Api-Key "+auth)
+
+	res, err := c.Do(req)
+	if err != nil {
+		return 0, fmt.Errorf(format, id, "client do", err)
+	}
+	if res == nil {
+		return 0, http.ErrBodyNotAllowed
+	}
+	if res.Body == nil {
+		return res.StatusCode, fmt.Errorf(format, id, "client do returned nothing "+res.Status, ErrStatus)
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		_, _ = io.Copy(io.Discard, res.Body)
+		return res.StatusCode, fmt.Errorf(format, id, res.Status, ErrStatus)
+	}
+
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		_, _ = io.Copy(io.Discard, res.Body)
+		return 0, fmt.Errorf(format, id, "read all", err)
+	}
+
+	err = json.Unmarshal(body, p)
+	clear(body)
+	if err != nil {
+		return 0, fmt.Errorf(format, id, "json unmarshal", err)
+	}
+
+	if p.ID != id {
+		return 0, fmt.Errorf(format, id, "p.id != id", ErrSuccess)
+	}
+
+	return 0, nil
 }
 
 // platforms returns the platform and section tags for "platforms".

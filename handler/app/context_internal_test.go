@@ -173,7 +173,9 @@ func TestReleasersHelpers(t *testing.T) {
 		{"Fairlight", "", map[string]string{}, "collection of artifacts"},
 	} {
 		got := releasersDesc(tc.name, tc.alt, tc.d, PageData{})
-		be.True(t, strings.Contains(got["description"].(string), tc.want))
+		desc, ok := got["description"].(string)
+		be.True(t, ok)
+		be.True(t, strings.Contains(desc, tc.want))
 	}
 
 	be.True(t, releaserLead("independent", PageData{})["lead"] != "")

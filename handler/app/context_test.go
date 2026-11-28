@@ -169,7 +169,7 @@ func TestAuth(t *testing.T) {
 		rend = &stubRenderer{}
 		form := url.Values{"g_csrf_token": {"wrong"}}.Encode()
 		c, rec = newPostCtx(t, "/google/callback", echo.MIMEApplicationForm, form, rend)
-		c.Request().AddCookie(&http.Cookie{Name: "g_csrf_token", Value: "expected"})
+		c.Request().AddCookie(&http.Cookie{Name: "g_csrf_token", Value: "expected"}) //nolint:gosec
 		be.Err(t, app.GoogleCallback(sl, c, "cid", 10, [48]byte{}), nil)
 		be.Equal(t, rec.Code, http.StatusBadRequest)
 	})

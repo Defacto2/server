@@ -1,3 +1,4 @@
+//nolint:gosec
 package fixlha_test
 
 import (

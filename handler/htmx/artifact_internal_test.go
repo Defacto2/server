@@ -97,7 +97,7 @@ func TestDuplicate(t *testing.T) {
 	payload := []byte{0x0F, 'H', 'I', 0x18}
 	td := make([]byte, stubLen+len(payload))
 	copy(td[0:3], []byte{0xEB, 0x3D, 0x90})
-	binary.LittleEndian.PutUint16(td[4:6], uint16(len(payload)))
+	binary.LittleEndian.PutUint16(td[4:6], uint16(len(payload))) //nolint:gosec // G115: small test payload
 	copy(td[9:], []byte("TheDraw COM file Screen Save\x1A"))
 	copy(td[stubLen:], payload)
 

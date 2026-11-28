@@ -75,34 +75,6 @@ func (p *Production) Get(ctx context.Context, id int) (int, error) {
 	return p.get(ctx, client(), id)
 }
 
-func (p *Production) get(ctx context.Context, c http.Client, id int) (int, error) {
-	const format = "get pouet production id %d %s: %w"
-	if id < firstID {
-		return 0, fmt.Errorf(format, id, "", ErrBadID)
-	}
-	resp := empty()
-	if code, err := resp.get(ctx, c, id); err != nil {
-		return code, fmt.Errorf(format, id, "resp get", err)
-	}
-	parsedID, err := strconv.Atoi(resp.Prod.ID)
-	if err != nil {
-		return 0, fmt.Errorf(format, id, "strconv atoi "+resp.Prod.ID, err)
-	}
-	platOkay := PlatformsValid(resp.Prod.Platforms.String())
-	typeOkay := TypesValid(resp.Prod.Types.String())
-	p.ID = parsedID
-	p.Title = resp.Prod.Title
-	p.ReleaseDate = resp.Prod.ReleaseDate
-	p.Download = resp.Prod.Download
-	p.Demozoo = resp.Prod.Demozoo
-	p.Groups = resp.Prod.Groups
-	p.Platforms = resp.Prod.Platforms
-	p.Types = resp.Prod.Types
-	p.Links = resp.Prod.DownloadLinks
-	p.Valid = platOkay && typeOkay
-	return 0, nil
-}
-
 func PlatformsValid(s string) bool {
 	platforms := strings.Split(strings.ToLower(s), ",")
 	for platform := range slices.Values(platforms) {
@@ -180,6 +152,34 @@ func (p *Production) PlatformType() (tags.Tag, tags.Tag) {
 		}
 	}
 	return platform, section
+}
+
+func (p *Production) get(ctx context.Context, c http.Client, id int) (int, error) {
+	const format = "get pouet production id %d %s: %w"
+	if id < firstID {
+		return 0, fmt.Errorf(format, id, "", ErrBadID)
+	}
+	resp := empty()
+	if code, err := resp.get(ctx, c, id); err != nil {
+		return code, fmt.Errorf(format, id, "resp get", err)
+	}
+	parsedID, err := strconv.Atoi(resp.Prod.ID)
+	if err != nil {
+		return 0, fmt.Errorf(format, id, "strconv atoi "+resp.Prod.ID, err)
+	}
+	platOkay := PlatformsValid(resp.Prod.Platforms.String())
+	typeOkay := TypesValid(resp.Prod.Types.String())
+	p.ID = parsedID
+	p.Title = resp.Prod.Title
+	p.ReleaseDate = resp.Prod.ReleaseDate
+	p.Download = resp.Prod.Download
+	p.Demozoo = resp.Prod.Demozoo
+	p.Groups = resp.Prod.Groups
+	p.Platforms = resp.Prod.Platforms
+	p.Types = resp.Prod.Types
+	p.Links = resp.Prod.DownloadLinks
+	p.Valid = platOkay && typeOkay
+	return 0, nil
 }
 
 // Votes is the production voting data from the Pouet API.
