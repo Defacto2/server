@@ -1,10 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <rsl xmlns="https://rslstandard.org/rsl">
   <content url="/">
     <license>
-      <permits type="usage">all</permits>
+      <permits type="usage">search</permits>
+      <prohibits type="usage">ai-all</prohibits>
       <payment type="attribution">
         <standard>https://creativecommons.org/licenses/by/4.0/</standard>
       </payment>
+    </license>
+  </content>
+  <content url="/d/">
+    <license>
+      <prohibits type="usage">all</prohibits>
     </license>
   </content>
   <content url="/v/">
