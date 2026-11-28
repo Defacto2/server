@@ -786,6 +786,16 @@ a {
 .milestone-list .list-group-item {
   background: transparent;
   border-color: #f1f3f5;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background-color: #f8f9fa;
+  }
+}
+
+.milestone-lineage {
+  font-size: 0.78rem;
+  line-height: 1.3;
 }
 
 .milestone-media {
