@@ -536,8 +536,10 @@ DEAR KEITH, I HAVE BEEN A PHONE PHREAK FOR MANY YEARS NOW AND I WOULD LOVE TO TR
           {{- if ne "" .Link}}<div><a href="{{.Link}}" class="link-offset-2 link-underline link-underline-opacity-50">Read {{.LinkTitle}}</a></div>{{- end}}
           {{- if ne "" .Picture.Attribution}}
           <div>
-            Photo by {{.Picture.Attribution}} ·
-            <a href="{{.Picture.LicenseLink}}" class="link-offset-2 link-underline link-underline-opacity-50">{{.Picture.License}}</a>
+            Photo by {{.Picture.Attribution}}
+            {{- if ne "" .Picture.License}} ·
+            {{- if ne "" .Picture.LicenseLink}}<a href="{{.Picture.LicenseLink}}" class="link-offset-2 link-underline link-underline-opacity-50">{{.Picture.License}}</a>{{- else}}{{.Picture.License}}{{- end}}
+            {{- end}}
           </div>
           {{- end}}
         </div>

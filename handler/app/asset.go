@@ -9,8 +9,8 @@ package app
 type Asset int
 
 const (
-	Bootstrap5      Asset = iota // Bootstrap is the path to the minified Bootstrap 5.3 CSS file.
-	Bootstrap5JS                 // BootstrapJS is the path to the minified Bootstrap 5.3 JS file.
+	Bootstrap5      Asset = iota // Bootstrap5 is the path to the minified Bootstrap 5.3 CSS file.
+	Bootstrap5JS                 // Bootstrap5JS is the path to the minified Bootstrap 5.3 JS file.
 	BootstrapIcons               // BootstrapIcons is the path to the custom Bootstrap Icons SVG sprites file.
 	ContentBinary                // ContentBinary is the path to the minified ansi JS file.
 	ContentText                  // ContentText is the path to the minified readme JS file.
@@ -137,8 +137,7 @@ func FontNames() FontPaths {
 }
 
 // FontRefs returns the relative path of the public facing font files.
-// The strings are intended for href attributes in HTML link elements and
-// the src attribute in HTML script elements.
+// The strings are intended for CSS @font-face src rules and font preload links.
 func FontRefs() FontPaths {
 	return fontRefs
 }

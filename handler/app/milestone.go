@@ -404,7 +404,7 @@ var collection = Milestones{
 			"<ul>" +
 			"<li>1980 <u>Dec</u> <em>Brøderbund Software</em>, <a href=\"https://www.mobygames.com/game/81438/apple-galaxian/\">Apple Galaxian</a></li>" +
 			"<li>1980 <u>Dec</u> <em>California Pacific</em>, <a href=\"https://www.mobygames.com/game/1256/akalabeth-world-of-doom/\">Akalabeth: World of Doom</a></li>" +
-			"<li>1981 <u>Feb</u> <em>Hayden Software</em>, <a href=\"\">Reversal</a></li>" +
+			"<li>1981 <u>Feb</u> <em>Hayden Software</em>, Reversal</li>" +
 			"<li>1981 <u>Apr</u> <em>Highlands Computer Services</em>, <a href=\"https://www.mobygames.com/game/116064/creature-venture/\">Creature Venture</a></li>" +
 			"<li>1981 <u>May</u> <em>M.D Software</em>, Disc-O-Doc <small>disk utility advertised on page 60 of Softalk May 1981</small></li>" +
 			"<li>1980 <u>Nov</u> <em>Micro Lab</em>, The Data Factory <small>a database application</small></li>" +
@@ -453,7 +453,7 @@ var collection = Milestones{
 			"While the drives were prohibitively expensive, in 1981, the units could be shared between numerous microcomputers using a local area network configuration named <a href=\"http://www.bitsavers.org/pdf/corvus/brochures/PC_Omninet_Brochure.pdf\">Omninet</a>.</p>" +
 			// press attention
 			"<p>In the first days of the BBS, the mainstream computer press paid attention to boards, " +
-			"<a href=\" https://books.google.com.au/books?id=3j4EAAAAMBAJ&pg=PA10&lpg=PA10&dq=%22Modem+Over+Manhattan%22&source=bl&ots=smYwZj_okV&sig=ACfU3U0kYG9RX-3uPfGTakGgtP_mVDcAhA&hl=en&sa=X&ved=2ahUKEwiVs-yi6-qEAxX-oWMGHYpwAPA4ChDoAXoECAIQAw#v=onepage&q=%22Modem%20Over%20Manhattan%22&f=false\">including write-ups</a>" +
+			"<a href=\"https://books.google.com.au/books?id=3j4EAAAAMBAJ&pg=PA10&lpg=PA10&dq=%22Modem+Over+Manhattan%22&source=bl&ots=smYwZj_okV&sig=ACfU3U0kYG9RX-3uPfGTakGgtP_mVDcAhA&hl=en&sa=X&ved=2ahUKEwiVs-yi6-qEAxX-oWMGHYpwAPA4ChDoAXoECAIQAw#v=onepage&q=%22Modem%20Over%20Manhattan%22&f=false\">including write-ups</a>" +
 			"<sup><a href=\"#the-early-underground-fn2\">[2]</a></sup> and listings of the phone numbers for known underground boards.</p>" +
 			"<p>The <u>underground</u> terminology may have <a href=\"https://archive.org/details/197708ROMV1I02/page/n6/mode/1up\">originated</a> from the CB (Citizens Band) <q>ham</q> radio communities, which were among the earliest adopters of single-board and micro-computers.</p>" +
 			sect0 +
@@ -582,12 +582,12 @@ var collection = Milestones{
 			"<a href=\"https://www.slate.com/articles/technology/the_spectator/2011/10/the_article_that_inspired_steve_jobs_secrets_of_the_little_blue_.html\">phone phreaking</a> had been a well-established, anti-corporate movement, " +
 			" allowing callers to trick a phone company into misbilling or giving away expensive, long-distance phone calls.</p>" +
 			// birth of warez
-			"<p>So when was the birth of wares<sup><a href=\"#the-birth-of-warez-fn6\">[1]</a></sup> and a Warez scene? " +
+			"<p>So when was the birth of wares<sup><a href=\"#the-birth-of-warez-fn1\">[1]</a></sup> and a Warez scene? " +
 			"There's no exact answer, but a good guess would be <strong>sometime&nbsp;in&nbsp;1980</strong> in the United States, maybe in Greater New York, Greater Boston, San Francisco Bay Area, or elsewhere. " +
 			"By then, microcomputer owners exchanged details to meet in real life and online to duplicate and exchange software collections. And, importantly, to find ways to remove Apple II disk copy protections and show off the results. " +
 			// warez dating
-			"The pirates, also often identified as phone phreaks, removed or cracked disk copy protection on the Apple&nbsp;II and were dating their activity towards the end of 1980<sup><a href=\"#the-birth-of-warez-fn4\">[3]</a></sup> and in 1981. " +
-			"Likewise, many modified, <q>cracked</q>, or <q>broken</q> ingame title screens exist for games published in those years.</p>" +
+			"The pirates, also often identified as phone phreaks, removed or cracked disk copy protection on the Apple&nbsp;II and were dating their activity towards the end of 1980<sup><a href=\"#the-birth-of-warez-fn3\">[3]</a></sup> and in 1981. " +
+			"Likewise, many modified, <q>cracked</q>, or <q>broken</q> ingame title screens<sup><a href=\"#the-birth-of-warez-fn4\">[4]</a></sup> exist for games published in those years.</p>" +
 			// byter interview
 			`<p>In a 1991 interview<sup><a href="#the-birth-of-warez-fn6">[6]</a></sup> for The Humble Review, Byter briefly talks about his early time on the Apple II scene he discovered in 1981. ` +
 			`He states in those early Apple II days the boards were mostly message systems and occasional file transfer systems. However, the limited storage and slow modem speeds in those days meant most people chatted rather than pirated software. ` +
@@ -950,7 +950,7 @@ var collection = Milestones{
 			"<li><a href=\"//archive.org/details/strategic-simulations-inc-summer-1982-catalog/mode/2up\">Strategic Simulations</a>, Inc. acquired the Dungeons and Dragons computer game license and became a pioneer of the CRPG genre.</li>" +
 			"<li><a href=\"//www.uvlist.net/companies/info/1023-Windmill+Software\">Windmill Software</a> was one of the first developers to create games exclusively on the PC.</li>" +
 			"<li><a href=\"//retro365.blog/2019/09/23/bits-from-my-personal-collection-the-original-ibm-pc-and-orion-software/\">Orion Software</a> created some of the earliest games on the PC.</li>" +
-			"<li><a href=\"//www.uvlist.net/companies/info/1029-Spinnaker+Software\">Spinnaker Software</a>" +
+			"<li><a href=\"//www.uvlist.net/companies/info/1029-Spinnaker+Software\">Spinnaker Software</a></li>" +
 			ul1 +
 			"<p>The following year saw some major arcade and video game publishers release software on the PC. Despite the business-centric marketing of the platform, game software sold on a floppy disk was a popular seller. " +
 			"For publishers, it is less risky than manufacturing the expensive cartridges required by some other game systems.</p>" +
@@ -998,7 +998,7 @@ var collection = Milestones{
 			"Other tools, duplication services and protections from the era," +
 			ul0 +
 			"<li><a href=\"https://martypc.blogspot.com/2024/08/pc-floppy-copy-protection-formaster.html\">Copy-Lock</a> by Formaster <small>for Apple, Commodore, IBM PC</small></li>" +
-			"<li><a href=\"https://martypc.blogspot.com/2024/08/pc-floppy-copy-protection-softguard.html\">SUPERLoK</a> by Softguard Systems <small>used by Lotus, Ashton Tate, Sierra On-line</small></il>" +
+			"<li><a href=\"https://martypc.blogspot.com/2024/08/pc-floppy-copy-protection-softguard.html\">SUPERLoK</a> by Softguard Systems <small>used by Lotus, Ashton Tate, Sierra On-line</small></li>" +
 			"<li><a href=\"https://martypc.blogspot.com/2024/10/pc-floppy-copy-protection-xemag-xelok.html\">Xelok</a> by XEMAG <small>for Apple, Commodore, IBM PC</small></li>" +
 			"<li><a href=\"https://archive.org/details/PC_Tech_Journal_vol01_n05/page/n75/mode/2up?q=%22SECURE-WARE%22\">SECURE-WARE</a> by Remote Systems Inc.</li>" +
 			"<li>COPYLOCK by Export Software International (UK)</li>" +
@@ -1204,7 +1204,7 @@ var collection = Milestones{
 			"GOPHER SERVER: To access the gopher information server, type \"gopher\".<br>" +
 			"WWW SERVER: To access Murdoch's WWW servers, type \"lynx\".<br><br>" +
 			"You have new mail.<br><br>" +
-			"cleo><span class=\"blinking\">█</a>" +
+			"cleo><span class=\"blinking\">█</span>" +
 			`</p></pre>`,
 	},
 	{
@@ -2418,7 +2418,7 @@ var collection = Milestones{
 	},
 	{
 		Title: "Digital distribution and online activation", Year: 2004, Month: 11, Day: 16,
-		Lead: "Half-Life 2", LinkTitle: "the and view the Steam page", Link: "https://store.steampowered.com/app/220/HalfLife_2",
+		Lead: "Half-Life 2", LinkTitle: "and view the Steam page", Link: "https://store.steampowered.com/app/220/HalfLife_2",
 		Content: "<p>Half-Life 2 was one of the most anticipated games of the decade, and it was the first major game to use <a href=\"https://steampowered.com\">Steam</a>, " +
 			"Valve's digital distribution platform. Steam was a massive shift in how games got distributed, and it was the first time a significant game required online activation. " +
 			"Steam often was not well received by the gaming <a href=\"https://www.amazon.com/product-reviews/B00006I02Z/ref=acr_dp_hist_1?ie=UTF8&filterByStar=one_star&reviewerType=all_reviews#reviews-filter-bar\">community</a>, " +

@@ -76,7 +76,7 @@ type Dirs struct {
 	UUID      string        // the database uuid key of the File record
 	Platform  string        // the platform of the File record
 	Section   string        // the section of the File record
-	Magic     string        // the magic btyes of the File record
+	Magic     string        // the magic bytes of the File record
 	Maximum   struct {
 		Items  int   // maximum archive items to display
 		Readme int64 // maximum size of text files to display
@@ -233,11 +233,15 @@ func (ds *Dirs) addDownload(art *models.File, data map[string]any) map[string]an
 	if strings.TrimSpace(alert) != "" {
 		data["noindex"] = true
 	}
+	if ds.Download != "" && art.UUID.String != "" &&
+		!helper.Stat(filepath.Join(ds.Download.Path(), art.UUID.String)) {
+		data["noDownload"] = true
+	}
 
 	return data
 }
 
-// addEditor adds editoring data for the artifact.
+// addEditor adds editor data for the artifact.
 //
 // These are the editable fields only visible to website editors after they have logged in.
 func (ds *Dirs) addEditor(
@@ -278,7 +282,7 @@ func (ds *Dirs) addEditor(
 		data["modDecompressLoc"] = simple.MkdirStale(sl, path)
 	}
 	// WARN: These operations must be done using os.Stat and not os.ReadDir or filepath.WalkDir.
-	// Previous attempts to use a shared function with WalkDir caused a memory leakages when
+	// Previous attempts to use a shared function with WalkDir caused a memory leak when
 	// the site was under heavy load.
 	data["modAssetPreview"] = ds.pathsPreview(sl)
 	data["modAssetThumbnail"] = ds.pathsThumb(sl)
@@ -396,7 +400,7 @@ func (ds *Dirs) addReadme(sl *slog.Logger, art *models.File, data map[string]any
 	}
 	textBuf, runeBuf, err := text.Buffers(sl)
 	if err != nil {
-		if errors.Is(err, ErrDownload) {
+		if errors.Is(err, readme.ErrDownload) {
 			data["noDownload"] = true
 			return data, nil
 		}
@@ -584,7 +588,7 @@ func (ds *Dirs) addtext8bit(sl *slog.Logger, b []byte, data map[string]any) map[
 
 // addTextBinary prepares the viewer for both binary encoded text and ansi escape encoded texts.
 //
-// The elems entries are for individual CSS class names that will be used with "preElementClss".
+// The elems entries are for individual CSS class names that will be used with "preElementClass".
 func (ds *Dirs) addTextBinary(art *models.File, textBuf *bytes.Buffer,
 	elems []string, data map[string]any,
 ) map[string]any {
@@ -621,13 +625,12 @@ func (ds *Dirs) addTextBinary(art *models.File, textBuf *bytes.Buffer,
 	}
 
 	// everything else is treated as binary text
-	class := elems
-	class = append(class, "text-bg-dark")
+	class := append(slices.Clone(elems), "text-bg-dark")
 	if year > CgaEpoch {
 		// use high-res squared font
 		fontname = "font-squared"
 		class = append([]string{fontname}, class...)
-		i, j := 1, 3
+		i, j := 1, min(3, len(class)-1)
 		class = slices.Replace(class, i, j, "reader-hires")
 	} else {
 		class = append([]string{fontname, "reader"}, class...)
@@ -679,6 +682,9 @@ func (ds *Dirs) addZip(content string, data map[string]any) map[string]any {
 	count := len(items)
 	// Cap the number of items to avoid generating HTML output that's too large
 	maxItems := ds.Maximum.Items
+	if maxItems <= 0 {
+		maxItems = maxArchiveItems
+	}
 	if count > maxItems {
 		items = items[:maxItems]
 	}
@@ -884,6 +890,7 @@ func (ds *Dirs) makeTextImages(ctx context.Context, sl *slog.Logger, data map[st
 		strings.EqualFold(platform, tags.Console.String())
 	if err := dirs.TextImager(ctx, sl, name, ds.UUID, amigaFont); err != nil {
 		ds.logErr(sl, msg, err)
+		return data
 	}
 
 	data["missingAssets"] = ""
@@ -898,6 +905,9 @@ func (ds *Dirs) makeZipfile(rootpath string) (size int64, err error) { //nolint:
 	if err != nil {
 		return 0, fmt.Errorf(format, err)
 	}
+	defer func() {
+		err = errors.Join(err, dir.RemoveAll(path))
+	}()
 	base := ds.UUID + ".zip"
 	src := filepath.Join(path, base)
 
@@ -910,11 +920,7 @@ func (ds *Dirs) makeZipfile(rootpath string) (size int64, err error) { //nolint:
 	}
 
 	if rErr := helper.RenameCrossDevice(src, dest); rErr != nil {
-		err = errors.Join(err, fmt.Errorf(format, rErr))
-		defer func() {
-			err = errors.Join(err, dir.RemoveAll(src))
-		}()
-		return 0, err
+		return 0, fmt.Errorf(format, rErr)
 	}
 
 	st, err := os.Stat(dest)
@@ -1013,7 +1019,7 @@ func (ds *Dirs) pathsExtras() map[string][2]string {
 //
 //	"create a preview image + create a thumbnail image"
 func (ds *Dirs) pathsSuggest() string {
-	uid := ds.UUID
+	uid := strings.ToLower(ds.UUID)
 
 	download := helper.File(filepath.Join(ds.Download.Path(), uid))
 

@@ -43,7 +43,7 @@ type WebApp struct {
 	View        fs.FS         // Views are Go templates.
 	Subresource SRI           // SRI are the Subresource Integrity hashes for the layout.
 	Version     string        // Version is the current version of the app.
-	Brand       []byte        // Brand contains to the Defacto2 ASCII logo.
+	Brand       []byte        // Brand contains the Defacto2 ASCII logo.
 	Environment config.Config // Environment configurations from the host system environment.
 	RecordCount int64         // RecordCount is the total number of records in the database.
 }
@@ -51,7 +51,7 @@ type WebApp struct {
 // Templates returns a map of the templates used by the route.
 func (wa *WebApp) Templates(ctx context.Context, db *sql.DB) (map[string]*template.Template, error) {
 	const format = "templates mapper %s: %w"
-	if err := nils.Check(ctx, db); err != nil {
+	if err := nils.Check(ctx, db, wa.View); err != nil {
 		return nil, fmt.Errorf(format, "check", err)
 	}
 
@@ -61,7 +61,11 @@ func (wa *WebApp) Templates(ctx context.Context, db *sql.DB) (map[string]*templa
 
 	templates := make(map[string]*template.Template)
 	for key, name := range wa.Pages() {
-		templates[key] = wa.parseFS(ctx, db, name)
+		tmpl, err := wa.parseFS(ctx, db, name)
+		if err != nil {
+			return nil, fmt.Errorf(format, string(name), err)
+		}
+		templates[key] = tmpl
 	}
 
 	return templates, nil
@@ -541,10 +545,10 @@ func (wa *WebApp) lockLayout(lock bool, files ...string) []string {
 }
 
 // parseFS returns a layout template for the given named view.
-// Note that the name is relative to the view/defaults directory.
-func (wa *WebApp) parseFS(ctx context.Context, db *sql.DB, name filename) *template.Template {
-	if db == nil {
-		return nil
+// Note that the name is relative to the view/app directory.
+func (wa *WebApp) parseFS(ctx context.Context, db *sql.DB, name filename) (*template.Template, error) {
+	if err := nils.Check(ctx, db, wa.View); err != nil {
+		return nil, fmt.Errorf("parse fs %s: %w", name, err)
 	}
 
 	files := wa.Layout(name)
@@ -572,13 +576,12 @@ func (wa *WebApp) parseFS(ctx context.Context, db *sql.DB, name filename) *templ
 	}
 
 	funcMap := wa.FuncMap(ctx, db)
-	if funcMap == nil {
-		return nil
+	tmpl, err := template.New("").Funcs(funcMap).ParseFS(wa.View, files...)
+	if err != nil {
+		return nil, fmt.Errorf("parse fs %s: %w", name, err)
 	}
 
-	return template.Must(template.New("").Funcs(funcMap).ParseFS(
-		wa.View, files...),
-	)
+	return tmpl, nil
 }
 
 // radio name value must be the same for all inputs.
@@ -588,10 +591,10 @@ func (wa *WebApp) parseFS(ctx context.Context, db *sql.DB, name filename) *templ
 const (
 	radio = `<input type="radio" class="btn-check" name="artifact-editor-record" ` +
 		`hx-include="[name='artifact-editor-key']" hx-swap="none" hx-sync="closest .row:replace" autocomplete="off"`
-	radiopubicChk = template.HTML(
+	radiopublicChk = template.HTML(
 		radio + ` hx-patch="/editor/online/true" id="artifact-editor-public" checked>`,
 	)
-	radiopubic = template.HTML(
+	radiopublic = template.HTML(
 		radio + ` hx-patch="/editor/online/true" id="artifact-editor-public">`,
 	)
 	radiohideChk = template.HTML(
@@ -604,9 +607,9 @@ const (
 
 func radioPublic(checked bool) template.HTML {
 	if checked {
-		return radiopubicChk
+		return radiopublicChk
 	}
-	return radiopubic
+	return radiopublic
 }
 
 func radioHidden(checked bool) template.HTML {
@@ -654,17 +657,11 @@ func LinkPreviews(youtube, demozoo, pouet, colors16, github, rels, sites string)
 
 // LinkRelrs returns the groups associated with a release and a link to each group.
 func LinkRelrs(magazine bool, a, b any) template.HTML {
-	if a == nil || b == nil {
-		return ""
-	}
 	return LinkReleasers(false, magazine, a, b)
 }
 
 // LinkRels returns the groups associated with a release and a link to each group.
 func LinkRels(a, b any) template.HTML {
-	if a == nil || b == nil {
-		return ""
-	}
 	return LinkReleasers(false, false, a, b)
 }
 
@@ -700,9 +697,6 @@ func NameRels(a, b any) template.HTML {
 // LinkRelsPerf returns the groups associated with a release and a link to each group.
 // It is a faster version of LinkRels and can be used with the templates that have large lists of group names.
 func LinkRelsPerf(a, b any) template.HTML {
-	if a == nil || b == nil {
-		return ""
-	}
 	return LinkReleasers(true, false, a, b)
 }
 

@@ -129,7 +129,7 @@ func artifactsTable(ctx context.Context, sl *slog.Logger, c *echo.Context, db *s
 	data = artifactsDesc(uri, d[years], sum, data)
 	data.SetStats(d)
 
-	data.SetRecords([]models.FileSlice{})
+	data.SetRecords(models.FileSlice{})
 	r, err := fileslice.Records(ctx, db, uri, page, lim)
 	if err != nil {
 		return DatabaseErr(sl, c, errURI, err)

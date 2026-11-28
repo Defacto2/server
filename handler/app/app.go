@@ -12,7 +12,6 @@ import (
 	"io/fs"
 	"net/http"
 	"net/url"
-	"reflect"
 	"regexp"
 	"slices"
 	"strconv"
@@ -139,9 +138,6 @@ func Attribute(write, code, art, music, name string) string {
 		strings.Split(strings.ToLower(code), sep),
 		strings.Split(strings.ToLower(art), sep),
 		strings.Split(strings.ToLower(music), sep)
-	if len(w) == 0 && len(c) == 0 && len(a) == 0 && len(m) == 0 {
-		return ""
-	}
 
 	name = strings.ToLower(name)
 	match := []string{}
@@ -195,8 +191,7 @@ func Brief(platform, section any) string {
 func ByteBytes(bytes any) template.HTML {
 	n, ok := parseValI(bytes)
 	if !ok {
-		return template.HTML(fmt.Sprintf("%sByteBytes: %s",
-			typeErr, reflect.TypeOf(bytes).String()))
+		return template.HTML(fmt.Sprintf("%sByteBytes: %T", typeErr, bytes))
 	}
 
 	return template.HTML(helper.ByteCountFloat(int64(n)) +
@@ -212,8 +207,7 @@ func ByteFile(count, bytes any) template.HTML {
 func ByteFileS(name string, count, bytes any) template.HTML {
 	n, ok := parseValI(count)
 	if !ok {
-		return template.HTML(fmt.Sprintf("%sByteFile cnt: %s",
-			typeErr, reflect.TypeOf(count).String()))
+		return template.HTML(fmt.Sprintf("%sByteFile cnt: %T", typeErr, count))
 	}
 
 	p := message.NewPrinter(language.English)
@@ -221,8 +215,7 @@ func ByteFileS(name string, count, bytes any) template.HTML {
 
 	b, ok := parseValI64(bytes)
 	if !ok {
-		return template.HTML(fmt.Sprintf("%sByteFile bytes: %s",
-			typeErr, reflect.TypeOf(bytes).String()))
+		return template.HTML(fmt.Sprintf("%sByteFile bytes: %T", typeErr, bytes))
 	}
 
 	name = names(name)
@@ -600,8 +593,8 @@ func MarkAll(highlight, s string) string {
 	pos := 0
 	for {
 		// search the remaining text
-		remainer := strings.ToLower(s[pos:])
-		matchIdx := strings.Index(remainer, substr)
+		remainder := strings.ToLower(s[pos:])
+		matchIdx := strings.Index(remainder, substr)
 
 		if matchIdx == -1 {
 			builder.WriteString(s[pos:])
@@ -706,7 +699,7 @@ func RecordRels(a, b any) string {
 }
 
 // SafeBBS returns a string as a template.HTML type to prevent HTML escaping in the template.
-// If PCBoard or Renegard color codes are discovered,
+// If PCBoard or Renegade color codes are discovered,
 // these will be converted into italic elements containing custom color classes.
 //
 // Note: See [internal.filerecord.ForceSimpleText] for manual override options based on
@@ -763,7 +756,7 @@ func SafeBBS(a any) template.HTML {
 }
 
 // SafeDocument returns a string as a template.HTML type to prevent HTML escaping in the template.
-// To avoid false positives, this does not handle PCBoard or Renegard color codes.
+// To avoid false positives, this does not handle PCBoard or Renegade color codes.
 //
 // If any value is not a valid string then an empty string is returned.
 func SafeDocument(a any) template.HTML {
@@ -899,14 +892,14 @@ func TagWithOS(os, tag string) string {
 //
 //	"My super"
 func TrimSiteSuffix(s string) string {
-	n := strings.ToLower(strings.TrimSpace(s))
+	s = strings.TrimSpace(s)
 
 	const chrs = 4
 	count := len(s)
 	if count < chrs {
 		return s
 	}
-	switch n[count-chrs:] {
+	switch strings.ToLower(s[count-chrs:]) {
 	case " ftp", " bbs":
 		return s[:count-chrs]
 	}
@@ -923,7 +916,7 @@ func TrimSpace(a any) string {
 
 	s, ok := parseValS(a)
 	if !ok {
-		return fmt.Sprintf("%s trim site suffix: %s", typeErr, reflect.TypeOf(a).String())
+		return fmt.Sprintf("%s trim space: %T", typeErr, a)
 	}
 	return strings.TrimSpace(s)
 }
@@ -937,7 +930,7 @@ func URLEncode(a any) string {
 
 	s, ok := parseValS(a)
 	if !ok {
-		return fmt.Sprintf("%s url encode: %s", typeErr, reflect.TypeOf(a).String())
+		return fmt.Sprintf("%s url encode: %T", typeErr, a)
 	}
 	return url.QueryEscape(s)
 }

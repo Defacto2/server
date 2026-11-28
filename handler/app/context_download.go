@@ -80,7 +80,7 @@ func Download(sl *slog.Logger, c *echo.Context, db *sql.DB, path dir.Directory) 
 
 	if id := c.Param("id"); id != "" {
 		r := c.Response()
-		r.Header().Set("Link", `<https://defacto2.net/`+dx+`/`+id+`; rel=canon>`)
+		r.Header().Set("Link", `<https://defacto2.net/`+dx+`/`+id+`>; rel="canonical"`)
 	}
 
 	if err := d.HTTPSend(sl, c, db); err != nil {

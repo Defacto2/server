@@ -196,7 +196,11 @@ func processAsset(spec assetSpec, refresh bool) map[string]any {
 	defer spec.cache.Unlock()
 
 	if refresh || spec.cache.c == -1 {
-		c, b, exts, _ := scanAssetDir(spec.path)
+		c, b, exts, err := scanAssetDir(spec.path)
+		if err != nil {
+			out[checkKey] = err
+			return out
+		}
 		spec.cache.c = c
 		spec.cache.b = b
 		spec.cache.exts = exts
@@ -270,6 +274,7 @@ func scanAssetDir(root string) (int, int64, []helper.Extension, error) {
 	}
 	for len(d.queue) > 0 {
 		cur := d.queue[0]
+		d.queue[0] = ""
 		d.queue = d.queue[1:]
 		if err := d.scanDir(cur, cur == root); err != nil {
 			if d.count == 0 && len(d.extCounts) == 0 {

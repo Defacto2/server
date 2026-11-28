@@ -108,11 +108,12 @@ func BadRequestErr(sl *slog.Logger, c *echo.Context, uri string, err error) erro
 	data["title"] = "400 error, there is a complication"
 	data["code"] = code
 	data["logo"] = "Client error"
-	data["alert"] = "Something went wrong, " + err.Error()
+	data["alert"] = "Something went wrong"
 	data["probl"] = "It might be a settings or configuration problem or a legacy browser issue."
 	data["uriErr"] = uri
 
 	if err != nil {
+		data["alert"] = "Something went wrong, " + err.Error()
 		logErr(sl, msg, uri, code, err)
 	}
 	if rErr := c.Render(code, status, data); rErr != nil {
@@ -371,8 +372,6 @@ func ScenerErr(sl *slog.Logger, c *echo.Context, id string) error {
 }
 
 // StatusErr is the handler for the HTTP status pages such as the 404 - not found.
-// If the logger is nil then the error page is returned but no error is logged.
-// If the echo context is nil then a user hostile, fallback error in raw text is returned.
 func StatusErr(sl *slog.Logger, c *echo.Context, code int, uri string) error {
 	const msg = "http status"
 	if cErr := nils.Check(sl, c); cErr != nil {

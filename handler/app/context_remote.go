@@ -184,6 +184,10 @@ func ProdZoo(c *echo.Context, id string) error {
 		return fmt.Errorf(format, config.ErrNoZooAuth)
 	}
 	if code, err := prod.Get(ctx, auth, i); err != nil {
+		const maxStatusCode = 599
+		if code < http.StatusContinue || code > maxStatusCode {
+			code = http.StatusBadGateway
+		}
 		return c.String(code, err.Error())
 	}
 

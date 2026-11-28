@@ -1,9 +1,9 @@
 package app_test
 
 import (
+	"io"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 
 	"github.com/Defacto2/server/handler/app"
@@ -13,16 +13,40 @@ import (
 	"github.com/nalgeon/be"
 )
 
-func c(t *testing.T) *echo.Context {
+type stubRenderer struct {
+	name string
+	data any
+}
+
+func (r *stubRenderer) Render(_ *echo.Context, w io.Writer, name string, data any) error {
+	r.name = name
+	r.data = data
+	_, err := io.WriteString(w, name)
+	return err
+}
+
+func newGetCtx(t *testing.T, target string, rend echo.Renderer) (*echo.Context, *httptest.ResponseRecorder) {
 	t.Helper()
 
 	e := echo.New()
-	r := httptest.NewRequestWithContext(
-		t.Context(), http.MethodPost, "/", strings.NewReader("{}"))
-	r.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-	w := httptest.NewRecorder()
+	if rend != nil {
+		e.Renderer = rend
+	}
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, target, nil)
+	rec := httptest.NewRecorder()
+	return e.NewContext(req, rec), rec
+}
 
-	return e.NewContext(r, w)
+func TestArtifactNil(t *testing.T) {
+	t.Parallel()
+
+	ds := app.Dirs{ID: 1, URI: "9b1c6"}
+	sl := logs.Discard()
+	ctx, _ := newGetCtx(t, "/f/9b1c6", nil)
+
+	be.Err(t, ds.Artifact(nil, ctx, nil))
+	be.Err(t, ds.Artifact(sl, nil, nil))
+	be.Err(t, ds.Artifact(sl, ctx, nil))
 }
 
 func TestArtifact(t *testing.T) {
@@ -35,8 +59,9 @@ func TestArtifact(t *testing.T) {
 
 	sl := logs.Discard()
 	db := testutil.DB(t)
+	ctx, _ := newGetCtx(t, "/f/9b1c6", nil)
 
-	err := ds.Artifact(sl, c(t), db)
+	err := ds.Artifact(sl, ctx, db)
 	be.Err(t, err)
 }
 
@@ -44,8 +69,18 @@ func TestStatusErr(t *testing.T) {
 	t.Parallel()
 
 	sl := logs.Discard()
-	err := app.StatusErr(sl, c(t), 1, "x")
-	be.Err(t, err)
+	ctx, _ := newGetCtx(t, "/missing", nil)
+	be.Err(t, app.StatusErr(nil, ctx, http.StatusNotFound, "/missing"))
+	be.Err(t, app.StatusErr(sl, nil, http.StatusNotFound, "/missing"))
+	be.Err(t, app.StatusErr(sl, ctx, 1, "x"))
+
+	for _, code := range []int{http.StatusNotFound, http.StatusForbidden, http.StatusTeapot} {
+		rend := &stubRenderer{}
+		ctx, rec := newGetCtx(t, "/missing", rend)
+		be.Err(t, app.StatusErr(sl, ctx, code, "/missing"), nil)
+		be.Equal(t, rec.Code, code)
+		be.Equal(t, rend.name, "status")
+	}
 }
 
 func TestSortContent(t *testing.T) {
@@ -100,6 +135,11 @@ func TestSortContent(t *testing.T) {
 			name:     "mixed depths - shallow first",
 			content:  "deep/nested/file.txt\nshallow.txt\nmiddle/file.txt",
 			expected: []string{"shallow.txt", "middle/file.txt", "deep/nested/file.txt"},
+		},
+		{
+			name:     "files without extensions",
+			content:  "README\nfile.txt\nLICENSE",
+			expected: []string{"LICENSE", "README", "file.txt"},
 		},
 	}
 

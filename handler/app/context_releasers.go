@@ -40,28 +40,26 @@ const (
 
 // BBS is the handler for the BBS page ordered by the most files.
 func BBS(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
-	ctx := c.Request().Context()
-	return bbsHandler(ctx, sl, c, db, model.Prolific)
+	return bbsHandler(sl, c, db, model.Prolific)
 }
 
 // BBSAZ is the handler for the BBS page ordered alphabetically.
 func BBSAZ(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
-	ctx := c.Request().Context()
-	return bbsHandler(ctx, sl, c, db, model.AlphabeticalTwo)
+	return bbsHandler(sl, c, db, model.AlphabeticalTwo)
 }
 
 // BBSYear is the handler for the BBS page ordered by the year.
 func BBSYear(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
-	ctx := c.Request().Context()
-	return bbsHandler(ctx, sl, c, db, model.Oldest)
+	return bbsHandler(sl, c, db, model.Oldest)
 }
 
 // bbsHandler is the handler for the BBS page.
-func bbsHandler(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, orderBy model.OrderBy) error {
+func bbsHandler(sl *slog.Logger, c *echo.Context, db *sql.DB, orderBy model.OrderBy) error {
 	const format = "bbs handler context: %w"
-	if err := nils.Check(ctx, sl, c, db); err != nil {
+	if err := nils.Check(sl, c, db); err != nil {
 		return fmt.Errorf(format, err)
 	}
+	ctx := c.Request().Context()
 
 	const title = "BBS"
 	const leadr = "Bulletin Board Systems were personal computers networked using the copper telephone network " +
@@ -152,20 +150,21 @@ func FTP(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 
 // Magazine is the handler for the Magazine page ordered chronologically.
 func Magazine(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
-	return magazines(c.Request().Context(), sl, c, db, true)
+	return magazines(sl, c, db, true)
 }
 
 // MagazineAZ is the handler for the Magazine page ordered alphabetically.
 func MagazineAZ(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
-	return magazines(c.Request().Context(), sl, c, db, false)
+	return magazines(sl, c, db, false)
 }
 
 // magazines is the handler for the magazine page.
-func magazines(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, chronological bool) error {
+func magazines(sl *slog.Logger, c *echo.Context, db *sql.DB, chronological bool) error {
 	const format = "magazines context: %w"
-	if err := nils.Check(ctx, sl, c, db); err != nil {
+	if err := nils.Check(sl, c, db); err != nil {
 		return fmt.Errorf(format, err)
 	}
+	ctx := c.Request().Context()
 
 	const title = "Magazines"
 	const descr = "Scene magazines are the newsletters, reports, " +
@@ -215,25 +214,26 @@ func magazines(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB
 
 // Releasers is the handler for the releaser page ordered by the most files.
 func Releasers(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
-	return releasers(c.Request().Context(), sl, c, db, model.Prolific)
+	return releasers(sl, c, db, model.Prolific)
 }
 
 // ReleasersAZ is the handler for the releaser page ordered alphabetically.
 func ReleasersAZ(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
-	return releasers(c.Request().Context(), sl, c, db, model.AlphabeticalTwo)
+	return releasers(sl, c, db, model.AlphabeticalTwo)
 }
 
 // ReleasersYear is the handler for the releaser page ordered by year of the first release.
 func ReleasersYear(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
-	return releasers(c.Request().Context(), sl, c, db, model.Oldest)
+	return releasers(sl, c, db, model.Oldest)
 }
 
 // releasers is the handler for the Releaser listing page.
-func releasers(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, orderBy model.OrderBy) error {
+func releasers(sl *slog.Logger, c *echo.Context, db *sql.DB, orderBy model.OrderBy) error {
 	const format = "releaser context: %w"
-	if err := nils.Check(ctx, sl, c, db); err != nil {
+	if err := nils.Check(sl, c, db); err != nil {
 		return fmt.Errorf(format, err)
 	}
+	ctx := c.Request().Context()
 
 	const title = "Releaser"
 	const descr = "A linked list of the former Scene releasers and groups, that were collectives of people " +
@@ -296,12 +296,11 @@ func Releaser(sl *slog.Logger, c *echo.Context, db *sql.DB, uri string, public f
 		return fmt.Errorf(format, err)
 	}
 
-	const code = http.StatusNotFound
+	errs := "releasers page for, " + uri
 	ctx := c.Request().Context()
 	fs, err := model.ReleasersWhere(ctx, db, uri)
 	if err != nil {
-		logErr(sl, msg+" cannot lookup releaser", uri, code, err)
-		return ReleaserErr(sl, c, uri)
+		return DatabaseErr(sl, c, errs, err)
 	}
 	if len(fs) == 0 {
 		return ReleaserErr(sl, c, uri)
@@ -333,14 +332,13 @@ func Releaser(sl *slog.Logger, c *echo.Context, db *sql.DB, uri string, public f
 
 	d, err := releaserSum(ctx, db, uri)
 	if err != nil {
-		logErr(sl, msg+" cannot lookup releaser stats", uri, code, err)
-		return ReleaserErr(sl, c, uri)
+		return DatabaseErr(sl, c, errs, err)
 	}
 
 	data = releasersDesc(relname, altnames, d, data)
 
 	if err = c.Render(http.StatusOK, artifacts, data); err != nil {
-		return InternalErr(sl, c, "releasers page for, "+uri, err)
+		return InternalErr(sl, c, errs, err)
 	}
 	return nil
 }

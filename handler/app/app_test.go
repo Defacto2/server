@@ -2,21 +2,20 @@ package app_test
 
 import (
 	"embed"
+	"net/http"
 	"strings"
+	"syscall"
 	"testing"
 	"time"
 
 	"github.com/Defacto2/server/handler/app"
+	"github.com/Defacto2/server/internal/logs"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/internal/testutil"
 	"github.com/aarondl/null/v8"
+	"github.com/labstack/echo/v5"
 	"github.com/nalgeon/be"
 )
-
-// checked in Sep 26, test coverage with an active database was fine at around 65%
-
-//go:embed*
-var emptyFS embed.FS
 
 const (
 	exampleURL  = "https://example.com"
@@ -48,6 +47,9 @@ func TestAttribute(t *testing.T) {
 	got = app.Attribute("another person,writer,ben",
 		"ben", "", "", "ben")
 	be.Equal(t, got, "Writer and programmer attributions")
+
+	got = app.Attribute("ben", "ben", "ben", "ben", "ben")
+	be.Equal(t, got, "Writer, programmer, artist, and musician attributions")
 }
 
 func TestBrief(t *testing.T) {
@@ -73,6 +75,7 @@ func TestByteBytes(t *testing.T) {
 
 	s := app.ByteBytes("")
 	be.True(t, strings.Contains(string(s), "error"))
+	be.True(t, strings.Contains(string(app.ByteBytes(nil)), "error"))
 
 	s = app.ByteBytes(1)
 	be.True(t, !strings.Contains(string(s), "error"))
@@ -107,6 +110,8 @@ func TestByteFileS(t *testing.T) {
 	const intro = "intro"
 	got := app.ByteFileS("", "", "")
 	be.True(t, strings.Contains(string(got), "error"))
+	be.True(t, strings.Contains(string(app.ByteFileS(intro, nil, 1)), "error"))
+	be.True(t, strings.Contains(string(app.ByteFileS(intro, 1, nil)), "error"))
 
 	got = app.ByteFileS(intro, 1, "")
 	be.True(t, strings.Contains(string(got), "error"))
@@ -166,6 +171,10 @@ func TestDescribe(t *testing.T) {
 
 	be.True(t, strings.Contains(h, "ansi BBS advert"))
 	be.True(t, strings.Contains(h, "Dec, 1990"))
+
+	// Year only and no-date branches
+	be.True(t, strings.Contains(string(app.Describe(plat, sect, 1990, 0)), "published in 1990."))
+	be.True(t, !strings.Contains(string(app.Describe(plat, sect, nil, nil)), "published in"))
 }
 
 func TestGlobTo(t *testing.T) {
@@ -189,11 +198,16 @@ func TestLastUpdated(t *testing.T) {
 func TestLinkDownload(t *testing.T) {
 	t.Parallel()
 
+	be.Equal(t, string(app.LinkDownload(nil, "")), "")
+
 	s := string(app.LinkDownload("", ""))
 	be.True(t, strings.Contains(s, "invalid"))
 
 	s = string(app.LinkDownload(1, ""))
 	be.True(t, strings.Contains(s, "/d/9b1c6"))
+
+	s = string(app.LinkDownload(1, "flagged"))
+	be.True(t, strings.Contains(s, "<s "))
 }
 
 func TestLinkHref(t *testing.T) {
@@ -282,6 +296,8 @@ func TestLinkRemoteTip(t *testing.T) {
 
 	s := app.LinkRemoteTip("", "", "")
 	be.True(t, strings.Contains(string(s), "error"))
+	be.True(t, strings.Contains(string(app.LinkRemoteTip(exampleURL, "", "")), "error"))
+	be.True(t, !strings.Contains(string(app.LinkRemoteTip(exampleURL, "Example", "")), "tooltip"))
 
 	s = app.LinkRemoteTip(exampleURL, "unique", "test tip")
 	be.True(t, strings.Contains(string(s), "tooltip"))
@@ -341,6 +357,9 @@ func TestLinkWiki(t *testing.T) {
 
 	s = app.LinkWiki(exampleWiki, "Example")
 	be.True(t, strings.Contains(string(s), exampleWiki))
+
+	s = app.LinkWiki("#section", "Anchor")
+	be.True(t, strings.Contains(string(s), "wiki#section"))
 }
 
 func TestLinkWikiTip(t *testing.T) {
@@ -348,6 +367,9 @@ func TestLinkWikiTip(t *testing.T) {
 
 	s := app.LinkWikiTip("", "", "")
 	be.True(t, strings.Contains(string(s), "error"))
+	be.True(t, strings.Contains(string(app.LinkWikiTip("abc/", "", "")), "error"))
+	be.True(t, !strings.Contains(string(app.LinkWikiTip("abc/", "unique", "")), "tooltip"))
+	be.True(t, strings.Contains(string(app.LinkWikiTip("#sec", "unique", "tip")), "wiki#sec"))
 
 	s = app.LinkWikiTip("abc/", "unique", "test tip")
 	be.True(t, strings.Contains(string(s), "tooltip"))
@@ -584,6 +606,9 @@ func TestTrimSiteSuffix(t *testing.T) {
 
 	got = app.TrimSiteSuffix("My super BBS")
 	be.Equal(t, got, "My super")
+
+	be.Equal(t, app.TrimSiteSuffix("My super FTP "), "My super")
+	be.Equal(t, app.TrimSiteSuffix("   a   "), "a")
 }
 
 func TestTrimSpace(t *testing.T) {
@@ -604,16 +629,17 @@ func TestTrimSpace(t *testing.T) {
 	x := null.StringFrom("  a  ")
 	got = app.TrimSpace(x)
 	be.Equal(t, got, "a")
+
+	be.True(t, strings.Contains(app.TrimSpace(123), "trim space"))
 }
 
 func TestURLEncode(t *testing.T) {
 	t.Parallel()
 
-	got := app.URLEncode("")
-	be.Equal(t, got, "")
-
-	got = app.URLEncode("Some text.txt")
-	be.Equal(t, got, "Some+text.txt")
+	be.Equal(t, app.URLEncode(nil), "")
+	be.Equal(t, app.URLEncode(""), "")
+	be.Equal(t, app.URLEncode("Some text.txt"), "Some+text.txt")
+	be.True(t, strings.Contains(app.URLEncode(123), "url encode"))
 }
 
 func TestWebsiteIcon(t *testing.T) {
@@ -623,10 +649,19 @@ func TestWebsiteIcon(t *testing.T) {
 	be.Equal(t, got, "")
 
 	icons := map[string]string{
-		"archive.org":  "bank2",
-		"reddit.com":   "reddit",
-		"youtube.com":  "youtube",
-		"defacto2.net": "arrow-right",
+		"archive.org":             "bank2",
+		"wayback.defacto2.net":    "bank2",
+		"reddit.com":              "reddit",
+		"yalebooks.yale.edu":      "book",
+		"explodingthephone.com":   "book",
+		"punctumbooks.pubpub.org": "book",
+		"youtube.com":             "youtube",
+		"vimeo.com":               "vimeo",
+		"slashdot.org":            "slash-circle",
+		"twitter.com":             "twitter",
+		"wikipedia.org":           "wikipedia",
+		"textfiles.com":           "textfiles",
+		"defacto2.net":            "arrow-right",
 	}
 	for url, icon := range icons {
 		got = app.WebsiteIcon(url)
@@ -650,25 +685,65 @@ func TestStripSup(t *testing.T) {
 func TestYMDEdit(t *testing.T) {
 	t.Parallel()
 
-	got := app.YMDEdit(nil, nil)
-	be.Err(t, got)
+	be.Err(t, app.YMDEdit(nil, nil))
+	be.Err(t, app.YMDEdit(testutil.NewContext(t, ""), nil))
 
 	tx := testutil.Tx(t)
 	c := testutil.NewContext(t, "")
-	got = app.YMDEdit(c, tx)
-	be.Err(t, got)
+	be.Err(t, app.YMDEdit(c, tx))
 
 	c = testutil.NewContext(t, "/abc?id=1&year=2000")
-	got = app.YMDEdit(c, tx)
-	be.Err(t, got, nil)
+	be.Err(t, app.YMDEdit(c, tx), nil)
 }
 
 func TestVerify(t *testing.T) {
 	t.Parallel()
 
 	sri := app.SRI{}
-	err := sri.Verify(emptyFS)
-	be.Err(t, err)
+	be.Err(t, sri.Verify(nil))
+	be.Err(t, sri.Verify(embed.FS{}))
+	be.Err(t, sri.Verify(testutil.ProjectFS(t)), nil)
+	be.True(t, strings.HasPrefix(sri.Bootstrap5, "sha"))
+}
+
+func TestCacheAndMisc(t *testing.T) {
+	t.Parallel()
+
+	var cache app.Cache
+	cache.Records(42)
+	be.Equal(t, cache.RecordCount, int64(42))
+	cache.Stats(100, 2048, 1981, 2025)
+	be.Equal(t, cache.RecordCount, int64(100))
+	be.Equal(t, cache.TotalBytes, int64(2048))
+	be.Equal(t, cache.MinYear, 1981)
+	be.Equal(t, cache.MaxYear, 2025)
+
+	be.Equal(t, string(app.SafeJS("console.log(1)")), "console.log(1)")
+	be.Equal(t, app.Month("bad"), "")
+	be.True(t, !app.MusicModule(123))
+	be.True(t, !app.Safety("dos", 123))
+	be.True(t, app.Safety("dos", "internaldocument"))
+
+	be.True(t, !app.LockIn80Columns(1990))
+	be.True(t, !app.LockIn80Columns(1990, []byte("@X0Fhello")...))
+	be.True(t, !app.LockIn80Columns(1992, []byte("hello")...))
+	be.True(t, app.LockIn80Columns(1990, []byte("hello")...))
+
+	// Error handler edge cases
+	sl := logs.Discard()
+	rend := &stubRenderer{}
+	c, rec := newGetCtx(t, "/x", rend)
+	be.Err(t, app.BadRequestErr(sl, c, "/x", nil), nil)
+	be.Equal(t, rec.Code, http.StatusBadRequest)
+
+	c, _ = newGetCtx(t, "/x", nil)
+	be.Err(t, app.InternalErr(sl, c, "/x", syscall.EPIPE), nil)
+	be.Err(t, app.InternalErr(sl, c, "/x", echo.ErrRendererNotRegistered))
+
+	rend = &stubRenderer{}
+	c, rec = newGetCtx(t, "/x", rend)
+	be.Err(t, app.StatusErr(sl, c, http.StatusInternalServerError, "/x"), nil)
+	be.Equal(t, rec.Code, http.StatusInternalServerError)
 }
 
 func TestHasPrefix(t *testing.T) {

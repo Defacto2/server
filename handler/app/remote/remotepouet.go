@@ -23,7 +23,7 @@ import (
 	"github.com/aarondl/sqlboiler/v4/boil"
 )
 
-// PouetLink is the response from the task of GetDemozooFile.
+// PouetLink is the response from the task of fetching a Pouet production.
 type PouetLink struct {
 	UUID        string `json:"uuid"`         // UUID is the file production UUID.
 	Releaser1   string `json:"releaser1"`    // Releaser1 is the first releaser of the file.
@@ -77,7 +77,7 @@ func (got *PouetLink) Download(ctx context.Context, sl *slog.Logger, exec boil.C
 
 	errStatus, err := got.prod.Get(ctx, got.PouetID)
 	if err != nil {
-		const s = " could not get record from pouet api"
+		const s = "could not get record from pouet api"
 		got.log(sl, s, err)
 		return fmt.Errorf(format, s, got.PouetID, err)
 	}
@@ -110,7 +110,7 @@ func (got *PouetLink) Download(ctx context.Context, sl *slog.Logger, exec boil.C
 // Stat sets the file size, hash, type, and archive content of the file.
 // The UUID is used to locate the file in the download directory.
 func (got *PouetLink) Stat(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor) error {
-	const format = "demozoo link stat file and integrity %s: %w"
+	const format = "pouet link stat file and integrity %s: %w"
 	if err := nils.Check(ctx, sl, exec); err != nil {
 		return fmt.Errorf(format, "check", err)
 	}

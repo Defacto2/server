@@ -96,7 +96,7 @@ func (got *DemozooLink) Download(
 	}
 	errStatus, err := got.prod.Get(ctx, auth, got.ID)
 	if err != nil {
-		const s = " could not get record from demozoo api"
+		const s = "could not get record from demozoo api"
 		got.log(sl, s, err)
 		return fmt.Errorf(format, s, got.ID, err)
 	}
@@ -115,7 +115,7 @@ func (got *DemozooLink) Download(
 		got.Error = "no usable download links found, they all returned a 404 error or were empty"
 	}
 	if forJSON {
-		return c.JSON(http.StatusNotModified, got)
+		return c.JSON(http.StatusOK, got)
 	}
 	return nil
 }
@@ -294,7 +294,7 @@ func (got *DemozooLink) remoteDo(
 func (got *DemozooLink) remote(ctx context.Context, sl *slog.Logger, index int) (Response, error) {
 	const format = "cannot get the remote file from %s: %w"
 	if err := nils.Check(ctx, sl); err != nil {
-		return Response{}, fmt.Errorf("get remove file check: %w", err)
+		return Response{}, fmt.Errorf("get remote file check: %w", err)
 	}
 
 	timeout := got.timeout

@@ -18,7 +18,7 @@ import (
 var (
 	ErrBodyNil  = errors.New("remote: body is nil")
 	ErrExist    = errors.New("remote: file already exists")
-	ErrNoRecord = errors.New("remote: could not the get record from demozoo api")
+	ErrNoRecord = errors.New("remote: could not get the record from demozoo api")
 	ErrStatus   = errors.New("remote: wrong status code")
 	ErrTimeout  = errors.New("remote: the time duration is out of range")
 )
@@ -55,7 +55,7 @@ func ReplaceURL(sl *slog.Logger, rawURL string) string {
 	p := u.Path
 	if u.Host == "files.scene.org" {
 		elem := strings.Split(p, "/")
-		if len(elem) > 0 && elem[1] == "view" {
+		if len(elem) > 1 && elem[1] == "view" {
 			url := sceneorg(elem).String()
 			logRef(url)
 			return url
@@ -64,7 +64,7 @@ func ReplaceURL(sl *slog.Logger, rawURL string) string {
 
 	if u.Host == "ftp.scene.org" || u.Host == "ftp.pl.scene.org" || u.Host == "ftp.no.scene.org" {
 		elem := strings.Split(p, "/")
-		if len(elem) > 0 && elem[1] == "pub" {
+		if len(elem) > 1 && elem[1] == "pub" {
 			url := sceneorg(elem).String()
 			logRef(url)
 			return url
@@ -73,7 +73,7 @@ func ReplaceURL(sl *slog.Logger, rawURL string) string {
 
 	if u.Host == "sceneorg.retropc.se" || u.Host == "mirror.netcologne.de" {
 		elem := strings.Split(p, "/")
-		if len(elem) > 0 && elem[1] == "scene.org" {
+		if len(elem) > 1 && elem[1] == "scene.org" {
 			elem = slices.Insert(elem, 1, "get")
 			url := sceneorg(elem).String()
 			logRef(url)
@@ -83,7 +83,7 @@ func ReplaceURL(sl *slog.Logger, rawURL string) string {
 
 	if u.Host == "discmaster.textfiles.com" {
 		elem := strings.Split(p, "/")
-		if len(elem) > 0 && elem[1] == "view" {
+		if len(elem) > 1 && elem[1] == "view" {
 			elem[1] = "file"
 			url := refactor(u.Host, elem).String()
 			logRef(url)
@@ -124,7 +124,7 @@ func renameOW(src, dst string) error {
 			return fmt.Errorf(format, "file match error", dst, err)
 		}
 		if !sameFiles {
-			return fmt.Errorf(format, "as existing files will be overwritten", dst, err)
+			return fmt.Errorf(format, "as existing files will be overwritten", dst, ErrExist)
 		}
 	}
 

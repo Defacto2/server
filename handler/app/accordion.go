@@ -1,7 +1,7 @@
 //nolint:gochecknoglobals
 package app
 
-// Package file accordion.go contains the website list and handler.
+// Package file accordion.go contains the curated website list.
 
 // Accordion is a collection of websites grouped by a category.
 type Accordion = []struct {
@@ -54,7 +54,7 @@ func List() Accordion {
 			"book", books, false,
 		},
 		{
-			"Videos series and documentaries", "Videos",
+			"Video series and documentaries", "Videos",
 			"video", videos, false,
 		},
 		{
@@ -64,7 +64,7 @@ func List() Accordion {
 	}
 }
 
-// youtube returns a list of YouTube videos.
+// youtube is a collection of YouTube videos.
 var youtube = Sites{
 	Site{
 		"I was a video game software pirate", "https://www.youtube.com/watch?v=ockNRSt3Nsk",
@@ -125,7 +125,7 @@ var youtube = Sites{
 	},
 	Site{
 		"Anti-piracy screens are unnerving. But, why?", "https://www.youtube.com/watch?v=dL9gUli_7L0",
-		"Gearisko asks why anti-piracy screens console games are so off-putting.",
+		"Gearisko asks why anti-piracy screens in console games are so off-putting.",
 	},
 	Site{
 		"10 punishments for video game piracy", "https://www.youtube.com/watch?v=6avtHAmz6js",
@@ -182,7 +182,7 @@ var ama = Sites{
 			"I supplied and was responsible for releasing MAJOR releases such as C&C Red Alert, Z, and others.",
 	},
 	Site{
-		"BiGrAr <sup>2004</sup>",
+		"BiGrAr <sup>2002</sup>",
 		"https://yro.slashdot.org/story/02/10/04/144217/former-drinkordie-member-chris-tresco-answers",
 		"Slashdot AMA with ex Drink Or Die member, taken after being busted in Operation Buccaneer " +
 			"but before serving a 33 month jail sentence.",
@@ -204,7 +204,7 @@ var ama = Sites{
 var art = Sites{
 	Site{
 		"16colors", "https://16colo.rs/",
-		"You're looking at retro computer graphics gallery. We make ANSI/ASCII art available for web display.",
+		"You're looking at a retro computer graphics gallery. We make ANSI/ASCII art available for web display.",
 	},
 	Site{
 		"aSCII aRENA", "https://www.asciiarena.se/",
@@ -267,7 +267,7 @@ var books = Sites{
 	Site{
 		"Warez: The Infrastructure and Aesthetics of Piracy <sup>2021</sup>",
 		"https://punctumbooks.pubpub.org/pub/m5fu2twe",
-		"Is the first scholarly research book about this underground subculture, " +
+		"Warez is the first scholarly research book about this underground subculture, " +
 			"which began life in the pre-internet era Bulletin Board Systems and moved to internet " +
 			"File Transfer Protocol servers (“topsites”) in the mid- to late-1990s.",
 	},
@@ -348,7 +348,7 @@ var pir8 = Sites{
 	},
 }
 
-// podcasts returns a list of podcasts.
+// podcasts is a collection of podcasts.
 var podcasts = Sites{
 	Site{
 		"Modem Mischief Podcast <sup>2021 - ongoing</sup>",
@@ -377,7 +377,7 @@ var podcasts = Sites{
 	},
 }
 
-// videos returns a list of videos and films.
+// videos is a collection of videos and films.
 var videos = Sites{
 	Site{
 		"Steal This Film <sup>2006</sup>", "https://stealthisfilm.com/",

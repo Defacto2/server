@@ -10,11 +10,13 @@ import (
 	"slices"
 	"strings"
 	"testing"
+	"testing/fstest"
 	"time"
 
 	"github.com/Defacto2/server/handler/app"
 	"github.com/Defacto2/server/handler/areacode"
 	"github.com/Defacto2/server/internal/command"
+	"github.com/Defacto2/server/internal/config"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/testutil"
 	"github.com/Defacto2/server/model"
@@ -22,18 +24,61 @@ import (
 	"github.com/nalgeon/be"
 )
 
+type testStringer string
+
+func (s testStringer) String() string { return string(s) }
+
 func TestTemplates(t *testing.T) {
 	t.Parallel()
 
 	w := app.WebApp{}
-	_, err := w.Templates(t.Context(), nil)
+	got, err := w.Templates(t.Context(), nil)
 	be.Err(t, err)
+	be.True(t, got == nil)
+
+	// Nil View FS returns error instead of panicking.
+	db := &sql.DB{}
+	fsys := testutil.ProjectFS(t)
+	nilView := app.WebApp{Public: fsys}
+	got, err = nilView.Templates(t.Context(), db)
+	be.Err(t, err)
+	be.True(t, got == nil)
+
+	// Missing Public FS fails SRI verification.
+	noPub := app.WebApp{View: fsys}
+	got, err = noPub.Templates(t.Context(), db)
+	be.Err(t, err)
+	be.True(t, got == nil)
+
+	// Empty View FS returns parse error instead of panicking.
+	emptyView := app.WebApp{Public: fsys, View: fstest.MapFS{}}
+	got, err = emptyView.Templates(t.Context(), db)
+	be.Err(t, err)
+	be.True(t, got == nil)
+
+	for _, readOnly := range []bool{false, true} {
+		wa := app.WebApp{
+			Public:      fsys,
+			View:        fsys,
+			Environment: config.Config{ReadOnly: config.Toggle(readOnly)},
+		}
+		tmpls, err := wa.Templates(t.Context(), db)
+		be.Err(t, err, nil)
+		be.Equal(t, len(tmpls), len(wa.Pages()))
+		for key, tmpl := range tmpls {
+			be.True(t, key != "")
+			be.True(t, tmpl != nil)
+		}
+	}
 }
 
 func TestFuncMap(t *testing.T) {
 	t.Parallel()
 
 	w := app.WebApp{}
+	be.True(t, w.FuncMap(t.Context(), nil) == nil)
+	be.Equal(t, len(w.FuncDB(nil, nil)), 0)
+
 	db := &sql.DB{}
 	m := w.FuncMap(t.Context(), db)
 	keys := slices.Sorted(maps.Keys(m))
@@ -41,15 +86,44 @@ func TestFuncMap(t *testing.T) {
 	be.True(t, slices.Contains(keys, "version"))
 	be.True(t, slices.Contains(keys, "az"))
 	be.True(t, slices.Contains(keys, "msdos"))
+
+	// Exercise static and element template funcs.
+	subFn, ok := m["sub"].(func(int, int) int)
+	be.True(t, ok)
+	be.Equal(t, subFn(1984, 1987), 3)
+
+	fmtName, ok := m["fmtName"].(func(string) string)
+	be.True(t, ok)
+	be.Equal(t, fmtName("HELLO"), "Hello")
+
+	fmtRangeURI, ok := m["fmtRangeURI"].(func(string) string)
+	be.True(t, ok)
+	be.True(t, fmtRangeURI("razor-1911") != "")
+
+	initFn, ok := m["initialisms"].(func(string) string)
+	be.True(t, ok)
+	be.True(t, initFn("razor-1911") != "")
+
+	for _, name := range []string{"az", "year", "msdos", "mergeIcon"} {
+		fn, ok := m[name].(func() template.HTML)
+		be.True(t, ok)
+		be.True(t, fn() != "")
+	}
 }
 
 func TestLinkSamples(t *testing.T) {
 	t.Parallel()
 
+	be.True(t, app.LinkPreviews("", "", "", "", "", "", "") == nil)
+
 	x := app.LinkPreviews("1", "2", "3", "4", "5", "6", "7")
-	be.True(t, len(x) == 7)
+	be.Equal(t, len(x), 7)
 	be.True(t, strings.Contains(x[0], "youtube.com/watch?v=1"))
 	be.True(t, strings.Contains(x[1], "demozoo.org/productions/2"))
+
+	// Zero IDs for demozoo and pouet are skipped.
+	skipped := app.LinkPreviews("abc", "0", "0", "", "", "", "")
+	be.Equal(t, len(skipped), 1)
 }
 
 func TestLinkRelsPerf(t *testing.T) {
@@ -65,34 +139,133 @@ func TestLinkRelsPerf(t *testing.T) {
 	be.True(t, strings.Contains(string(s), `href="/g/group-2"`))
 }
 
-func TestTemplTemplates(t *testing.T) {
-	t.Parallel()
-
-	tpl := app.WebApp{}
-	x, err := tpl.Templates(t.Context(), nil)
-	be.Err(t, err)
-	be.True(t, x == nil)
-}
-
 func TestFuncClosures(t *testing.T) {
 	t.Parallel()
 
-	// tpl := app.WebApp{}
-	// x := tpl.FuncClosure()
-	// be.True(t, x == template.FuncMap{})
+	prevDir := t.TempDir()
+	thumbDir := t.TempDir()
+	wa := app.WebApp{
+		Version: "1.2.3",
+		Brand:   []byte("DF2"),
+		Subresource: app.SRI{
+			Bootstrap5:      "sha-bs5",
+			Bootstrap5JS:    "sha-bs5js",
+			BootstrapIcons:  "sha-icons",
+			CanvasAnsi:      "sha-ansi",
+			CanvasReadme:    "sha-readme",
+			ChiptunePlayer:  "sha-chip",
+			EditArtifact:    "sha-edart",
+			EditAssets:      "sha-edass",
+			EditForApproval: "sha-edapp",
+			Htmx:            "sha-htmx",
+			HtmxMultipart:   "sha-htmxm",
+			IndexJS:         "sha-idx",
+			Jsdos6JS:        "sha-jsdos",
+			DosboxJS:        "sha-dosbox",
+			Layout:          "sha-lay",
+			LayoutJS:        "sha-layjs",
+			Pouet:           "sha-pouet",
+			Uploader:        "sha-up",
+		},
+		Environment: config.Config{
+			AbsPreview:   config.Absprev(prevDir),
+			AbsThumbnail: config.Absthumb(thumbDir),
+		},
+	}
+
+	m := wa.FuncClosure()
+	be.Equal(t, m["logo"].(func() string)(), "DF2")
+	be.Equal(t, m["version"].(func() string)(), "1.2.3")
+	for _, key := range []string{
+		"sri_bootstrap5", "sri_bootstrap5JS", "sri_bootstrapIcons",
+		"sri_canvasAnsi", "sri_canvasReadme", "sri_chiptunePlayer",
+		"sri_editArtifact", "sri_editAssets", "sri_editForApproval",
+		"sri_htmx", "sri_htmxMultipart", "sri_indexJS",
+		"sri_jsdos6JS", "sri_dosboxJS", "sri_layout",
+		"sri_layoutJS", "sri_pouet", "sri_uploader",
+	} {
+		fn, ok := m[key].(func() string)
+		be.True(t, ok)
+		be.True(t, strings.HasPrefix(fn(), "sha-"))
+	}
+
+	const unid = "00000000-0000-0000-0000-000000000001"
+	be.Equal(t, m["recordImgSampleStat"].(func(string) bool)(unid), false)
+	be.True(t, strings.Contains(string(m["recordImgSample"].(func(string) template.HTML)(unid)), "No preview"))
+	be.True(t, strings.Contains(string(m["recordThumbSample"].(func(string) template.HTML)(unid)), "No thumbnail"))
+	be.True(t, m["screenshot"].(func(string, string) template.HTML)(unid, "desc") == "")
+	be.Equal(t, m["animPreview"].(func(string) string)(unid), "")
+	be.True(t, strings.Contains(string(m["thumb"].(func(string, string, bool) template.HTML)(unid, "desc", false)), "no thumbnail"))
+	be.True(t, strings.Contains(m["recordPreviewSrc"].(func(string, string) string)(unid, ".png"), "no such file"))
+	be.True(t, strings.Contains(m["recordThumbnailSrc"].(func(string, string) string)(unid, ".png"), "no such file"))
+
+	ogFn, ok := m["og_image"].(func(any) string)
+	be.True(t, ok)
+	be.True(t, strings.Contains(ogFn(nil), "defacto2-ascii.png"))
+	be.True(t, strings.Contains(ogFn(123), "defacto2-ascii.png"))
+	be.True(t, strings.Contains(ogFn(""), "defacto2-ascii.png"))
+	be.True(t, ogFn(unid) != "")
 }
 
 func TestLinkRelrs(t *testing.T) {
 	t.Parallel()
 
-	x := string(app.LinkRelrs(false, nil, nil))
-	be.True(t, x == "")
+	be.Equal(t, string(app.LinkRelrs(false, nil, nil)), "")
+	be.Equal(t, string(app.LinkRels(nil, nil)), "")
+	be.Equal(t, string(app.LinkRelsPerf(nil, nil)), "")
+	be.Equal(t, string(app.LinkReleasers(false, false, nil, nil)), "")
+	be.Equal(t, string(app.NameRels(nil, nil)), "")
+	be.Equal(t, string(app.NameRels("", "")), "")
 
-	x = string(app.LinkRelsPerf(nil, nil))
-	be.True(t, x == "")
+	// LinkRels/LinkRelrs/LinkRelsPerf with valid groups (including single non-nil arg)
+	rels := string(app.LinkRels("Group 1", "Group 2"))
+	be.True(t, strings.Contains(rels, `href="/g/group-1"`))
+	be.True(t, strings.Contains(rels, `href="/g/group-2"`))
+	be.True(t, strings.Contains(string(app.LinkRels("Group 1", nil)), `href="/g/group-1"`))
+	be.True(t, strings.Contains(string(app.LinkRelrs(false, nil, "Group 2")), `href="/g/group-2"`))
+	be.True(t, strings.Contains(string(app.LinkRelsPerf("Group 1", nil)), `href="/g/group-1"`))
 
-	x = string(app.LinkReleasers(false, false, nil, nil))
-	be.True(t, x == "")
+	// Empty first argument swaps with second, and exercises null.String, *string, fmt.Stringer.
+	swapped := string(app.LinkReleasers(true, false, "", "Solo Group"))
+	be.True(t, strings.Contains(swapped, `href="/g/solo-group"`))
+
+	strVal := "Ptr Group"
+	var nilPtr *string
+	byPtr := string(app.LinkReleasers(true, false, &strVal, nilPtr))
+	be.True(t, strings.Contains(byPtr, `href="/g/ptr-group"`))
+
+	byNull := string(app.LinkReleasers(true, false, null.StringFrom("Null Group"), null.String{}))
+	be.True(t, strings.Contains(byNull, `href="/g/null-group"`))
+
+	byStringer := string(app.LinkReleasers(true, false, testStringer("Str Group"), 42))
+	be.True(t, strings.Contains(byStringer, `href="/g/str-group"`))
+
+	// NameRels with second-only arg
+	named := string(app.NameRels("", "Razor 1911"))
+	be.True(t, strings.Contains(named, "Razor 1911"))
+}
+
+func TestReleaseDecades(t *testing.T) {
+	t.Parallel()
+
+	wa := app.WebApp{}
+	tmpl, err := template.New("decades").Funcs(wa.FuncMap(t.Context(), &sql.DB{})).
+		Parse(`{{- range releaseDecades .}}{{.Label}}={{.Year}};{{end -}}`)
+	be.Err(t, err, nil)
+
+	var buf bytes.Buffer
+	be.Err(t, tmpl.Execute(&buf, model.Releasers(nil)), nil)
+	be.Equal(t, buf.String(), "")
+
+	buf.Reset()
+	input := model.Releasers{
+		nil,
+		{Unique: model.Releaser{Year: null.IntFrom(0)}},
+		{Unique: model.Releaser{Year: null.IntFrom(1985)}},
+		{Unique: model.Releaser{Year: null.IntFrom(1992)}},
+	}
+	be.Err(t, tmpl.Execute(&buf, input), nil)
+	be.Equal(t, buf.String(), "1980s=1981;1990s=1990;")
 }
 
 func TestTempls(t *testing.T) {
@@ -109,7 +282,7 @@ func TestTempls(t *testing.T) {
 		be.True(t, page != "")
 
 		ext := filepath.Ext(string(page))
-		be.Equal(t, ".tmpl", ext)
+		be.Equal(t, ext, ".tmpl")
 
 		stat, err := os.Stat(filepath.Join(view, string(page)))
 		be.Err(t, err, nil)

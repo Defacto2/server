@@ -339,7 +339,7 @@ func EditFn(sl *slog.Logger, c *echo.Context, db *sql.DB,
 	fn func(context.Context, boil.ContextExecutor, int64, string) error,
 ) error {
 	const format = "editfn context %s: %w"
-	if err := nils.Check(sl, c, db); err != nil {
+	if err := nils.Check(sl, c, db, fn); err != nil {
 		return fmt.Errorf(format, "check", err)
 	}
 

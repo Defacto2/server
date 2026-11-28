@@ -135,15 +135,7 @@ func errorWithID(err error, key string, id any) error {
 
 	key = strings.TrimSpace(key)
 
-	const format = "%w: caused by artifact %s (%v)"
-	switch id.(type) {
-	case int, int64:
-		return fmt.Errorf(format, err, key, id)
-	case string:
-		return fmt.Errorf(format, err, key, id)
-	default:
-		return fmt.Errorf(format, err, key, id)
-	}
+	return fmt.Errorf("%w: caused by artifact %s (%v)", err, key, id)
 }
 
 // firstLead returns the trusted HTML lead for a single artifact page (filename chip and releaser links).

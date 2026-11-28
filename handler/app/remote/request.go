@@ -41,13 +41,12 @@ func GetFile(ctx context.Context, sl *slog.Logger, timeout time.Duration, rawURL
 	}
 
 	// the tiny minimum is for unit testing
-	const minimum = 0
-	if timeout.Seconds() < minimum {
-		timeout = 1 * time.Millisecond
+	if timeout < 0 {
+		timeout = time.Millisecond
 	}
 
-	const maximum = 60
-	if timeout.Seconds() > maximum {
+	const maximum = 60 * time.Second
+	if timeout > maximum {
 		timeout = maximum
 	}
 
@@ -94,7 +93,7 @@ func (g *got) newRequest(ctx context.Context, url string) (err error) {
 
 func (g *got) responseDo(sl *slog.Logger, url string) (n int64, err error) {
 	if g.response.StatusCode >= http.StatusBadRequest {
-		sl.Info(g.msg+" http returned a unexpected status",
+		sl.Info(g.msg+" http returned an unexpected status",
 			slog.Int("status code", g.response.StatusCode), slog.String("url", url))
 		g.cleanup(sl)
 		return 0, fmt.Errorf("unexpected status %s: %w", g.response.Status, ErrStatus)
@@ -177,7 +176,8 @@ func (g *got) getDo(ctx context.Context, sl *slog.Logger, rawURL string) (Respon
 	}, nil
 }
 
-// cleanup attempts attempt to discard and close the response body.
+// cleanup attempts to discard the remaining response body so the underlying connection can be reused.
+// Closing the response body is handled by the caller's deferred close in getDo.
 func (g *got) cleanup(sl *slog.Logger) {
 	if g.response == nil {
 		sl.Error(g.msg + " http response cannot be nil")
@@ -188,9 +188,5 @@ func (g *got) cleanup(sl *slog.Logger) {
 		sl.Info(g.msg+" error discarding the response body", slog.Any("error", err))
 	} else {
 		sl.Info(g.msg+" discard response body", slog.Int64("bytes", n))
-	}
-
-	if err := g.response.Body.Close(); err != nil {
-		sl.Info(g.msg+" response body close caused an error", slog.Any("error", err))
 	}
 }

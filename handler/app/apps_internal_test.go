@@ -1,8 +1,13 @@
 package app
 
 import (
+	"archive/zip"
+	"database/sql"
+	"errors"
+	"math"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -11,7 +16,10 @@ import (
 	"github.com/Defacto2/magicnumber"
 	"github.com/Defacto2/server/handler/internal/simple"
 	"github.com/Defacto2/server/internal/dir"
+	"github.com/Defacto2/server/internal/logs"
+	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/testutil"
+	"github.com/aarondl/null/v8"
 	"github.com/labstack/echo/v5"
 	"github.com/nalgeon/be"
 	"golang.org/x/text/encoding"
@@ -22,6 +30,8 @@ import (
 var (
 	latin1 encoding.Encoding = charmap.ISO8859_1
 	cp437  encoding.Encoding = charmap.CodePage437
+
+	errSampleApp = errors.New("sample app error")
 )
 
 func echoCtx(t *testing.T) *echo.Context {
@@ -36,7 +46,7 @@ func echoCtx(t *testing.T) *echo.Context {
 	return e.NewContext(r, w)
 }
 
-func Test_dirs_addEditor(t *testing.T) {
+func TestAddEditorNil(t *testing.T) {
 	t.Parallel()
 
 	d := Dirs{}
@@ -44,67 +54,26 @@ func Test_dirs_addEditor(t *testing.T) {
 	be.True(t, len(x) == 0)
 }
 
-func Test_dirs_encoding(t *testing.T) {
+func TestEncoding(t *testing.T) {
 	t.Parallel()
 
-	d := Dirs{}
-	got := d.encoding(nil)
-	be.Equal(t, got, cp437)
-}
-
-func Test_dirs_encoding_amiga(t *testing.T) {
-	t.Parallel()
-
-	d := Dirs{Platform: "textamiga"}
-	got := d.encoding(nil)
-	be.Equal(t, got, latin1)
-}
-
-func Test_dirs_encoding_section(t *testing.T) {
-	t.Parallel()
-
-	d := Dirs{Section: "appleii"}
-	got := d.encoding(nil)
-	be.Equal(t, got, latin1)
-
-	d.Section = "atarist"
-	got = d.encoding(nil)
-	be.Equal(t, got, latin1)
-}
-
-func Test_dirs_encoding_textdos(t *testing.T) {
-	t.Parallel()
+	be.Equal(t, (&Dirs{}).encoding(nil), cp437)
+	be.Equal(t, (&Dirs{Platform: "textamiga"}).encoding(nil), latin1)
+	be.Equal(t, (&Dirs{Section: "appleii"}).encoding(nil), latin1)
+	be.Equal(t, (&Dirs{Section: "atarist"}).encoding(nil), latin1)
 
 	d := Dirs{Platform: "textdos"}
-	r := strings.NewReader("Hello\nworld\nthis is some text.\n")
-	got := d.encoding(r)
-	be.Equal(t, got, latin1)
+	be.Equal(t, d.encoding(strings.NewReader("Hello\nworld\nthis is some text.\n")), latin1)
+
+	d = Dirs{}
+	be.Equal(t, d.encoding(strings.NewReader("Hello\nworld\nthis is some text. 👾\n")), unicode.UTF8)
+	be.Equal(t, d.encoding(strings.NewReader("Denuvo взяла на работу хакера\n")), unicode.UTF8)
+	// Legacy CP437 box drawing and ISO-8859-1 accented bytes are not valid UTF-8.
+	be.Equal(t, d.encoding(strings.NewReader("\xc4\xc4\xc4\n")), cp437)
+	be.Equal(t, d.encoding(strings.NewReader("caf\xe9\n")), latin1)
 }
 
-func Test_dirs_encoding_textutf8(t *testing.T) {
-	t.Parallel()
-
-	d := Dirs{}
-	r := strings.NewReader("Hello\nworld\nthis is some text. 👾\n")
-	got := d.encoding(r)
-	be.Equal(t, got, unicode.UTF8)
-
-	r = strings.NewReader("Denuvo взяла на работу хакера\n")
-	got = d.encoding(r)
-	be.Equal(t, got, unicode.UTF8)
-
-	// Legacy CP437 box drawing and ISO-8859-1 accented bytes are not valid UTF-8
-	// and must continue to be handled as CP437 / ISO-8859-1.
-	r = strings.NewReader("\xc4\xc4\xc4\n")
-	got = d.encoding(r)
-	be.Equal(t, got, cp437)
-
-	r = strings.NewReader("caf\xe9\n")
-	got = d.encoding(r)
-	be.Equal(t, got, latin1)
-}
-
-func Test_dirs_addtext8bit_utf8_defaults_web(t *testing.T) {
+func TestAddText8bitUTF8(t *testing.T) {
 	t.Parallel()
 
 	d := Dirs{}
@@ -125,7 +94,7 @@ func Test_dirs_addtext8bit_utf8_defaults_web(t *testing.T) {
 	be.Equal(t, got["preClassCP437"], "d-none font-dos font-large")
 }
 
-func Test_screenshot(t *testing.T) {
+func TestScreenshot(t *testing.T) {
 	t.Parallel()
 
 	var d Dirs
@@ -139,32 +108,30 @@ func Test_screenshot(t *testing.T) {
 	d.Platform = ""
 	temp := t.TempDir()
 	name := filepath.Join(temp, unid) + ".webp"
-	if err := helper.Touch(name); err != nil {
-		be.Err(t, err, nil)
-		return
-	}
+	be.Err(t, helper.Touch(name), nil)
 	d.Preview = dir.Directory(temp)
 	be.True(t, d.screenshot())
 }
 
-func Test_decode(t *testing.T) {
+func TestDecode(t *testing.T) {
 	t.Parallel()
 
-	input := "hello world"
-	r := strings.NewReader(input)
-	got, err := decode(r)
+	got, err := decode(nil)
+	be.Err(t, err, nil)
+	be.Equal(t, got, "")
+
+	got, err = decode(strings.NewReader("hello world"))
 	be.Err(t, err, nil)
 	be.Equal(t, got, "hello world\n")
 }
 
-func Test_firstLead(t *testing.T) {
+func TestFirstLead(t *testing.T) {
 	t.Parallel()
 
-	got := firstLead(nil)
-	be.Equal(t, string(got), "")
+	be.Equal(t, string(firstLead(nil)), "")
 
 	art := testutil.NewModel(t)
-	got = firstLead(art)
+	got := firstLead(art)
 	be.Equal(t, string(got), `<span class="bg-body-tertiary border rounded px-2 py-0 font-monospace fs-6 text-body-secondary">`+
 		`filename.txt</span>`)
 
@@ -175,35 +142,36 @@ func Test_firstLead(t *testing.T) {
 	be.True(t, strings.Contains(string(got), `NOCHANGE BBS`))
 	be.True(t, strings.Contains(string(got), `filename.txt`))
 	be.True(t, !strings.Contains(string(got), `<br>`))
+
+	// Releaser-only without filename
+	onlyRel := &models.File{GroupBrandBy: null.StringFrom("Razor 1911")}
+	be.True(t, strings.Contains(string(firstLead(onlyRel)), "Razor 1911"))
 }
 
-func Test_lockWidth(t *testing.T) {
+func TestLockWidth(t *testing.T) {
 	t.Parallel()
 
-	got := lockWidth(3, []byte("abcdef"))
-	be.Equal(t, got, []byte("\nabc\ndef"))
-
-	got = lockWidth(2, []byte("abcdef"))
-	be.Equal(t, got, []byte("\nab\ncd\nef"))
-
-	got = lockWidth(1, []byte("abcdef"))
-	be.Equal(t, got, []byte("\na\nb\nc\nd\ne\nf"))
-
-	got = lockWidth(0, []byte("abcdef"))
-	be.Equal(t, got, []byte("abcdef"))
+	be.Equal(t, lockWidth(3, []byte("abcdef")), []byte("\nabc\ndef"))
+	be.Equal(t, lockWidth(2, []byte("abcdef")), []byte("\nab\ncd\nef"))
+	be.Equal(t, lockWidth(1, []byte("abcdef")), []byte("\na\nb\nc\nd\ne\nf"))
+	be.Equal(t, lockWidth(0, []byte("abcdef")), []byte("abcdef"))
+	// 3+ tabs return unmodified
+	tabbed := []byte("\t\t\tabcdefghij")
+	be.Equal(t, lockWidth(3, tabbed), tabbed)
 }
 
-func Test_plainText(t *testing.T) {
+func TestPlainText(t *testing.T) {
 	t.Parallel()
 
-	got := plainText(magicnumber.PlainText.Title())
-	be.True(t, got)
+	be.True(t, !plainText(123))
+	be.True(t, !plainText("unknown"))
+	be.True(t, plainText(magicnumber.PlainText.Title()))
 	be.True(t, plainText(magicnumber.ANSIEscapeText.Title()))
 	be.True(t, plainText(magicnumber.ANSIEscapeText.Title()+simple.ANSIBlink))
 	be.True(t, plainText(simple.ANSImation))
 }
 
-func Test_radioPublicHidden(t *testing.T) {
+func TestRadio(t *testing.T) {
 	t.Parallel()
 
 	pubOn := string(radioPublic(true))
@@ -219,4 +187,95 @@ func Test_radioPublicHidden(t *testing.T) {
 	hidOff := string(radioHidden(false))
 	be.True(t, !strings.Contains(pubOff, "checked"))
 	be.True(t, strings.Contains(hidOff, "checked"))
+}
+
+func TestErrorWithIDAndBadRequest(t *testing.T) {
+	t.Parallel()
+
+	be.Err(t, errorWithID(nil, "k", 1), nil)
+	be.Err(t, errorWithID(errSampleApp, "k1", int64(42)), errSampleApp)
+	be.True(t, strings.Contains(errorWithID(errSampleApp, "k2", "str").Error(), "k2 (str)"))
+
+	be.Err(t, badRequest(nil, errSampleApp))
+	be.Err(t, badRequest(echoCtx(t), nil), nil)
+	be.Err(t, badRequest(echoCtx(t), errSampleApp), nil)
+
+	discard(errSampleApp)
+	logID(logs.Discard(), "msg", "uri", 1, errSampleApp)
+}
+
+func TestRequireReplacementZip(t *testing.T) {
+	t.Parallel()
+
+	be.True(t, !requireReplacementZip(""))
+	be.True(t, !requireReplacementZip(filepath.Join(t.TempDir(), "missing.zip")))
+
+	// Standard Deflate zip does not require replacement.
+	zipPath := filepath.Join(t.TempDir(), "ok.zip")
+	f, err := os.Create(zipPath)
+	be.Err(t, err, nil)
+	zw := zip.NewWriter(f)
+	w, err := zw.Create("a.txt")
+	be.Err(t, err, nil)
+	_, err = w.Write([]byte("hello"))
+	be.Err(t, err, nil)
+	be.Err(t, zw.Close(), nil)
+	be.Err(t, f.Close(), nil)
+
+	be.True(t, !requireReplacementZip(zipPath))
+}
+
+func TestParseVals(t *testing.T) {
+	t.Parallel()
+
+	// parseValI across all supported types
+	for _, v := range []any{
+		int(1), int8(2), int16(3), int32(4), int64(5),
+		uint(6), uint8(7), uint16(8), uint32(9), uint64(10),
+		null.IntFrom(11), null.Int16From(12), null.Int32From(13), null.Int64From(14), null.ByteFrom(15),
+		sql.NullInt16{Int16: 16, Valid: true},
+		sql.NullInt32{Int32: 17, Valid: true},
+		sql.NullInt64{Int64: 18, Valid: true},
+		sql.NullByte{Byte: 19, Valid: true},
+	} {
+		n, ok := parseValI(v)
+		be.True(t, ok)
+		be.True(t, n > 0)
+	}
+	for _, invalid := range []any{
+		-1, uint64(math.MaxUint64), "str",
+		null.Int{},
+		null.Int16{},
+		null.Int32{},
+		null.Int64{},
+		null.Byte{},
+		sql.NullInt16{},
+		sql.NullInt32{},
+		sql.NullInt64{},
+		sql.NullByte{},
+	} {
+		_, ok := parseValI(invalid)
+		be.True(t, !ok)
+	}
+
+	// parseValI64 across all supported types
+	for _, v := range []any{
+		int(1), int8(2), int16(3), int32(4), int64(5),
+		uint(6), uint8(7), uint16(8), uint32(9), uint64(10),
+	} {
+		n, ok := parseValI64(v)
+		be.True(t, ok)
+		be.True(t, n > 0)
+	}
+	_, ok := parseValI64(-1)
+	be.True(t, !ok)
+	_, ok = parseValI64(uint64(math.MaxUint64))
+	be.True(t, !ok)
+	_, ok = parseValI64("str")
+	be.True(t, !ok)
+
+	// Misc helpers
+	be.Equal(t, releasersHrefs(nil), "")
+	be.Equal(t, scenerBucketKey(""), "#")
+	be.Equal(t, formatAreaCodes(nil), "n/a")
 }
