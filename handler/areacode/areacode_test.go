@@ -1,3 +1,4 @@
+//nolint:staticcheck,wastedassign
 package areacode_test
 
 import (

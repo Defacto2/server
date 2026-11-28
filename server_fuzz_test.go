@@ -19,7 +19,7 @@ import (
 
 var (
 	ts       fulltext.Tidbits
-	setupErr error
+	errSetup error
 	once     sync.Once
 	//go:embed public/md/tidbit/*.md
 	publicFS embed.FS
@@ -29,10 +29,10 @@ var (
 func setupOnce(tb testing.TB) {
 	tb.Helper()
 	once.Do(func() {
-		setupErr = ts.NewIndex(publicFS, tidbit.Dir)
+		errSetup = ts.NewIndex(publicFS, tidbit.Dir)
 	})
-	if setupErr != nil {
-		tb.Fatal(setupErr)
+	if errSetup != nil {
+		tb.Fatal(errSetup)
 	}
 }
 

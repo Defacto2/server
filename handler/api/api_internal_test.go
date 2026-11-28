@@ -1,4 +1,3 @@
-//nolint:testpackage
 package api
 
 import (
@@ -153,7 +152,7 @@ func TestCacheHelpers(t *testing.T) {
 func TestRoleAPIAndGroupsCountValidation(t *testing.T) {
 	t.Parallel()
 
-	_, err := groupsCount(nil, nil)
+	_, err := groupsCount(t.Context(), nil)
 	be.Err(t, err)
 
 	be.Err(t, roleAPI(nil, nil, nil, postgres.Artist))

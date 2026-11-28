@@ -397,7 +397,7 @@ func TestRecordsOffline(t *testing.T) {
 	})
 	defer func() { _ = errDB.Close() }()
 
-	_, err := fileslice.Records(nil, nil, "nfo", 1, 1)
+	_, err := fileslice.Records(t.Context(), nil, "nfo", 1, 1)
 	be.Err(t, err)
 
 	_, err = fileslice.Records(t.Context(), errDB, "nfo", 0, 1)

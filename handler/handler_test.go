@@ -1,3 +1,4 @@
+//nolint:paralleltest
 package handler_test
 
 import (
@@ -22,7 +23,7 @@ import (
 )
 
 // TestHandler mutates package-level app.Caching via Handler -> RouteFS, so it cannot run in parallel.
-func TestHandler(t *testing.T) { //nolint:paralleltest
+func TestHandler(t *testing.T) {
 	db, err := sql.Open("pgx", "")
 	be.Err(t, err, nil)
 	t.Cleanup(func() {
@@ -263,7 +264,7 @@ func TestTLSConfig(t *testing.T) {
 }
 
 // TestPrintRoutes mutates package-level app.Caching via registerRoutes -> RouteFS, so it cannot run in parallel.
-func TestPrintRoutes(t *testing.T) { //nolint:paralleltest
+func TestPrintRoutes(t *testing.T) {
 	root := testutil.OpenRoot(t)
 
 	t.Run("all", func(t *testing.T) {
@@ -327,7 +328,7 @@ func TestRouteFS(t *testing.T) {
 }
 
 // TestIndexRender mutates package-level app.Caching via Handler -> RouteFS, so it cannot run in parallel.
-func TestIndexRender(t *testing.T) { //nolint:paralleltest
+func TestIndexRender(t *testing.T) {
 	fsys := testutil.ProjectFS(t)
 	db, err := sql.Open("pgx", "")
 	be.Err(t, err, nil)

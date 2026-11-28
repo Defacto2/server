@@ -630,7 +630,8 @@ func (ds *Dirs) addTextBinary(art *models.File, textBuf *bytes.Buffer,
 		// use high-res squared font
 		fontname = "font-squared"
 		class = append([]string{fontname}, class...)
-		i, j := 1, min(3, len(class)-1)
+		const x = 3
+		i, j := 1, min(x, len(class)-1)
 		class = slices.Replace(class, i, j, "reader-hires")
 	} else {
 		class = append([]string{fontname, "reader"}, class...)

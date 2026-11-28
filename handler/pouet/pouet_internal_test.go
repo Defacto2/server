@@ -1,4 +1,3 @@
-//nolint:testpackage
 package pouet
 
 import (
@@ -34,8 +33,10 @@ type failBody struct {
 func (f failBody) Read([]byte) (int, error) { return 0, f.err }
 func (f failBody) Close() error             { return nil }
 
-func mockClient(wantID, status int, body string) http.Client {
+func mockClient(status int, body string) http.Client {
+	const wantID = 42
 	wantURL := ProdURL + strconv.Itoa(wantID)
+
 	return http.Client{
 		Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
 			if req.Method != http.MethodGet {
@@ -83,7 +84,7 @@ func TestResponseGetOffline(t *testing.T) {
 		t.Parallel()
 
 		var r Response
-		code, err := r.get(t.Context(), mockClient(42, http.StatusOK, sampleProdJSON), 42)
+		code, err := r.get(t.Context(), mockClient(http.StatusOK, sampleProdJSON), 42)
 		be.Err(t, err, nil)
 		be.Equal(t, code, 0)
 		be.True(t, r.Success)
@@ -94,7 +95,7 @@ func TestResponseGetOffline(t *testing.T) {
 		t.Parallel()
 
 		var r Response
-		code, err := r.get(t.Context(), mockClient(42, http.StatusNotFound, "not found"), 42)
+		code, err := r.get(t.Context(), mockClient(http.StatusNotFound, "not found"), 42)
 		be.Err(t, err, ErrStatusCode)
 		be.Equal(t, code, http.StatusNotFound)
 	})
@@ -103,7 +104,7 @@ func TestResponseGetOffline(t *testing.T) {
 		t.Parallel()
 
 		var r Response
-		_, err := r.get(t.Context(), mockClient(42, http.StatusOK, `{"success":false}`), 42)
+		_, err := r.get(t.Context(), mockClient(http.StatusOK, `{"success":false}`), 42)
 		be.Err(t, err, ErrSuccess)
 	})
 
@@ -111,7 +112,7 @@ func TestResponseGetOffline(t *testing.T) {
 		t.Parallel()
 
 		var r Response
-		_, err := r.get(t.Context(), mockClient(42, http.StatusOK, `null`), 42)
+		_, err := r.get(t.Context(), mockClient(http.StatusOK, `null`), 42)
 		be.Err(t, err, ErrSuccess)
 	})
 
@@ -119,7 +120,7 @@ func TestResponseGetOffline(t *testing.T) {
 		t.Parallel()
 
 		var r Response
-		_, err := r.get(t.Context(), mockClient(42, http.StatusOK, `{bad`), 42)
+		_, err := r.get(t.Context(), mockClient(http.StatusOK, `{bad`), 42)
 		be.Err(t, err)
 	})
 
@@ -162,7 +163,7 @@ func TestProductionGetOffline(t *testing.T) {
 		t.Parallel()
 
 		var p Production
-		code, err := p.get(t.Context(), mockClient(42, http.StatusOK, sampleProdJSON), 42)
+		code, err := p.get(t.Context(), mockClient(http.StatusOK, sampleProdJSON), 42)
 		be.Err(t, err, nil)
 		be.Equal(t, code, 0)
 		be.Equal(t, p.ID, 42)
@@ -177,7 +178,7 @@ func TestProductionGetOffline(t *testing.T) {
 		t.Parallel()
 
 		var p Production
-		code, err := p.get(t.Context(), mockClient(42, http.StatusServiceUnavailable, ""), 42)
+		code, err := p.get(t.Context(), mockClient(http.StatusServiceUnavailable, ""), 42)
 		be.Err(t, err, ErrStatusCode)
 		be.Equal(t, code, http.StatusServiceUnavailable)
 	})
@@ -186,7 +187,7 @@ func TestProductionGetOffline(t *testing.T) {
 		t.Parallel()
 
 		var p Production
-		_, err := p.get(t.Context(), mockClient(42, http.StatusOK, `{"success":true,"prod":{"id":"abc"}}`), 42)
+		_, err := p.get(t.Context(), mockClient(http.StatusOK, `{"success":true,"prod":{"id":"abc"}}`), 42)
 		be.Err(t, err, strconv.ErrSyntax)
 	})
 }
@@ -198,7 +199,7 @@ func TestVotesOffline(t *testing.T) {
 		t.Parallel()
 
 		var v Votes
-		err := v.votes(t.Context(), mockClient(42, http.StatusOK, sampleProdJSON), 42)
+		err := v.votes(t.Context(), mockClient(http.StatusOK, sampleProdJSON), 42)
 		be.Err(t, err, nil)
 		be.Equal(t, v.ID, 42)
 		be.Equal(t, v.VotesUp, uint64(100))
@@ -226,7 +227,7 @@ func TestVotesOffline(t *testing.T) {
 			t.Parallel()
 
 			var v Votes
-			err := v.votes(t.Context(), mockClient(42, http.StatusOK, tt.body), 42)
+			err := v.votes(t.Context(), mockClient(http.StatusOK, tt.body), 42)
 			be.Err(t, err, tt.wantErr)
 		})
 	}

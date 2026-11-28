@@ -1,4 +1,3 @@
-//nolint:exhaustruct_v5
 package testutil
 
 import (

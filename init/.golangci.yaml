@@ -128,6 +128,7 @@ formatters:
     - goimports
   settings:
     gofumpt:
-      extra-rules: true
+      extra.group-params: true
+      extra.clothe-returns: true
   exclusions:
     generated: lax

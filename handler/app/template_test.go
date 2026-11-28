@@ -77,7 +77,7 @@ func TestFuncMap(t *testing.T) {
 
 	w := app.WebApp{}
 	be.True(t, w.FuncMap(t.Context(), nil) == nil)
-	be.Equal(t, len(w.FuncDB(nil, nil)), 0)
+	be.Equal(t, len(w.FuncDB(t.Context(), nil)), 0)
 
 	db := &sql.DB{}
 	m := w.FuncMap(t.Context(), db)

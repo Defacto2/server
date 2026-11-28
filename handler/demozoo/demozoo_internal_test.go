@@ -1,4 +1,3 @@
-//nolint:testpackage
 package demozoo
 
 import (
@@ -35,7 +34,9 @@ type failBody struct {
 func (f failBody) Read([]byte) (int, error) { return 0, f.err }
 func (f failBody) Close() error             { return nil }
 
-func mockClient(wantID int, wantAuth string, status int, body string) http.Client {
+func mockClient(status int, body string) http.Client {
+	const wantID = 42
+	const wantAuth = "secret"
 	wantURL := ProdURL + strconv.Itoa(wantID)
 	return http.Client{
 		Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
@@ -70,7 +71,7 @@ func TestProductionGetOffline(t *testing.T) {
 		t.Parallel()
 
 		var p Production
-		code, err := p.get(t.Context(), mockClient(42, "secret", http.StatusOK, sampleJSON), "secret", 42)
+		code, err := p.get(t.Context(), mockClient(http.StatusOK, sampleJSON), "secret", 42)
 		be.Err(t, err, nil)
 		be.Equal(t, code, 0)
 		be.Equal(t, p.ID, 42)
@@ -81,7 +82,7 @@ func TestProductionGetOffline(t *testing.T) {
 		t.Parallel()
 
 		var p Production
-		code, err := p.get(t.Context(), mockClient(42, "secret", http.StatusNotFound, "missing"), "secret", 42)
+		code, err := p.get(t.Context(), mockClient(http.StatusNotFound, "missing"), "secret", 42)
 		be.Err(t, err, ErrStatus)
 		be.Equal(t, code, http.StatusNotFound)
 	})
@@ -90,7 +91,7 @@ func TestProductionGetOffline(t *testing.T) {
 		t.Parallel()
 
 		var p Production
-		_, err := p.get(t.Context(), mockClient(42, "secret", http.StatusOK, `{"id":99}`), "secret", 42)
+		_, err := p.get(t.Context(), mockClient(http.StatusOK, `{"id":99}`), "secret", 42)
 		be.Err(t, err, ErrSuccess)
 	})
 
@@ -98,7 +99,7 @@ func TestProductionGetOffline(t *testing.T) {
 		t.Parallel()
 
 		var p Production
-		_, err := p.get(t.Context(), mockClient(42, "secret", http.StatusOK, `{bad`), "secret", 42)
+		_, err := p.get(t.Context(), mockClient(http.StatusOK, `{bad`), "secret", 42)
 		be.Err(t, err)
 	})
 
@@ -106,7 +107,7 @@ func TestProductionGetOffline(t *testing.T) {
 		t.Parallel()
 
 		var p Production
-		_, err := p.get(t.Context(), mockClient(42, "secret", http.StatusOK, `null`), "secret", 42)
+		_, err := p.get(t.Context(), mockClient(http.StatusOK, `null`), "secret", 42)
 		be.Err(t, err, ErrSuccess)
 	})
 

@@ -1,4 +1,4 @@
-//nolint:testpackage
+//nolint:paralleltest
 package fileslice
 
 import (
@@ -68,7 +68,7 @@ func TestCounterOffline(t *testing.T) {
 	t.Cleanup(resetCache)
 
 	sl := logs.Discard()
-	_, err := Counter(nil, nil, nil)
+	_, err := Counter(t.Context(), nil, nil)
 	be.Err(t, err)
 
 	errDB := sql.OpenDB(fnConnector{

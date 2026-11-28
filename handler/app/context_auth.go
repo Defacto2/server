@@ -191,12 +191,12 @@ func Signin(sl *slog.Logger, c *echo.Context, clientID string, nonce []byte) err
 	{ // get any existing session
 		s, err := session.Get(sess.Name, c)
 		if err != nil {
-			return expireCookie(sl, c, signin, data)
+			return expireCookie(sl, c, data)
 		}
 
 		id, ok := s.Values["sub"]
 		if !ok {
-			return expireCookie(sl, c, signin, data)
+			return expireCookie(sl, c, data)
 		}
 		val, find := id.(string)
 		if find && val != "" {
@@ -211,7 +211,7 @@ func Signin(sl *slog.Logger, c *echo.Context, clientID string, nonce []byte) err
 }
 
 // expireCookie removes the session cookie by setting MaxAge to -1 and renders the page.
-func expireCookie(sl *slog.Logger, c *echo.Context, name string, data map[string]any) error {
+func expireCookie(sl *slog.Logger, c *echo.Context, data map[string]any) error {
 	if err := nils.Check(sl, c); err != nil {
 		return fmt.Errorf("context remove cookie: %w", err)
 	}
@@ -223,6 +223,7 @@ func expireCookie(sl *slog.Logger, c *echo.Context, name string, data map[string
 		_ = s.Save(c.Request(), c.Response())
 	}
 
+	const name = "signin"
 	if err = c.Render(http.StatusOK, name, data); err != nil {
 		return InternalErr(sl, c, name, err)
 	}

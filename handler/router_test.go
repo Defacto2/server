@@ -1,3 +1,4 @@
+//nolint:paralleltest
 package handler_test
 
 import (
@@ -42,7 +43,7 @@ func setupRouter(t *testing.T, env config.Config) *echo.Echo {
 }
 
 // TestServerRouteFS mutates package-level app.Caching via RouteFS, so it cannot run in parallel.
-func TestServerRouteFS(t *testing.T) { //nolint:paralleltest
+func TestServerRouteFS(t *testing.T) {
 	t.Run("nil args", func(t *testing.T) {
 		serv := handler.Server{}
 		e, err := serv.RouteFS(nil, nil, nil, nil)

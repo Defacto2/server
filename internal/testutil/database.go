@@ -1,4 +1,4 @@
-//nolint:gochecknoglobals
+//nolint:gochecknoglobals,wrapcheck
 package testutil
 
 import (

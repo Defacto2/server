@@ -125,7 +125,7 @@ func TestHTTPSend(t *testing.T) {
 		cancel()
 
 		e := echo.New()
-		req := httptest.NewRequest(http.MethodGet, "/", nil).WithContext(ctx)
+		req := httptest.NewRequestWithContext(ctx, http.MethodGet, "/", nil)
 		c := e.NewContext(req, httptest.NewRecorder())
 		c.SetPathValues(echo.PathValues{{Name: "id", Value: helper.Obfuscate("1")}})
 

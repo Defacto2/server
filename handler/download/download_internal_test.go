@@ -1,4 +1,3 @@
-//nolint:testpackage
 package download
 
 import (
@@ -72,7 +71,7 @@ func TestInline(t *testing.T) {
 	newCtx := func() (*echo.Context, *httptest.ResponseRecorder) {
 		e := echo.New()
 		e.Filesystem = os.DirFS("/")
-		req := httptest.NewRequest(http.MethodGet, "/", nil)
+		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/", nil)
 		rec := httptest.NewRecorder()
 		return e.NewContext(req, rec), rec
 	}

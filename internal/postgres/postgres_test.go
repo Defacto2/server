@@ -76,7 +76,6 @@ func TestConnValidate(t *testing.T) {
 	}
 }
 
-//nolint:paralleltest // uses t.Setenv
 func TestNew(t *testing.T) {
 	t.Run("default", func(t *testing.T) {
 		t.Setenv("D2_DATABASE_URL", "")

@@ -1,4 +1,3 @@
-//nolint:testpackage
 package remote
 
 import (

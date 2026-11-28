@@ -229,7 +229,7 @@ func TestAuthHelpers(t *testing.T) {
 
 	be.Err(t, sessionHandler(nil, 1, nil))
 	be.Err(t, sessionHandler(echoCtx(t), 1, map[string]any{"sub": "1"}))
-	be.Err(t, expireCookie(nil, nil, signin, nil))
+	be.Err(t, expireCookie(nil, nil, nil))
 
 	e := echo.New()
 	rend := &okRenderer{}
@@ -237,7 +237,7 @@ func TestAuthHelpers(t *testing.T) {
 	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/signin", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-	be.Err(t, expireCookie(logs.Discard(), c, signin, map[string]any{}), nil)
+	be.Err(t, expireCookie(logs.Discard(), c, map[string]any{}), nil)
 	be.Equal(t, rec.Code, http.StatusOK)
 	be.Equal(t, rend.name, signin)
 
